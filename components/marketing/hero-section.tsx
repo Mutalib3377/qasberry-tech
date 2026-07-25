@@ -99,7 +99,7 @@ export function HeroSection() {
       <div className="pointer-events-none absolute inset-0">
         {!reduceMotion && HERO_VIDEO_SRC && (
           <video
-            className="absolute inset-0 h-full w-full object-cover object-center opacity-55"
+            className="absolute inset-0 h-full w-full object-cover object-center"
             autoPlay
             muted
             loop
@@ -111,7 +111,6 @@ export function HeroSection() {
             <source src={HERO_VIDEO_SRC} type="video/mp4" />
           </video>
         )}
-        <div className="absolute inset-0 bg-[linear-gradient(180deg,rgba(255,255,255,0.42)_0%,rgba(255,255,255,0.56)_34%,rgba(255,255,255,0.72)_100%)]" />
       </div>
 
       <div className="pointer-events-none absolute inset-0">
