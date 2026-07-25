@@ -165,17 +165,16 @@ export default function OnboardingPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-white text-slate-900">
       {/* Background orb */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-violet-600/8 blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[400px] bg-violet-600/10 blur-[120px]" />
       </div>
 
       {/* Nav strip */}
-      <header className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-white/5">
-        <Link href="/" className="flex items-center gap-2">
-          <Image src="/logo.png" alt="Qasberry" width={30} height={30} className="rounded-xl" />
-          <span className="text-white font-bold text-base">Qasberry</span>
+      <header className="relative z-10 flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-white/85 backdrop-blur-sm">
+        <Link href="/" className="flex items-center">
+          <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-8 w-auto" />
         </Link>
         <Link href="/dashboard" className="flex items-center gap-1.5 text-slate-400 hover:text-white text-sm transition-colors">
           <Home size={14} />

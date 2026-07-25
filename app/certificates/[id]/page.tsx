@@ -4,9 +4,10 @@
 
 import { db }       from '@/lib/db'
 import { notFound } from 'next/navigation'
+import Image        from 'next/image'
 import Link         from 'next/link'
 import type { Metadata } from 'next'
-import { Award, Zap, CheckCircle2 } from 'lucide-react'
+import { Award, CheckCircle2 } from 'lucide-react'
 
 interface Props { params: { id: string } }
 
@@ -38,7 +39,7 @@ export default async function CertificatePage({ params }: Props) {
   })
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white flex flex-col items-center justify-center p-6">
+    <div className="min-h-screen bg-white text-slate-900 flex flex-col items-center justify-center p-6">
       {/* Background orbs */}
       <div className="fixed inset-0 pointer-events-none">
         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[300px] bg-amber-600/6 blur-[120px]" />
@@ -49,11 +50,8 @@ export default async function CertificatePage({ params }: Props) {
       <div className="relative z-10 w-full max-w-2xl">
         {/* Back link */}
         <div className="flex items-center justify-between mb-8">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
-              <Zap size={14} className="text-white" />
-            </div>
-            <span className="text-white font-bold">Qasberry</span>
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-8 w-auto" />
           </Link>
           <Link href="/dashboard" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
             Dashboard →
@@ -105,9 +103,7 @@ export default async function CertificatePage({ params }: Props) {
 
             {/* Qasberry stamp */}
             <div className="flex items-center justify-center gap-2 pt-2">
-              <div className="w-5 h-5 rounded-md bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
-                <Zap size={10} className="text-white" />
-              </div>
+              <Image src="/logo.png" alt="Qasberrytech logo" width={96} height={24} className="h-5 w-auto" />
               <span className="text-slate-500 text-xs">Issued by Qasberry AI Academy</span>
             </div>
           </div>

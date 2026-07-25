@@ -1,26 +1,66 @@
 'use client'
-// components/marketing/qasberry-bot-input.tsx
-// Frosted-glass career search pill — for the dark hero section.
-// On submit: POST /api/bot/roadmap → navigate to /roadmap?career=...
-// Clicking a career chip pre-fills the input.
 
-import { useState, useRef } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { ArrowRight, Loader2, Bot } from 'lucide-react'
+import { ArrowRight, Loader2, Search } from 'lucide-react'
+import { motion, AnimatePresence, useReducedMotion } from 'framer-motion'
 
 const CHIPS = [
-  { label: 'Nurse',     emoji: '👩‍⚕️' },
-  { label: 'Lawyer',    emoji: '⚖️'  },
-  { label: 'Teacher',   emoji: '🧑‍🏫' },
-  { label: 'Developer', emoji: '💻'  },
-  { label: 'Marketer',  emoji: '📊'  },
+  'Nurse',
+  'Lawyer',
+  'Teacher',
+  'Developer',
+  'Marketer',
+]
+
+const PLACEHOLDERS = [
+  'I am a nurse looking to automate documentation',
+  'I am a lawyer exploring AI-powered legal research',
+  'I am a teacher building AI-assisted lesson workflows',
+  'I am a marketer improving campaigns with AI analytics',
 ]
 
 export function QasberryBotInput() {
-  const [value,   setValue]   = useState('')
+  const [value, setValue] = useState('')
   const [loading, setLoading] = useState(false)
-  const router    = useRouter()
-  const inputRef  = useRef<HTMLInputElement>(null)
+  const [focus, setFocus] = useState(false)
+  const [placeholderIndex, setPlaceholderIndex] = useState(0)
+  const [typedPlaceholder, setTypedPlaceholder] = useState('')
+  const router = useRouter()
+  const inputRef = useRef<HTMLInputElement>(null)
+  const reduceMotion = useReducedMotion()
+
+  const filteredChips = useMemo(() => {
+    if (!value.trim()) return CHIPS
+    const lower = value.toLowerCase()
+    return CHIPS.filter((chip) => chip.toLowerCase().includes(lower))
+  }, [value])
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setTypedPlaceholder(PLACEHOLDERS[placeholderIndex])
+      return
+    }
+
+    const text = PLACEHOLDERS[placeholderIndex]
+    setTypedPlaceholder('')
+    let i = 0
+    const id = window.setInterval(() => {
+      i += 1
+      setTypedPlaceholder(text.slice(0, i))
+      if (i >= text.length) window.clearInterval(id)
+    }, 28)
+
+    return () => window.clearInterval(id)
+  }, [placeholderIndex, reduceMotion])
+
+  useEffect(() => {
+    if (reduceMotion) return
+    const id = window.setInterval(() => {
+      setPlaceholderIndex((prev) => (prev + 1) % PLACEHOLDERS.length)
+    }, 4300)
+    return () => window.clearInterval(id)
+  }, [reduceMotion])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -45,55 +85,96 @@ export function QasberryBotInput() {
   }
 
   function fillCareer(label: string) {
-    setValue(`I am a ${label} looking to use AI in my work`)
+    setValue(`I am a ${label.toLowerCase()} looking to use AI in my work`)
     inputRef.current?.focus()
   }
 
   return (
-    <div className="w-full space-y-4">
-      {/* ── Input row ─────────────────────────────────────────────────────── */}
-      <form onSubmit={handleSubmit} className="flex items-center gap-0 w-full">
-        {/* Bot icon */}
-        <div className="pl-5 pr-3 text-slate-500 flex-shrink-0">
-          <Bot size={20} />
+    <div className="w-full space-y-3">
+      <motion.form
+        onSubmit={handleSubmit}
+        initial={false}
+        animate={{
+          boxShadow: focus
+            ? '0 28px 60px -36px rgba(80,130,255,0.55)'
+            : '0 20px 46px -36px rgba(15,23,42,0.4)',
+        }}
+        transition={{ duration: 0.28 }}
+        className="group relative rounded-[28px] border border-slate-200/80 bg-white/80 backdrop-blur-xl"
+      >
+        <div className="pointer-events-none absolute -inset-px rounded-[28px] bg-[linear-gradient(125deg,rgba(119,99,255,0.34),rgba(61,165,255,0.3),rgba(30,205,234,0.26))] opacity-70 blur-lg" />
+        <div className="relative rounded-[28px] bg-white/90 p-2.5 sm:p-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
+            <div className="flex-1 min-w-0">
+              <div className="text-[10px] sm:text-[11px] font-semibold tracking-[0.14em] uppercase text-slate-500 mb-0.5">
+                AI Roadmap Prompt
+              </div>
+              <input
+                ref={inputRef}
+                type="text"
+                value={value}
+                onFocus={() => setFocus(true)}
+                onBlur={() => setFocus(false)}
+                onChange={(e) => setValue(e.target.value)}
+                placeholder={typedPlaceholder}
+                className="w-full bg-transparent border-none outline-none focus:ring-0 text-[13px] sm:text-[15px] text-slate-900 placeholder:text-slate-400 min-w-0"
+                aria-label="Describe your profession to generate a roadmap"
+              />
+            </div>
+
+            <button
+              type="submit"
+              disabled={!value.trim() || loading}
+              className="h-10 sm:h-11 px-4 sm:px-5 rounded-2xl bg-[linear-gradient(120deg,#5b5ff7,#4f87ff,#3aa7fb)] text-white text-sm font-semibold inline-flex items-center gap-2 disabled:opacity-45 disabled:cursor-not-allowed transition-all hover:scale-[1.02]"
+            >
+              {loading ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+              <span className="hidden sm:inline">Generate</span>
+              {!loading && <ArrowRight size={14} className="hidden sm:inline" />}
+            </button>
+          </div>
         </div>
+      </motion.form>
 
-        {/* Text input */}
-        <input
-          ref={inputRef}
-          type="text"
-          value={value}
-          onChange={(e) => setValue(e.target.value)}
-          placeholder="e.g. I am a Senior Nurse looking to automate documentation..."
-          className="flex-1 bg-transparent border-none outline-none focus:ring-0 text-white placeholder:text-slate-500 text-sm py-3 min-w-0"
-        />
-
-        {/* Submit button */}
-        <button
-          type="submit"
-          disabled={!value.trim() || loading}
-          className="flex-shrink-0 flex items-center gap-2 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold px-6 py-3 rounded-full transition-all duration-200 m-1 shadow-lg shadow-violet-600/30"
-        >
-          {loading ? (
-            <Loader2 size={14} className="animate-spin" />
-          ) : (
-            <>Show my roadmap <ArrowRight size={14} /></>
-          )}
-        </button>
-      </form>
-
-      {/* ── Career chips ─────────────────────────────────────────────────── */}
-      <div className="flex flex-wrap justify-center gap-2.5 pt-1">
-        {CHIPS.map(({ label, emoji }) => (
+      <div className="flex flex-wrap justify-center gap-2">
+        {CHIPS.map((chip) => (
           <button
-            key={label}
+            key={chip}
             type="button"
-            onClick={() => fillCareer(label)}
-            className="px-4 py-1.5 rounded-full bg-white/5 border border-white/10 text-slate-300 text-sm font-medium hover:bg-white/10 hover:border-white/25 hover:text-white transition-all duration-200"
+            onClick={() => fillCareer(chip)}
+            className="px-3 py-1.5 rounded-full border border-slate-200 bg-white text-slate-600 text-xs sm:text-sm font-medium hover:text-slate-950 hover:border-slate-300 hover:shadow-sm transition-all"
           >
-            {emoji} {label}
+            {chip}
           </button>
         ))}
+      </div>
+
+      <AnimatePresence>
+        {focus && filteredChips.length > 0 && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            transition={{ duration: reduceMotion ? 0 : 0.2 }}
+            className="mx-auto max-w-xl rounded-2xl border border-slate-200 bg-white p-2 shadow-[0_24px_50px_-36px_rgba(15,23,42,0.3)]"
+          >
+            {filteredChips.map((chip) => (
+              <button
+                key={chip}
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => fillCareer(chip)}
+                className="w-full text-left px-3 py-2 rounded-xl text-sm text-slate-600 hover:text-slate-950 hover:bg-slate-50 transition-colors"
+              >
+                I am a {chip.toLowerCase()} learning AI for my daily workflow
+              </button>
+            ))}
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="flex items-center justify-center gap-2 text-xs text-slate-500">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-emerald-500" />
+        Personalized roadmap in seconds
       </div>
     </div>
   )

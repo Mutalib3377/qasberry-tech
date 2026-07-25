@@ -78,22 +78,15 @@ export function Navbar() {
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between gap-8">
 
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0">
+          <Link href="/" className="flex items-center flex-shrink-0">
             <Image
               src="/logo.png"
-              alt="Qasberry logo"
-              width={36}
-              height={36}
-              className="rounded-xl"
+              alt="Qasberrytech logo"
+              width={180}
+              height={44}
+              className="h-9 w-auto"
               priority
             />
-            <span
-              className={`font-bold tracking-tight text-lg transition-colors ${
-                scrolled ? 'text-brand-charcoal' : 'text-white'
-              }`}
-            >
-              Qasberry
-            </span>
           </Link>
 
           {/* Desktop links */}
@@ -182,15 +175,14 @@ export function Navbar() {
             >
               {/* Drawer header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-brand-border">
-                <Link href="/" onClick={closeDrawer} className="flex items-center gap-2">
+                <Link href="/" onClick={closeDrawer} className="flex items-center">
                 <Image
                   src="/logo.png"
-                  alt="Qasberry logo"
-                  width={30}
-                  height={30}
-                  className="rounded-xl"
+                  alt="Qasberrytech logo"
+                  width={150}
+                  height={38}
+                  className="h-8 w-auto"
                 />
-                <span className="font-bold text-brand-charcoal">Qasberry</span>
               </Link>
                 <button
                   onClick={closeDrawer}

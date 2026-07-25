@@ -10,6 +10,7 @@ import {
   BookOpen, Award, ArrowRight, Zap,
   LayoutDashboard, GraduationCap, ExternalLink,
 } from 'lucide-react'
+import { CareerManager } from '../admin/career-manager'
 
 // Clerk UserButton must be lazy-loaded (ssr:false) to prevent hydration mismatch
 const UserButton = dynamic(
@@ -17,43 +18,43 @@ const UserButton = dynamic(
   { ssr: false }
 )
 
-// ── Role labels ──────────────────────────────────────────────────────────────
+// Role labels 
 
 const ROLE_LABELS: Record<string, string> = {
-  SUPER_ADMIN:     'Super Admin',
+  SUPER_ADMIN: 'Super Admin',
   CONTENT_MANAGER: 'Content Manager',
-  MODERATOR:       'Moderator',
-  STUDENT:         'Student',
+  MODERATOR: 'Moderator',
+  STUDENT: 'Student',
 }
 
-// ── Types ─────────────────────────────────────────────────────────────────────
+//  Types 
 
 interface Enrollment {
-  id:              string
-  courseId:        string
-  courseTitle:     string
+  id: string
+  courseId: string
+  courseTitle: string
   courseThumbnail: string | null
-  career:          string
-  lessonCount:     number
-  completedCount:  number
-  enrolledAt:      string
+  career: string
+  lessonCount: number
+  completedCount: number
+  enrolledAt: string
 }
 
 interface Certificate {
-  id:         string
-  courseTitle:string
-  issuedAt:   string
-  url:        string | null
+  id: string
+  courseTitle: string
+  issuedAt: string
+  url: string | null
 }
 
 interface Props {
-  firstName:    string
-  role:         string
-  enrollments:  Enrollment[]
+  firstName: string
+  role: string
+  enrollments: Enrollment[]
   certificates: Certificate[]
 }
 
-// ── Stat card ─────────────────────────────────────────────────────────────────
+// Stat card 
 
 function StatCard({ label, value, icon, color }: {
   label: string; value: number | string
@@ -76,7 +77,7 @@ function StatCard({ label, value, icon, color }: {
   )
 }
 
-// ── Enrollment card ───────────────────────────────────────────────────────────
+//  Enrollment card 
 
 function EnrollmentCard({ e, index }: { e: Enrollment; index: number }) {
   const pct = e.lessonCount > 0
@@ -120,9 +121,8 @@ function EnrollmentCard({ e, index }: { e: Enrollment; index: number }) {
           </div>
           <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
             <div
-              className={`h-full rounded-full transition-all duration-500 ${
-                isComplete ? 'bg-emerald-500' : 'bg-violet-500'
-              }`}
+              className={`h-full rounded-full transition-all duration-500 ${isComplete ? 'bg-emerald-500' : 'bg-violet-500'
+                }`}
               style={{ width: `${pct}%` }}
             />
           </div>
@@ -178,19 +178,18 @@ function CertCard({ c, index }: { c: Certificate; index: number }) {
 
 export function DashboardClient({ firstName, role, enrollments, certificates }: Props) {
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-white text-slate-900">
       {/* Background orb */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-violet-600/6 blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-violet-600/8 blur-[120px]" />
       </div>
 
       {/* Header */}
-      <header className="relative z-10 border-b border-white/5 px-6 py-4">
+      <header className="relative z-10 border-b border-slate-200 px-6 py-4 bg-white/85 backdrop-blur-sm">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center gap-2.5">
-            <Image src="/logo.png" alt="Qasberry" width={30} height={30} className="rounded-xl" />
-            <span className="text-white font-bold text-base">Qasberry</span>
+          <Link href="/" className="flex items-center">
+            <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-8 w-auto" />
           </Link>
 
           {/* Right side */}
@@ -319,3 +318,4 @@ export function DashboardClient({ firstName, role, enrollments, certificates }: 
     </div>
   )
 }
+

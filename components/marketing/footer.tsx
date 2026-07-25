@@ -1,50 +1,53 @@
 'use client'
-// components/marketing/footer.tsx
-// Qasberry 4-column marketing footer.
-// Columns: Brand + tagline | Platform links | Learn links | Newsletter signup
-// Newsletter input uses shared Input + Button components.
 
 import Link from 'next/link'
 import Image from 'next/image'
 import { useState } from 'react'
-import { ArrowRight, Globe, ExternalLink, Share2 } from 'lucide-react'
+import { ArrowRight, Globe, Send, AtSign } from 'lucide-react'
 import { Input } from '@/components/shared/Input'
 import { Button } from '@/components/shared/Button'
+import { motion } from 'framer-motion'
 
 // ── Link columns config ───────────────────────────────────────────────────────
 
 const PLATFORM_LINKS = [
   { label: 'Features',     href: '/#features' },
-  { label: 'Careers',      href: '/#careers'  },
-  { label: 'How It Works', href: '/#how'      },
-  { label: 'Pricing',      href: '/#pricing'  },
+  { label: 'Careers',      href: '/#careers' },
+  { label: 'How It Works', href: '/#how' },
+  { label: 'Roadmap',      href: '/onboarding' },
   { label: 'Community',    href: '/community' },
 ]
 
 const LEARN_LINKS = [
-  { label: 'Browse Courses', href: '/courses'    },
-  { label: 'My Dashboard',   href: '/dashboard'  },
+  { label: 'Browse Courses', href: '/courses' },
+  { label: 'My Dashboard',   href: '/dashboard' },
   { label: 'My Roadmap',     href: '/onboarding' },
-  { label: 'Certificates',   href: '/dashboard'  },
+  { label: 'Certificates',   href: '/dashboard' },
+]
+
+const RESOURCE_LINKS = [
+  { label: 'Help Center', href: '/courses' },
+  { label: 'Career Paths', href: '/#careers' },
+  { label: 'Case Studies', href: '/community' },
 ]
 
 const LEGAL_LINKS = [
   { label: 'Privacy Policy', href: '/privacy' },
-  { label: 'Terms of Use',   href: '/terms'   },
+  { label: 'Terms of Use',   href: '/terms' },
   { label: 'Cookie Policy',  href: '/cookies' },
 ]
 
 const SOCIAL_LINKS = [
-  { label: 'Twitter',  href: 'https://twitter.com',  icon: Share2       },
-  { label: 'LinkedIn', href: 'https://linkedin.com', icon: ExternalLink },
-  { label: 'Website',  href: 'https://qasberry.com', icon: Globe        },
+  { label: 'Twitter',  href: 'https://twitter.com', icon: Send },
+  { label: 'LinkedIn', href: 'https://linkedin.com', icon: AtSign },
+  { label: 'Website',  href: 'https://qasberry.com', icon: Globe },
 ]
 
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function Footer() {
-  const [email,     setEmail]     = useState('')
+  const [email, setEmail] = useState('')
   const [submitted, setSubmitted] = useState(false)
 
   function handleNewsletter(e: React.FormEvent) {
@@ -57,30 +60,25 @@ export function Footer() {
   }
 
   return (
-    <footer className="bg-brand-navy text-white">
-
-      {/* ── Main grid ─────────────────────────────────────────────────────── */}
-      <div className="max-w-7xl mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-
-          {/* Col 1 — Brand */}
-          <div className="space-y-5">
-            <Link href="/" className="flex items-center gap-2.5 w-fit">
+    <footer className="pt-10 sm:pt-14 pb-8 border-t border-slate-200 bg-white">
+      <div className="max-w-7xl mx-auto px-6">
+        <div className="rounded-[32px] border border-slate-200 bg-[#fafafc] p-6 sm:p-8 lg:p-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
+            <div className="space-y-5 lg:col-span-2">
+            <Link href="/" className="flex items-center w-fit">
               <Image
                 src="/logo.png"
-                alt="Qasberry logo"
-                width={36}
-                height={36}
-                className="rounded-xl"
+                alt="Qasberrytech logo"
+                width={170}
+                height={42}
+                className="h-9 w-auto"
               />
-              <span className="font-bold tracking-tight text-lg">Qasberry</span>
             </Link>
 
-            <p className="text-sm text-white/50 leading-relaxed max-w-[220px]">
-              The AI learning academy built for every professional—not just tech people.
+            <p className="text-sm text-slate-600 leading-relaxed max-w-sm">
+              The premium AI learning academy for ambitious professionals who want practical outcomes.
             </p>
 
-            {/* Social icons */}
             <div className="flex items-center gap-3">
               {SOCIAL_LINKS.map(({ label, href, icon: Icon }) => (
                 <a
@@ -89,17 +87,46 @@ export function Footer() {
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label={label}
-                  className="w-8 h-8 rounded-lg bg-white/5 hover:bg-brand-purple/80 flex items-center justify-center transition-colors"
+                  className="h-9 w-9 rounded-xl border border-slate-200 bg-white hover:border-slate-300 hover:text-slate-900 text-slate-500 flex items-center justify-center transition-colors"
                 >
                   <Icon size={15} />
                 </a>
               ))}
             </div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 14 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.45 }}
+              className="rounded-2xl border border-slate-200 bg-white p-4"
+            >
+              <h4 className="text-sm font-semibold text-slate-900">Stay in the loop</h4>
+              <p className="mt-1 text-xs text-slate-500">Get new course releases and practical AI playbooks weekly.</p>
+
+              {submitted ? (
+                <div className="mt-3 text-emerald-600 text-sm font-medium">You are subscribed.</div>
+              ) : (
+                <form onSubmit={handleNewsletter} className="mt-3 flex flex-col sm:flex-row gap-2">
+                  <Input
+                    type="email"
+                    placeholder="you@company.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    className="h-10 bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"
+                  />
+                  <Button type="submit" size="sm" className="h-10 px-4 rounded-xl bg-[linear-gradient(120deg,#5b5ff7,#4f87ff,#3aa7fb)] border-0 hover:opacity-95">
+                    Join
+                    <ArrowRight size={14} />
+                  </Button>
+                </form>
+              )}
+            </motion.div>
           </div>
 
-          {/* Col 2 — Platform */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-slate-500">
               Platform
             </h4>
             <ul className="space-y-2.5">
@@ -107,7 +134,7 @@ export function Footer() {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm text-white/55 hover:text-white transition-colors"
+                    className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
                   >
                     {label}
                   </Link>
@@ -116,9 +143,8 @@ export function Footer() {
             </ul>
           </div>
 
-          {/* Col 3 — Learn */}
           <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-slate-500">
               Learn
             </h4>
             <ul className="space-y-2.5">
@@ -126,19 +152,32 @@ export function Footer() {
                 <li key={label}>
                   <Link
                     href={href}
-                    className="text-sm text-white/55 hover:text-white transition-colors"
+                    className="text-sm text-slate-600 hover:text-slate-950 transition-colors"
                   >
                     {label}
                   </Link>
                 </li>
               ))}
             </ul>
-            <div className="pt-2 space-y-2.5">
+          </div>
+
+            <div className="space-y-4">
+            <h4 className="text-xs font-semibold uppercase tracking-widest text-slate-500">Resources</h4>
+            <ul className="space-y-2.5">
+              {RESOURCE_LINKS.map(({ label, href }) => (
+                <li key={label}>
+                  <Link href={href} className="text-sm text-slate-600 hover:text-slate-950 transition-colors">
+                    {label}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+            <div className="pt-2 space-y-2">
               {LEGAL_LINKS.map(({ label, href }) => (
                 <div key={label}>
                   <Link
                     href={href}
-                    className="text-xs text-white/35 hover:text-white/60 transition-colors"
+                    className="text-xs text-slate-500 hover:text-slate-800 transition-colors"
                   >
                     {label}
                   </Link>
@@ -146,55 +185,14 @@ export function Footer() {
               ))}
             </div>
           </div>
-
-          {/* Col 4 — Newsletter */}
-          <div className="space-y-4">
-            <h4 className="text-xs font-semibold uppercase tracking-widest text-white/40">
-              Stay in the loop
-            </h4>
-            <p className="text-sm text-white/50 leading-relaxed">
-              Get AI learning tips, new course launches, and career insights—weekly.
-            </p>
-
-            {submitted ? (
-              <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium">
-                <span>✓</span>
-                <span>You&apos;re subscribed!</span>
-              </div>
-            ) : (
-              <form onSubmit={handleNewsletter} className="space-y-2.5">
-                <Input
-                  type="email"
-                  placeholder="your@email.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                  className="bg-white/10 border-white/10 text-white placeholder:text-white/30 focus:ring-brand-lavender focus:border-brand-lavender"
-                />
-                <Button
-                  type="submit"
-                  size="sm"
-                  className="w-full gap-1.5"
-                >
-                  Subscribe <ArrowRight size={13} />
-                </Button>
-              </form>
-            )}
           </div>
         </div>
-      </div>
 
-      {/* ── Bottom bar ──────────────────────────────────────────────────────── */}
-      <div className="border-t border-white/5">
-        <div className="max-w-7xl mx-auto px-6 py-5 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-xs text-white/30">
-            © {new Date().getFullYear()} Qasberry. All rights reserved.
-          </p>
-          <p className="text-xs text-white/20">
-            Built with ♥ for AI-forward professionals everywhere.
-          </p>
+        <div className="mt-6 border-t border-slate-200 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
+          <p className="text-xs text-slate-500">© {new Date().getFullYear()} Qasberry. All rights reserved.</p>
+          <p className="text-xs text-slate-400">Designed for the next generation of AI-first professionals.</p>
         </div>
-      </div>
+          </div>
     </footer>
   )
 }

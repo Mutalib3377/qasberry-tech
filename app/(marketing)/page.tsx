@@ -6,6 +6,7 @@ import type { Metadata } from 'next'
 import { db } from '@/lib/db'
 import { MarketingNav }    from '@/components/marketing/marketing-nav'
 import { HeroSection }     from '@/components/marketing/hero-section'
+import { TrustSection }    from '@/components/marketing/trust-section'
 import { FeaturesSection } from '@/components/marketing/features-section'
 import { CareersSection }  from '@/components/marketing/careers-section'
 import { HowItWorks }      from '@/components/marketing/how-it-works'
@@ -29,9 +30,10 @@ export default async function HomePage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-white text-[#101114] overflow-x-hidden">
       <MarketingNav />
       <HeroSection />
+      <TrustSection />
       <FeaturesSection />
       <CareersSection
         careers={careers.map((c) => ({

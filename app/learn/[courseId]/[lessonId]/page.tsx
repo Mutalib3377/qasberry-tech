@@ -3,11 +3,12 @@
 // Course learning experience: Mux video player, curriculum sidebar, progress tracking.
 
 import { useState, useEffect, useCallback } from 'react'
+import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import {
   CheckCircle2, Circle, Lock, ChevronRight,
-  ChevronLeft, Award, Zap, Menu, X,
+  ChevronLeft, Award, Menu, X, Zap,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 
@@ -225,7 +226,7 @@ export default function LearnPage({ params }: PageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="relative w-12 h-12">
           <div className="absolute inset-0 rounded-full border-2 border-violet-500/20" />
           <div className="absolute inset-0 rounded-full border-2 border-t-violet-500 animate-spin" />
@@ -236,7 +237,7 @@ export default function LearnPage({ params }: PageProps) {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0a0a0f] flex items-center justify-center">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center space-y-4">
           <p className="text-rose-400">{error}</p>
           <Link href="/dashboard" className="text-violet-400 hover:text-violet-300 text-sm">
@@ -248,10 +249,10 @@ export default function LearnPage({ params }: PageProps) {
   }
 
   return (
-    <div className="h-screen bg-[#0a0a0f] text-white flex flex-col overflow-hidden">
+    <div className="h-screen bg-white text-slate-900 flex flex-col overflow-hidden">
 
       {/* ── Topbar ─────────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-white/5">
+      <header className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-white/85 backdrop-blur-sm">
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen((v) => !v)}
@@ -259,11 +260,8 @@ export default function LearnPage({ params }: PageProps) {
           >
             {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
-          <Link href="/dashboard" className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
-              <Zap size={11} className="text-white" />
-            </div>
-            <span className="text-sm font-bold text-white hidden sm:block">Qasberry</span>
+          <Link href="/dashboard" className="flex items-center">
+            <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-7 w-auto" />
           </Link>
           {course && (
             <>
@@ -287,7 +285,7 @@ export default function LearnPage({ params }: PageProps) {
               animate={{ width: 300, opacity: 1 }}
               exit={{ width: 0, opacity: 0 }}
               transition={{ duration: 0.2 }}
-              className="flex-shrink-0 border-r border-white/5 overflow-y-auto bg-[#0d0d14]"
+              className="flex-shrink-0 border-r border-slate-200 overflow-y-auto bg-[#fafafc]"
             >
               <div className="p-4 space-y-4 min-w-[300px]">
                 {course?.modules.map((mod) => (

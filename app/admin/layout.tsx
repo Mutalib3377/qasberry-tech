@@ -30,14 +30,14 @@ export default async function AdminLayout({
   const displayName = [user.firstName, user.lastName].filter(Boolean).join(' ') || user.emailAddresses[0]?.emailAddress
 
   return (
-    <div className="min-h-screen bg-slate-950 flex">
+    <div className="min-h-screen bg-white flex">
       {/* Sidebar — fixed left column */}
       <AdminSidebar role={role} />
 
       {/* Main content area — offset by sidebar width */}
-      <div className="flex-1 ml-64 flex flex-col min-h-screen">
+      <div className="flex-1 ml-64 flex flex-col min-h-screen bg-white">
         {/* Top bar */}
-        <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 border-b border-slate-800 bg-slate-950/80 backdrop-blur-xl">
+        <header className="sticky top-0 z-30 flex items-center justify-between px-8 py-4 border-b border-slate-200 bg-white/90 backdrop-blur-xl">
           <div />
           <div className="flex items-center gap-4">
             <div className="text-right">

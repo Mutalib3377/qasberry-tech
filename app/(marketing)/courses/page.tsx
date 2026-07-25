@@ -48,9 +48,9 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
   })
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-white text-[#101114]">
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-violet-600/6 blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-violet-600/10 blur-[120px]" />
       </div>
 
       <MarketingNav />

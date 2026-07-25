@@ -24,11 +24,11 @@ export default async function CommunityGalleryPage() {
   })
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-white text-[#101114]">
       {/* Background Glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/10 blur-[120px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/5 blur-[120px] rounded-full" />
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/12 blur-[120px] rounded-full" />
+        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/8 blur-[120px] rounded-full" />
       </div>
 
       <MarketingNav />

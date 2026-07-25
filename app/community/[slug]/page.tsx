@@ -69,9 +69,9 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const totalPages = Math.ceil(total / LIMIT)
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-white">
+    <div className="min-h-screen bg-white text-[#101114]">
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-violet-600/5 blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-violet-600/8 blur-[120px]" />
       </div>
 
       <MarketingNav />

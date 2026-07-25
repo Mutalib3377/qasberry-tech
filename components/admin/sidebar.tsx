@@ -3,6 +3,7 @@
 // Admin panel sidebar — navigation, logo, and role badge.
 // Used by app/admin/layout.tsx.
 
+import Image from 'next/image'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import {
@@ -12,7 +13,6 @@ import {
   MessageSquare,
   DollarSign,
   Settings,
-  Zap,
 } from 'lucide-react'
 import type { UserRole } from '@/types'
 
@@ -90,11 +90,8 @@ export function AdminSidebar({ role }: SidebarProps) {
     <aside className="fixed left-0 top-0 h-full w-64 flex flex-col border-r border-slate-800 bg-slate-950/80 backdrop-blur-xl z-40">
       {/* Logo */}
       <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600 to-cyan-500 flex items-center justify-center">
-          <Zap size={16} className="text-white" />
-        </div>
+        <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-8 w-auto" />
         <div>
-          <span className="text-white font-bold text-sm tracking-wide">Qasberry</span>
           <p className="text-slate-500 text-xs">Admin Panel</p>
         </div>
       </div>

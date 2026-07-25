@@ -1,48 +1,93 @@
-// components/marketing/features-section.tsx
-// "Why Qasberry" 6-feature grid — original dark design restored.
+'use client'
 
-import { Map, BookOpen, Clock, Users, ShieldCheck, Lock } from 'lucide-react'
+import { motion, useReducedMotion } from 'framer-motion'
+import { BadgeCheck, BookOpen, Clock3, Lock, Network, Sparkles, Users2 } from 'lucide-react'
 
-const FEATURES = [
-  { icon: Map,         title: 'AI-Personalised Roadmap',    body: 'Strategic paths tailored to your specific professional objectives and experience level.'          },
-  { icon: BookOpen,    title: 'Career-Specific Courses',    body: 'Industry-vetted content focusing on the AI tools that actually matter in your field.'              },
-  { icon: Clock,       title: 'Learn at Your Pace',         body: 'Bite-sized modules designed to fit into a busy professional schedule.'                            },
-  { icon: Users,       title: 'Peer Communities',           body: 'Connect with other professionals in your field who are also adopting AI.'                         },
-  { icon: ShieldCheck, title: 'Verified Certificates',      body: 'Earn credentials that demonstrate your AI proficiency to employers.'                              },
-  { icon: Lock,        title: 'Responsible AI Focus',       body: 'Training on ethics, security, and the safe implementation of AI tools in your workplace.'        },
+const FEATURE_CARDS = [
+  {
+    icon: Network,
+    title: 'Adaptive AI Roadmaps',
+    body: 'Roadmaps adapt to your role, goals, and available time so each week feels focused.',
+    className: 'lg:col-span-2 lg:row-span-1',
+  },
+  {
+    icon: BookOpen,
+    title: 'Career-Calibrated Curriculum',
+    body: 'Every course is scoped around practical tools used in your profession.',
+    className: 'lg:col-span-1',
+  },
+  {
+    icon: Clock3,
+    title: 'Momentum-Friendly Pace',
+    body: 'Short lessons and applied exercises designed for crowded calendars.',
+    className: 'lg:col-span-1',
+  },
+  {
+    icon: Users2,
+    title: 'Peer Intelligence Layer',
+    body: 'Join communities where professionals compare workflows, prompts, and outcomes.',
+    className: 'lg:col-span-1',
+  },
+  {
+    icon: BadgeCheck,
+    title: 'Verifiable Credentials',
+    body: 'Earn trusted certificates that demonstrate real AI capability, not only course attendance.',
+    className: 'lg:col-span-1',
+  },
+  {
+    icon: Lock,
+    title: 'Responsible AI by Design',
+    body: 'Ethics, privacy, and risk governance are embedded into each learning path.',
+    className: 'lg:col-span-2',
+  },
 ]
 
 export function FeaturesSection() {
+  const reduceMotion = useReducedMotion()
+
   return (
-    <section className="bg-[#0a0a0f] py-20 px-6">
-      <div className="max-w-6xl mx-auto">
-
-        {/* Heading */}
-        <div className="text-center mb-14">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 mb-4">
-            <span className="text-xs font-semibold text-violet-400 uppercase tracking-widest">Why Qasberry</span>
-          </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-white tracking-tight mb-3">
-            Everything you need to master AI
-          </h2>
-          <p className="text-slate-500 text-base max-w-xl mx-auto">
-            Not a generic MOOC. A focused, career-first AI platform built for professionals who don&apos;t have time to waste.
+    <section id="features" className="py-16 sm:py-20">
+      <div className="mx-auto max-w-7xl px-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: '-80px' }}
+          transition={{ duration: reduceMotion ? 0 : 0.5 }}
+          className="text-center max-w-3xl mx-auto"
+        >
+          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
+            <Sparkles size={14} className="text-indigo-500" />
+            Why Qasberry
+          </span>
+          <h2 className="mt-5 text-3xl sm:text-[3rem] tracking-tight font-bold text-slate-950">A premium system for career-first AI learning.</h2>
+          <p className="mt-4 text-slate-600 text-base leading-relaxed">
+            Built from first principles for professionals who need quality, speed, and structure when adopting AI.
           </p>
-        </div>
+        </motion.div>
 
-        {/* Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          {FEATURES.map(({ icon: Icon, title, body }) => (
-            <div
+        <div className="mt-10 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-5">
+          {FEATURE_CARDS.map(({ icon: Icon, title, body, className }, index) => (
+            <motion.article
               key={title}
-              className="p-6 rounded-2xl bg-white/[0.03] border border-white/[0.06] hover:border-violet-500/20 hover:bg-white/[0.05] transition-all duration-200 group"
+              initial={{ opacity: 0, y: 22, scale: 0.98 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
+              viewport={{ once: true, margin: '-80px' }}
+              transition={{ duration: reduceMotion ? 0 : 0.48, delay: index * 0.06 }}
+              className={[
+                'group relative overflow-hidden rounded-[28px] border border-slate-200 bg-white p-6 sm:p-7',
+                'shadow-[0_24px_60px_-42px_rgba(15,23,42,0.4)] hover:shadow-[0_30px_72px_-40px_rgba(15,23,42,0.42)] transition-all duration-300',
+                className,
+              ].join(' ')}
             >
-              <div className="w-10 h-10 rounded-xl bg-violet-500/10 flex items-center justify-center mb-4 group-hover:bg-violet-500/20 transition-colors">
-                <Icon size={18} className="text-violet-400" strokeWidth={1.5} />
+              <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_12%_10%,rgba(111,97,255,0.12),transparent_42%),radial-gradient(circle_at_86%_86%,rgba(76,183,255,0.12),transparent_44%)]" />
+              <div className="relative">
+                <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-slate-200 bg-slate-50 text-indigo-500 group-hover:text-blue-500 transition-colors">
+                  <Icon size={18} strokeWidth={1.8} />
+                </span>
+                <h3 className="mt-5 text-lg font-semibold tracking-tight text-slate-950">{title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p>
               </div>
-              <h3 className="text-white font-semibold mb-2">{title}</h3>
-              <p className="text-slate-500 text-sm leading-relaxed">{body}</p>
-            </div>
+            </motion.article>
           ))}
         </div>
       </div>
