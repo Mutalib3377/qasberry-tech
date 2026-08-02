@@ -14,6 +14,9 @@ const NAV_LINKS = [
 	{ label: 'Community', href: '/community' },
 ]
 
+// Kids is a special nav item rendered separately with a badge pill style
+const KIDS_NAV = { label: '✨ Kids', href: '/kids' }
+
 export function MarketingNav() {
 	const [scrolled, setScrolled] = useState(false)
 	const [open, setOpen] = useState(false)
@@ -64,6 +67,13 @@ export function MarketingNav() {
 								{item.label}
 							</Link>
 						))}
+						{/* Kids pill */}
+						<Link
+							href={KIDS_NAV.href}
+							className="text-sm font-bold px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200 transition-colors"
+						>
+							{KIDS_NAV.label}
+						</Link>
 					</nav>
 
 					<div className="hidden md:flex items-center gap-2.5">
@@ -140,6 +150,14 @@ export function MarketingNav() {
 										{item.label}
 									</Link>
 								))}
+								{/* Kids pill */}
+								<Link
+									href={KIDS_NAV.href}
+									onClick={() => setOpen(false)}
+									className="px-3 py-2.5 rounded-lg text-sm font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 transition-colors"
+								>
+									{KIDS_NAV.label}
+								</Link>
 							</nav>
 							<div className="mt-4 pt-4 border-t border-slate-200">
 								<SignedOut>

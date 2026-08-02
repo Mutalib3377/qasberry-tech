@@ -1,6 +1,6 @@
 'use client'
 // components/course/enroll-button.tsx
-// Client component: handles free enrollment (direct) or paid (Paystack).
+// Client component: handles free enrollment (direct) or paid (Stripe Checkout).
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
