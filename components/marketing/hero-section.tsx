@@ -111,6 +111,7 @@ export function HeroSection() {
             <source src={HERO_VIDEO_SRC} type="video/mp4" />
           </video>
         )}
+        <div className="absolute inset-0 bg-white/70" />
       </div>
 
       <div className="pointer-events-none absolute inset-0">
@@ -137,7 +138,7 @@ export function HeroSection() {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.06 }}
-              className="mt-6 text-[2.65rem] leading-[0.98] sm:text-[4.4rem] lg:text-[5.2rem] font-black tracking-[-0.04em] text-slate-950"
+              className="mt-6 text-[2.65rem] leading-[1.1] sm:text-[4.4rem] lg:text-[5.2rem] font-black tracking-[-0.04em] text-slate-950"
             >
               A refined AI academy for <span className="bg-[linear-gradient(110deg,#635bff,#3ca9f8)] bg-clip-text text-transparent">modern careers.</span>
             </motion.h1>

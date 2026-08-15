@@ -133,9 +133,8 @@ export function KidsHero() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.45 }}
-              className="inline-flex items-center gap-2 rounded-full border border-violet-200 bg-violet-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-700"
+              className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-700"
             >
-              <Sparkles size={12} className="text-amber-500" />
               Qasberry Kids
             </motion.div>
 

@@ -40,7 +40,7 @@ export function HowItWorks() {
           <span className="inline-flex items-center px-4 py-2 rounded-full border border-slate-200 bg-white text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
             How it works
           </span>
-          <h2 className="mt-5 text-3xl sm:text-[3rem] font-bold tracking-tight text-slate-950">Three clear steps from AI intent to verified capability.</h2>
+          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">Three clear steps from AI intent to verified capability.</h2>
           <p className="mt-4 text-base text-slate-600 leading-relaxed">An elegant learning flow with structure, accountability, and measurable progress.</p>
         </motion.div>
 

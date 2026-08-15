@@ -11,7 +11,7 @@
 //   3. Welcome email (on first sign-up — called from the Clerk webhook)
 
 const RESEND_API_URL = 'https://api.resend.com/emails'
-const FROM_ADDRESS   = 'Qasberry <no-reply@qasberry.com>'
+const FROM_ADDRESS   = 'Qasberry <Qasberrytech@gmail.com>'
 const APP_URL        = process.env.NEXT_PUBLIC_APP_URL ?? 'https://qasberry.com'
 
 // ── Generic send helper ────────────────────────────────────────────────────────

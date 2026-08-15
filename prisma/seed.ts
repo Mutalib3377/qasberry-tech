@@ -15,7 +15,7 @@ const careers = [
   { name: 'Marketer', slug: 'marketer' },
   { name: 'Student', slug: 'student' },
   { name: 'Entrepreneur', slug: 'entrepreneur' },
-  { name: 'Kid', slug: 'kid' },
+  { name: 'Kids', slug: 'kid' },
 ]
 
 async function main() {

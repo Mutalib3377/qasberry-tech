@@ -1,10 +1,12 @@
 // app/community/page.tsx
-// Community Gallery page — lists all available career communities.
+// Community Gallery page — unified light design system.
 
 import { db } from '@/lib/db'
 import Link from 'next/link'
 import { MarketingNav } from '@/components/marketing/marketing-nav'
 import { Footer } from '@/components/marketing/footer'
+import { Card } from '@/components/shared/Card'
+import { Badge } from '@/components/shared/Badge'
 import { Users, MessageSquare, ArrowRight, Zap } from 'lucide-react'
 
 export const metadata = {
@@ -24,28 +26,21 @@ export default async function CommunityGalleryPage() {
   })
 
   return (
-    <div className="min-h-screen bg-white text-[#101114]">
-      {/* Background Glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-violet-600/12 blur-[120px] rounded-full" />
-        <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-cyan-600/8 blur-[120px] rounded-full" />
-      </div>
-
+    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
       <MarketingNav />
 
-      <main className="relative z-10 pt-32 pb-20 px-6 max-w-7xl mx-auto">
+      <main className="relative z-10 flex-1 pt-32 pb-20 px-6 max-w-7xl mx-auto w-full">
         {/* Header */}
-        <div className="text-center space-y-4 mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-400 text-xs font-medium uppercase tracking-wider">
-            <Zap size={12} />
+        <div className="text-center space-y-4 mb-16">
+          <Badge variant="primary" className="px-3.5 py-1 text-xs uppercase tracking-wider font-semibold">
             Network & Grow
-          </div>
-          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-b from-white to-slate-400 bg-clip-text text-transparent">
+          </Badge>
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-brand-charcoal">
             Qasberry Community Hubs
           </h1>
-          <p className="text-slate-400 max-w-2xl mx-auto text-lg leading-relaxed">
-            Join a specialized community built for your specific career path. 
-            Directly connect with peers leveraging AI in your industry.
+          <p className="text-brand-secondary max-w-2xl mx-auto text-lg leading-relaxed">
+            Join a specialized community built for your career path. 
+            Connect directly with peers leveraging AI in your industry.
           </p>
         </div>
 
@@ -55,41 +50,40 @@ export default async function CommunityGalleryPage() {
             <Link 
               key={community.id}
               href={`/community/${community.slug}`}
-              className="group relative flex flex-col p-6 rounded-2xl bg-white/[0.03] border border-white/5 hover:border-violet-500/50 hover:bg-white/[0.05] transition-all duration-300"
+              className="group flex flex-col"
             >
-              {/* Subtle hover background highlight */}
-              <div className="absolute inset-0 bg-gradient-to-br from-violet-600/0 via-transparent to-cyan-500/0 group-hover:from-violet-600/10 group-hover:to-cyan-500/5 rounded-2xl transition-all duration-500" />
-              
-              <div className="relative z-10 space-y-4">
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-violet-400 opacity-80">
-                      {community.career.name}
-                    </span>
-                    <h3 className="text-xl font-bold group-hover:text-white transition-colors">
-                      {community.name}
-                    </h3>
+              <Card variant="interactive" className="h-full flex flex-col justify-between p-6 space-y-4">
+                <div className="space-y-3">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="space-y-1">
+                      <span className="text-[11px] font-bold uppercase tracking-wider text-brand-purple">
+                        {community.career.name}
+                      </span>
+                      <h3 className="text-xl font-bold text-brand-charcoal group-hover:text-brand-purple transition-colors">
+                        {community.name}
+                      </h3>
+                    </div>
+                    <div className="w-9 h-9 rounded-xl bg-brand-purple-soft flex items-center justify-center text-brand-purple group-hover:bg-brand-purple group-hover:text-white transition-colors flex-shrink-0">
+                      <ArrowRight size={16} className="rotate-[-45deg] group-hover:rotate-0 transition-transform" />
+                    </div>
                   </div>
-                  <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center group-hover:bg-violet-600/20 group-hover:text-violet-400 transition-colors">
-                    <ArrowRight size={18} className="rotate-[-45deg] group-hover:rotate-0 transition-transform" />
-                  </div>
+
+                  <p className="text-sm text-brand-secondary line-clamp-2 leading-relaxed">
+                    {community.description || `Connect with ${community.career.name.toLowerCase()} experts and enthusiasts in this dedicated hub.`}
+                  </p>
                 </div>
 
-                <p className="text-sm text-slate-400 line-clamp-2 min-h-[40px]">
-                  {community.description || `Connect with ${community.career.name.toLowerCase()} experts and enthusiasts in this dedicated hub.`}
-                </p>
-
-                <div className="pt-4 flex items-center gap-4 text-xs font-medium text-slate-500">
-                  <span className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5">
-                    <Users size={12} className="text-slate-400" />
+                <div className="pt-4 border-t border-brand-border-subtle flex items-center gap-4 text-xs font-semibold text-brand-tertiary">
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-surface border border-brand-border-subtle">
+                    <Users size={13} className="text-brand-purple" />
                     {community._count.members} Members
                   </span>
-                  <span className="flex items-center gap-1.5 px-2 py-1 rounded-lg bg-white/5">
-                    <MessageSquare size={12} className="text-slate-400" />
+                  <span className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-brand-surface border border-brand-border-subtle">
+                    <MessageSquare size={13} className="text-brand-purple" />
                     {community._count.posts} Posts
                   </span>
                 </div>
-              </div>
+              </Card>
             </Link>
           ))}
         </div>

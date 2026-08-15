@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { Menu, X, ArrowRight } from 'lucide-react'
 
 const NAV_LINKS = [
@@ -83,12 +83,12 @@ export function MarketingNav() {
 									Sign in
 								</button>
 							</SignInButton>
-							<SignInButton mode="modal">
+							<SignUpButton mode="modal">
 								<button className="group inline-flex items-center gap-2 h-10 px-4 rounded-xl bg-[linear-gradient(120deg,#5b5ff7,#4f87ff,#3aa7fb)] text-white text-sm font-semibold shadow-[0_12px_28px_-16px_rgba(79,135,255,0.7)] hover:shadow-[0_16px_34px_-16px_rgba(79,135,255,0.8)] transition-all">
 									Get started
 									<ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
 								</button>
-							</SignInButton>
+							</SignUpButton>
 						</SignedOut>
 						<SignedIn>
 							<Link href="/dashboard" className="h-10 px-4 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:text-slate-950 hover:border-slate-300 transition-colors inline-flex items-center">
@@ -168,13 +168,16 @@ export function MarketingNav() {
 									</SignInButton>
 								</SignedOut>
 								<SignedIn>
-									<Link
-										href="/dashboard"
-										onClick={() => setOpen(false)}
-										className="w-full h-10 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold inline-flex items-center justify-center"
-									>
-										Dashboard
-									</Link>
+									<div className="flex items-center justify-between gap-3">
+										<Link
+											href="/dashboard"
+											onClick={() => setOpen(false)}
+											className="flex-1 h-10 rounded-xl border border-slate-200 text-slate-700 text-sm font-semibold inline-flex items-center justify-center"
+										>
+											Dashboard
+										</Link>
+										<UserButton />
+									</div>
 								</SignedIn>
 							</div>
 						</motion.div>

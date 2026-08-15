@@ -1,7 +1,6 @@
 'use client'
 // components/admin/sidebar.tsx
-// Admin panel sidebar — navigation, logo, and role badge.
-// Used by app/admin/layout.tsx.
+// Admin panel sidebar — unified light design system.
 
 import Image from 'next/image'
 import Link from 'next/link'
@@ -15,58 +14,52 @@ import {
   Settings,
 } from 'lucide-react'
 import type { UserRole } from '@/types'
+import { Badge } from '@/components/shared/Badge'
 
 interface NavItem {
   label: string
   href: string
   icon: React.ReactNode
-  roles?: UserRole[]   // if set, only show to these roles
+  roles?: UserRole[]
 }
 
 const NAV_ITEMS: NavItem[] = [
   {
     label: 'Dashboard',
     href: '/admin',
-    icon: <LayoutDashboard size={16} />,
+    icon: <LayoutDashboard size={18} />,
   },
   {
     label: 'Courses',
     href: '/admin/courses',
-    icon: <BookOpen size={16} />,
+    icon: <BookOpen size={18} />,
     roles: ['SUPER_ADMIN', 'CONTENT_MANAGER'],
   },
   {
     label: 'Users',
     href: '/admin/users',
-    icon: <Users size={16} />,
+    icon: <Users size={18} />,
     roles: ['SUPER_ADMIN'],
   },
   {
     label: 'Community',
     href: '/admin/community',
-    icon: <MessageSquare size={16} />,
+    icon: <MessageSquare size={18} />,
     roles: ['SUPER_ADMIN', 'MODERATOR'],
   },
   {
     label: 'Revenue',
     href: '/admin/revenue',
-    icon: <DollarSign size={16} />,
+    icon: <DollarSign size={18} />,
     roles: ['SUPER_ADMIN'],
   },
   {
     label: 'Settings',
     href: '/admin/settings',
-    icon: <Settings size={16} />,
+    icon: <Settings size={18} />,
     roles: ['SUPER_ADMIN'],
   },
 ]
-
-const ROLE_COLORS: Record<UserRole, string> = {
-  SUPER_ADMIN: 'bg-violet-500/20 text-violet-300 border-violet-500/30',
-  CONTENT_MANAGER: 'bg-blue-500/20 text-blue-300 border-blue-500/30',
-  MODERATOR: 'bg-emerald-500/20 text-emerald-300 border-emerald-500/30',
-  STUDENT: 'bg-slate-500/20 text-slate-300 border-slate-500/30',
-}
 
 const ROLE_LABELS: Record<UserRole, string> = {
   SUPER_ADMIN: 'Super Admin',
@@ -87,25 +80,25 @@ export function AdminSidebar({ role }: SidebarProps) {
   )
 
   return (
-    <aside className="fixed left-0 top-0 h-full w-64 flex flex-col border-r border-slate-800 bg-slate-950/80 backdrop-blur-xl z-40">
-      {/* Logo */}
-      <div className="flex items-center gap-3 px-6 py-5 border-b border-slate-800">
-        <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-8 w-auto" />
-        <div>
-          <p className="text-slate-500 text-xs">Admin Panel</p>
-        </div>
-      </div>
-
-      {/* Role badge */}
-      <div className="px-4 py-3 border-b border-slate-800">
-        <span
-          className={`inline-flex px-3 py-1 rounded-full text-xs font-semibold border ${ROLE_COLORS[role]}`}
-        >
-          {ROLE_LABELS[role]}
+    <aside className="fixed left-0 top-0 h-full w-64 flex flex-col border-r border-brand-border bg-white z-40">
+      {/* Logo Header */}
+      <div className="flex items-center justify-between px-6 py-5 border-b border-brand-border">
+        <Link href="/" className="flex items-center">
+          <Image src="/logo.png" alt="Qasberry" width={150} height={38} className="h-8 w-auto" />
+        </Link>
+        <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-brand-surface text-brand-tertiary border border-brand-border-subtle">
+          Admin
         </span>
       </div>
 
-      {/* Navigation */}
+      {/* Role badge */}
+      <div className="px-5 py-3 border-b border-brand-border-subtle bg-brand-surface/50">
+        <Badge variant="primary" className="text-xs font-semibold">
+          {ROLE_LABELS[role]}
+        </Badge>
+      </div>
+
+      {/* Navigation Links */}
       <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
         {visibleItems.map((item) => {
           const isActive =
@@ -117,13 +110,13 @@ export function AdminSidebar({ role }: SidebarProps) {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150 ${
+              className={`flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-semibold transition-all duration-150 ${
                 isActive
-                  ? 'bg-violet-600/20 text-violet-300 border border-violet-600/20'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5 border border-transparent'
+                  ? 'bg-brand-purple-soft text-brand-purple border border-brand-purple/20'
+                  : 'text-brand-secondary hover:text-brand-charcoal hover:bg-brand-surface border border-transparent'
               }`}
             >
-              <span className={isActive ? 'text-violet-400' : 'text-slate-500'}>
+              <span className={isActive ? 'text-brand-purple' : 'text-brand-tertiary'}>
                 {item.icon}
               </span>
               {item.label}
@@ -133,8 +126,8 @@ export function AdminSidebar({ role }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="px-6 py-4 border-t border-slate-800">
-        <p className="text-xs text-slate-600">Qasberry v0.2.0</p>
+      <div className="px-6 py-4 border-t border-brand-border">
+        <p className="text-xs text-brand-tertiary">Qasberry v0.2.0</p>
       </div>
     </aside>
   )

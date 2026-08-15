@@ -36,7 +36,7 @@ export function EnrollButton({ courseId, price, isFree }: Props) {
           setError(data.error ?? 'Enrollment failed. Please try again.')
         }
       } else {
-        // Paid — redirect to Paystack
+        // Paid — redirect to Stripe Checkout
         const res  = await fetch('/api/payments/initiate', {
           method:  'POST',
           headers: { 'Content-Type': 'application/json' },

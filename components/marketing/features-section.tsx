@@ -55,11 +55,10 @@ export function FeaturesSection() {
           transition={{ duration: reduceMotion ? 0 : 0.5 }}
           className="text-center max-w-3xl mx-auto"
         >
-          <span className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
-            <Sparkles size={14} className="text-indigo-500" />
+          <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
             Why Qasberry
           </span>
-          <h2 className="mt-5 text-3xl sm:text-[3rem] tracking-tight font-bold text-slate-950">A premium system for career-first AI learning.</h2>
+          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] tracking-tight font-bold text-slate-950">A premium system for career-first AI learning.</h2>
           <p className="mt-4 text-slate-600 text-base leading-relaxed">
             Built from first principles for professionals who need quality, speed, and structure when adopting AI.
           </p>

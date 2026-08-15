@@ -1,4 +1,4 @@
-/* app/globals.css — Qasberry global styles (original dark theme restored) */
+/* app/globals.css — Qasberry unified design system globals */
 
 @tailwind base;
 @tailwind components;
@@ -6,23 +6,34 @@
 
 @layer base {
   :root {
-    --background:            #ffffff;
-    --foreground:            #101114;
+    /* ── Core backgrounds ── */
+    --background:            #FCFCFD;
+    --foreground:            #080B1C;
+
+    /* ── Card / surface ── */
     --card:                  #ffffff;
-    --card-foreground:       #101114;
-    --border:                rgba(15, 23, 42, 0.08);
+    --card-foreground:       #080B1C;
+
+    /* ── Borders ── */
+    --border:                #E3E7EF;
     --input:                 #ffffff;
-    --ring:                  #7c3aed;
-    --primary:               #7c3aed;
+    --ring:                  #5B5CF6;
+
+    /* ── Brand colors ── */
+    --primary:               #5B5CF6;
     --primary-foreground:    #ffffff;
-    --secondary:             #fafafc;
-    --secondary-foreground:  #5b6472;
-    --muted:                 #f4f4f6;
-    --muted-foreground:      #5b6472;
-    --accent:                #8b5cf6;
-    --accent-foreground:     #ffffff;
-    --destructive:           #ef4444;
+    --secondary:             #F8F9FC;
+    --secondary-foreground:  #53627A;
+    --muted:                 #F2F4F8;
+    --muted-foreground:      #71809A;
+    --accent:                #35C4E8;
+    --accent-foreground:     #080B1C;
+
+    /* ── Status ── */
+    --destructive:           #DC2626;
     --destructive-foreground:#ffffff;
+
+    /* ── Radius ── */
     --radius:                0.75rem;
   }
 
@@ -41,34 +52,51 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+
+  /* ── Typography base ── */
+  h1, h2, h3, h4, h5, h6 {
+    color: #080B1C;
+    letter-spacing: -0.02em;
+  }
 }
 
 @layer utilities {
+  /* ── Text wrap ── */
   .text-balance { text-wrap: balance; }
 
-  /* Dark gradient text */
+  /* ── Brand gradient text (hero/display use only) ── */
   .gradient-text {
-    background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 50%, #06b6d4 100%);
+    background: linear-gradient(110deg, #5B5CF6, #818CF8 50%, #35C4E8 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Frosted glass — used in hero bot input + nav */
+  /* ── Subtle frosted glass (marketing nav only) ── */
   .glass {
-    background: rgba(255, 255, 255, 0.05);
+    background: rgba(255, 255, 255, 0.72);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(227, 231, 239, 0.8);
   }
 
-  /* Stronger frosted glass for the bot input pill */
-  .glass-pill {
-    background: rgba(255, 255, 255, 0.08);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
+  /* ── Card shadow (design system) ── */
+  .card-shadow    { box-shadow: 0 2px 8px rgba(15, 23, 42, 0.04); }
+  .card-shadow-md { box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06); }
+  .card-shadow-lg { box-shadow: 0 16px 40px rgba(15, 23, 42, 0.08); }
+
+  /* ── Skeleton shimmer ── */
+  .skeleton {
+    background: linear-gradient(90deg, #EEF0F5 25%, #E3E7EF 50%, #EEF0F5 75%);
+    background-size: 200% 100%;
+    animation: shimmer 2s linear infinite;
+    border-radius: 8px;
   }
 
-  /* Brand card shadow for light-mode components (admin etc.) */
-  .card-shadow { box-shadow: 0 1px 3px rgba(0,0,0,0.06); }
+  /* ── Page background ── */
+  .bg-app { background-color: #FCFCFD; }
+
+  /* ── Section backgrounds ── */
+  .bg-surface       { background-color: #F8F9FC; }
+  .bg-surface-muted { background-color: #F2F4F8; }
 }

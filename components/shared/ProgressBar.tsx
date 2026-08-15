@@ -1,8 +1,8 @@
 'use client'
 // components/shared/ProgressBar.tsx
-// Animated purple progress bar.
-// Variants: thin (4px, used in course cards) | thick (8px, used in player topbar)
-// Animates width via CSS transition; accessible with role="progressbar".
+// Qasberry design system progress bar — light-theme with indigo-to-cyan gradient.
+// Variants: thin (6px) | thick (8px)
+// Accessible with role="progressbar".
 
 import React from 'react'
 
@@ -29,7 +29,7 @@ export function ProgressBar({
   const pct = max && max > 0 ? Math.min(100, Math.round((value / max) * 100)) : Math.min(100, value)
 
   const heights: Record<NonNullable<ProgressBarProps['variant']>, string> = {
-    thin:  'h-1',
+    thin:  'h-1.5',
     thick: 'h-2',
   }
 
@@ -43,16 +43,19 @@ export function ProgressBar({
         aria-valuemin={0}
         aria-valuemax={100}
       >
-        {/* Fill */}
+        {/* Fill — indigo-to-cyan gradient */}
         <div
-          className="h-full rounded-full bg-brand-purple transition-all duration-500 ease-out"
-          style={{ width: `${pct}%` }}
+          className="h-full rounded-full transition-all duration-500 ease-out"
+          style={{
+            width: `${pct}%`,
+            background: 'linear-gradient(90deg, #5B5CF6 0%, #35C4E8 100%)',
+          }}
         />
       </div>
 
       {/* Optional label */}
       {showLabel && (
-        <span className="text-xs font-medium text-brand-muted tabular-nums w-9 text-right">
+        <span className="text-xs font-medium text-brand-tertiary tabular-nums w-9 text-right">
           {pct}%
         </span>
       )}

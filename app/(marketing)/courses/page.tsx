@@ -1,13 +1,14 @@
 // app/(marketing)/courses/page.tsx
 // Public course catalog — filterable grid of published courses.
-// Server component: reads from DB, no auth required.
+// Server component with unified whitish glassmorphism card design.
 
 import { db }          from '@/lib/db'
 import Link            from 'next/link'
 import type { Metadata } from 'next'
-import { BookOpen, Users, Star, Zap } from 'lucide-react'
+import { BookOpen, Users, Star, Zap, Search } from 'lucide-react'
 import { MarketingNav } from '@/components/marketing/marketing-nav'
 import { Footer }       from '@/components/marketing/footer'
+import { Badge }        from '@/components/shared/Badge'
 
 export const metadata: Metadata = {
   title: 'Courses | Qasberry',
@@ -18,10 +19,10 @@ interface PageProps {
   searchParams: { career?: string; difficulty?: string; q?: string }
 }
 
-const DIFFICULTY_COLORS: Record<string, string> = {
-  BEGINNER:     'bg-emerald-500/15 text-emerald-400 border-emerald-500/20',
-  INTERMEDIATE: 'bg-amber-500/15 text-amber-400 border-amber-500/20',
-  ADVANCED:     'bg-rose-500/15 text-rose-400 border-rose-500/20',
+const DIFFICULTY_VARIANTS: Record<string, 'success' | 'warning' | 'error'> = {
+  BEGINNER:     'success',
+  INTERMEDIATE: 'warning',
+  ADVANCED:     'error',
 }
 
 export default async function CourseCatalogPage({ searchParams }: PageProps) {
@@ -48,42 +49,47 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
   })
 
   return (
-    <div className="min-h-screen bg-white text-[#101114]">
+    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
+      {/* Background Soft Glow */}
       <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-violet-600/10 blur-[120px]" />
+        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-violet-500/8 blur-[120px]" />
       </div>
 
       <MarketingNav />
 
-      <main className="relative z-10 max-w-7xl mx-auto px-6 py-16 space-y-10">
+      <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-32 pb-20 space-y-10 w-full">
         {/* Header */}
-        <div className="space-y-2">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-violet-500/10 border border-violet-500/20 text-violet-300 text-xs font-medium">
-            <BookOpen size={12} />
+        <div className="space-y-3">
+          <Badge variant="primary" className="px-3.5 py-1 text-xs uppercase tracking-wider font-semibold">
             Course Catalog
-          </div>
-          <h1 className="text-4xl font-extrabold tracking-tight">Browse Courses</h1>
-          <p className="text-slate-400">AI courses tailored to your profession.</p>
+          </Badge>
+          <h1 className="text-4xl font-extrabold tracking-tight text-brand-charcoal">Browse Courses</h1>
+          <p className="text-brand-secondary text-lg">AI courses tailored to your profession and career goals.</p>
         </div>
 
         {/* Filters */}
-        <div className="flex flex-wrap gap-3 items-center">
+        <div className="flex flex-wrap gap-4 items-center pt-2">
           {/* Search */}
-          <form method="GET" className="flex-1 min-w-[200px] max-w-sm">
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="Search courses…"
-              className="w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors"
-            />
+          <form method="GET" className="flex-1 min-w-[240px] max-w-sm">
+            <div className="relative flex items-center">
+              <Search size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+              <input
+                name="q"
+                defaultValue={q}
+                placeholder="Search courses…"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-charcoal text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple shadow-sm transition-all"
+              />
+            </div>
           </form>
 
           {/* Career filter */}
           <div className="flex flex-wrap gap-2">
             <Link
               href="/courses"
-              className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
-                !careerSlug ? 'border-violet-500/50 bg-violet-500/15 text-violet-300' : 'border-slate-700 text-slate-400 hover:text-white hover:border-slate-600'
+              className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                !careerSlug
+                  ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
+                  : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
               }`}
             >
               All Careers
@@ -92,8 +98,10 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
               <Link
                 key={c.id}
                 href={`/courses?career=${c.slug}${difficulty ? `&difficulty=${difficulty}` : ''}`}
-                className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
-                  careerSlug === c.slug ? 'border-violet-500/50 bg-violet-500/15 text-violet-300' : 'border-slate-700 text-slate-400 hover:text-white hover:border-slate-600'
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  careerSlug === c.slug
+                    ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
+                    : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
                 }`}
               >
                 {c.name}
@@ -107,8 +115,10 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
               <Link
                 key={d}
                 href={`/courses?${careerSlug ? `career=${careerSlug}&` : ''}difficulty=${d}`}
-                className={`px-3 py-1.5 rounded-xl border text-xs font-medium transition-colors ${
-                  difficulty === d ? 'border-violet-500/50 bg-violet-500/15 text-violet-300' : 'border-slate-700 text-slate-400 hover:text-white hover:border-slate-600'
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                  difficulty === d
+                    ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
+                    : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
                 }`}
               >
                 {d[0] + d.slice(1).toLowerCase()}
@@ -118,14 +128,14 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
         </div>
 
         {/* Results count */}
-        <p className="text-slate-500 text-sm">{courses.length} course{courses.length !== 1 ? 's' : ''} found</p>
+        <p className="text-brand-tertiary text-sm font-medium">{courses.length} course{courses.length !== 1 ? 's' : ''} found</p>
 
         {/* Grid */}
         {courses.length === 0 ? (
-          <div className="py-24 text-center space-y-3">
-            <BookOpen size={40} className="mx-auto text-slate-700" />
-            <p className="text-slate-400">No courses match your filters.</p>
-            <Link href="/courses" className="text-violet-400 hover:text-violet-300 text-sm transition-colors">
+          <div className="py-20 text-center space-y-3 bg-white/70 backdrop-blur-xl rounded-3xl border border-slate-200/80 p-8 shadow-sm">
+            <BookOpen size={40} className="mx-auto text-slate-300" />
+            <p className="text-brand-secondary font-medium">No courses match your filters.</p>
+            <Link href="/courses" className="text-brand-purple hover:text-brand-purple-hover text-sm font-semibold transition-colors inline-block pt-1">
               Clear filters
             </Link>
           </div>
@@ -135,10 +145,10 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
               <Link
                 key={course.id}
                 href={`/courses/${course.slug}`}
-                className="group flex flex-col rounded-2xl border border-slate-800 bg-slate-900/40 hover:border-slate-700 hover:bg-slate-900/70 overflow-hidden transition-all"
+                className="group flex flex-col rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-xl hover:border-brand-purple/40 hover:shadow-[0_20px_45px_-18px_rgba(91,92,246,0.22)] hover:-translate-y-1 overflow-hidden transition-all duration-300 shadow-[0_10px_35px_-20px_rgba(16,24,40,0.12)]"
               >
                 {/* Thumbnail */}
-                <div className="relative h-40 bg-gradient-to-br from-violet-900/30 to-slate-800 overflow-hidden">
+                <div className="relative h-44 bg-gradient-to-br from-violet-100/60 via-slate-50 to-cyan-50/60 overflow-hidden border-b border-slate-100">
                   {course.thumbnail ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -148,17 +158,17 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                     />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
-                      <Zap size={32} className="text-violet-500/30" />
+                      <Zap size={36} className="text-brand-purple/30" />
                     </div>
                   )}
                   {/* Price badge */}
-                  <div className="absolute top-3 right-3">
+                  <div className="absolute top-3.5 right-3.5">
                     {course.isFree ? (
-                      <span className="px-2.5 py-1 rounded-lg bg-emerald-600/90 text-white text-xs font-bold backdrop-blur-sm">
+                      <span className="px-3 py-1 rounded-full bg-emerald-500/90 text-white text-xs font-bold shadow-sm backdrop-blur-md">
                         FREE
                       </span>
                     ) : (
-                      <span className="px-2.5 py-1 rounded-lg bg-slate-900/80 border border-slate-700 text-white text-xs font-bold backdrop-blur-sm">
+                      <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 text-brand-charcoal text-xs font-bold shadow-sm">
                         ${Number(course.price).toLocaleString()}
                       </span>
                     )}
@@ -166,31 +176,31 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                 </div>
 
                 {/* Content */}
-                <div className="flex flex-col flex-1 p-5 gap-3">
+                <div className="flex flex-col flex-1 p-6 gap-3.5">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <span className="px-2 py-0.5 rounded-full bg-violet-500/15 text-violet-400 border border-violet-500/20 text-[10px] font-medium">
+                    <Badge variant="primary">
                       {course.career.name}
-                    </span>
-                    <span className={`px-2 py-0.5 rounded-full border text-[10px] font-medium ${DIFFICULTY_COLORS[course.difficulty] ?? ''}`}>
+                    </Badge>
+                    <Badge variant={DIFFICULTY_VARIANTS[course.difficulty] ?? 'default'}>
                       {course.difficulty[0] + course.difficulty.slice(1).toLowerCase()}
-                    </span>
+                    </Badge>
                   </div>
 
-                  <h2 className="text-white font-semibold text-base leading-snug group-hover:text-violet-300 transition-colors line-clamp-2">
+                  <h2 className="text-brand-charcoal font-bold text-lg leading-snug group-hover:text-brand-purple transition-colors line-clamp-2">
                     {course.title}
                   </h2>
 
                   {course.description && (
-                    <p className="text-slate-500 text-sm leading-relaxed line-clamp-2">{course.description}</p>
+                    <p className="text-brand-secondary text-sm leading-relaxed line-clamp-2">{course.description}</p>
                   )}
 
-                  <div className="mt-auto flex items-center gap-3 pt-3 border-t border-slate-800 text-xs text-slate-500">
-                    <span className="flex items-center gap-1">
-                      <Users size={11} />
+                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-medium text-brand-tertiary">
+                    <span className="flex items-center gap-1.5">
+                      <Users size={13} className="text-brand-purple" />
                       {course._count.enrollments} enrolled
                     </span>
-                    <span className="flex items-center gap-1">
-                      <Star size={11} />
+                    <span className="flex items-center gap-1.5">
+                      <Star size={13} className="text-amber-500" />
                       {course.difficulty[0] + course.difficulty.slice(1).toLowerCase()}
                     </span>
                   </div>
