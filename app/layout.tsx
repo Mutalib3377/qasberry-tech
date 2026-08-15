@@ -19,9 +19,12 @@ export const metadata: Metadata = {
     'Discover your personalised AI learning roadmap. Qasberry helps nurses, teachers, lawyers, developers and every professional master AI in their field.',
   keywords: ['AI learning', 'AI courses', 'AI education', 'career AI', 'Qasberry'],
   icons: {
-    icon: '/icon.png',
-    apple: '/icon.png',
-    shortcut: '/icon.png',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon.png', type: 'image/png', sizes: '512x512' },
+    ],
+    apple: [{ url: '/apple-icon.png', sizes: '180x180', type: 'image/png' }],
+    shortcut: '/favicon.ico',
   },
   openGraph: {
     type: 'website',
