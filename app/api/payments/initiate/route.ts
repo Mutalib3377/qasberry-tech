@@ -9,6 +9,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db }   from '@/lib/db'
 import { z }    from 'zod'
 import Stripe   from 'stripe'
+import { getOrSyncUser } from '@/lib/get-or-sync-user'
 import type { ApiResponse } from '@/types'
 
 const BodySchema = z.object({ courseId: z.string().min(1) })
@@ -29,12 +30,12 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const appUrl       = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
   const [user, course] = await Promise.all([
-    db.user.findUnique({ where: { clerkId } }),
+    getOrSyncUser(clerkId),
     db.course.findUnique({ where: { id: courseId } }),
   ])
 
   if (!user) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'User not found' }, { status: 404 })
+    return NextResponse.json<ApiResponse>({ success: false, error: 'User not found. Please sign out and sign in again.' }, { status: 404 })
   }
   if (!course) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Course not found' }, { status: 404 })
