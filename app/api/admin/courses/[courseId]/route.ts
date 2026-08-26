@@ -10,7 +10,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { z } from 'zod'
 import { db } from '@/lib/db'
-import { generateSlug } from '@/lib/slugify'
 import type { UserRole, ApiResponse } from '@/types'
 
 const COURSE_MANAGER_ROLES: UserRole[] = ['SUPER_ADMIN', 'CONTENT_MANAGER']
@@ -96,15 +95,10 @@ export async function PATCH(req: NextRequest, { params }: RouteContext): Promise
     )
   }
 
-  const { title, ...rest } = parsed.data
-
   try {
     const course = await db.course.update({
       where: { id: params.courseId },
-      data: {
-        ...(title ? { title, slug: generateSlug(title) } : {}),
-        ...rest,
-      },
+      data: parsed.data,
       include: {
         career: { select: { id: true, name: true, slug: true } },
       },
