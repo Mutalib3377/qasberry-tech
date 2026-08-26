@@ -25,39 +25,44 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
   const { courseId } = parsed.data
 
-  const [user, course] = await Promise.all([
-    getOrSyncUser(clerkId),
-    db.course.findUnique({ where: { id: courseId } }),
-  ])
+  try {
+    const [user, course] = await Promise.all([
+      getOrSyncUser(clerkId),
+      db.course.findUnique({ where: { id: courseId } }),
+    ])
 
-  if (!user) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'User not found. Please sign out and sign in again.' }, { status: 404 })
-  }
-  if (!course) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'Course not found' }, { status: 404 })
-  }
-  if (!course.isFree) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'This course is not free' }, { status: 400 })
-  }
+    if (!user) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'User not found. Please sign out and sign in again.' }, { status: 404 })
+    }
+    if (!course) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Course not found' }, { status: 404 })
+    }
+    if (!course.isFree) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'This course is not free' }, { status: 400 })
+    }
 
-  // Upsert — idempotent so double-clicks are safe
-  const enrollment = await db.enrollment.upsert({
-    where:  { userId_courseId: { userId: user.id, courseId } },
-    update: {},
-    create: { userId: user.id, courseId },
-  })
-
-  // Send enrollment confirmation email (best-effort)
-  if (enrollment) {
-    await sendEnrollmentEmail({
-      to:          user.email,
-      studentName: user.name ?? 'Student',
-      courseTitle: course.title,
-      courseId,
-    }).catch((err) => {
-      console.error('⚠️ Enrollment email failed (non-fatal):', err)
+    // Upsert — idempotent so double-clicks are safe
+    const enrollment = await db.enrollment.upsert({
+      where:  { userId_courseId: { userId: user.id, courseId } },
+      update: {},
+      create: { userId: user.id, courseId },
     })
-  }
 
-  return NextResponse.json({ success: true })
+    // Send enrollment confirmation email (best-effort)
+    if (enrollment) {
+      await sendEnrollmentEmail({
+        to:          user.email,
+        studentName: user.name ?? 'Student',
+        courseTitle: course.title,
+        courseId,
+      }).catch((err) => {
+        console.error('⚠️ Enrollment email failed (non-fatal):', err)
+      })
+    }
+
+    return NextResponse.json({ success: true })
+  } catch (err) {
+    console.error('POST /api/payments/enroll-free error:', err)
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Enrollment failed. Please try again.' }, { status: 500 })
+  }
 }

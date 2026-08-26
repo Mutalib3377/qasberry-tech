@@ -29,38 +29,38 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   const secretKey    = process.env.STRIPE_SECRET_KEY
   const appUrl       = process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000'
 
-  const [user, course] = await Promise.all([
-    getOrSyncUser(clerkId),
-    db.course.findUnique({ where: { id: courseId } }),
-  ])
-
-  if (!user) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'User not found. Please sign out and sign in again.' }, { status: 404 })
-  }
-  if (!course) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'Course not found' }, { status: 404 })
-  }
-
-  // Already enrolled — redirect straight to learn
-  const existing = await db.enrollment.findUnique({
-    where: { userId_courseId: { userId: user.id, courseId } },
-  })
-  if (existing) {
-    return NextResponse.json({ success: true, url: `${appUrl}/learn/${courseId}` })
-  }
-
-  // No Stripe key — create enrollment immediately for dev/demo
-  if (!secretKey || secretKey.includes('REPLACE_ME')) {
-    await db.enrollment.create({ data: { userId: user.id, courseId, paymentRef: 'DEMO' } })
-    return NextResponse.json({ success: true, url: `${appUrl}/learn/${courseId}` })
-  }
-
-  const stripe = new Stripe(secretKey, { apiVersion: '2026-07-29.dahlia' })
-
-  // Stripe uses the smallest currency unit (cents for USD)
-  const amountCents = Math.round(Number(course.price) * 100)
-
   try {
+    const [user, course] = await Promise.all([
+      getOrSyncUser(clerkId),
+      db.course.findUnique({ where: { id: courseId } }),
+    ])
+
+    if (!user) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'User not found. Please sign out and sign in again.' }, { status: 404 })
+    }
+    if (!course) {
+      return NextResponse.json<ApiResponse>({ success: false, error: 'Course not found' }, { status: 404 })
+    }
+
+    // Already enrolled — redirect straight to learn
+    const existing = await db.enrollment.findUnique({
+      where: { userId_courseId: { userId: user.id, courseId } },
+    })
+    if (existing) {
+      return NextResponse.json({ success: true, url: `${appUrl}/learn/${courseId}` })
+    }
+
+    // No Stripe key — create enrollment immediately for dev/demo
+    if (!secretKey || secretKey.includes('REPLACE_ME')) {
+      await db.enrollment.create({ data: { userId: user.id, courseId, paymentRef: 'DEMO' } })
+      return NextResponse.json({ success: true, url: `${appUrl}/learn/${courseId}` })
+    }
+
+    const stripe = new Stripe(secretKey, { apiVersion: '2026-07-29.dahlia' })
+
+    // Stripe uses the smallest currency unit (cents for USD)
+    const amountCents = Math.round(Number(course.price) * 100)
+
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       mode:                 'payment',
@@ -88,7 +88,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     return NextResponse.json({ success: true, url: session.url })
   } catch (err) {
-    console.error('Stripe checkout error:', err)
-    return NextResponse.json<ApiResponse>({ success: false, error: 'Payment gateway error' }, { status: 502 })
+    console.error('POST /api/payments/initiate error:', err)
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Payment initiation failed. Please try again.' }, { status: 500 })
   }
 }
