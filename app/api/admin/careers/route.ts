@@ -3,18 +3,17 @@
 // Public-ish — any signed-in admin can fetch this.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
+import { getAuthenticatedUserRole } from '@/lib/auth'
 import type { UserRole, ApiResponse } from '@/types'
 
 export async function GET(_req: NextRequest): Promise<NextResponse> {
-  const { userId, sessionClaims } = await auth()
-  if (!userId) {
+  const auth = await getAuthenticatedUserRole()
+  if (!auth) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
 
-  const role = (sessionClaims?.metadata as { role?: UserRole } | undefined)?.role
-  if (!role || !(['SUPER_ADMIN', 'CONTENT_MANAGER', 'MODERATOR'] as UserRole[]).includes(role)) {
+  if (!(['SUPER_ADMIN', 'CONTENT_MANAGER', 'MODERATOR'] as UserRole[]).includes(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
   }
 

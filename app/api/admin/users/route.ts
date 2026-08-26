@@ -3,23 +3,18 @@
 // SUPER_ADMIN only for PATCH; all admins can GET.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth, clerkClient } from '@clerk/nextjs/server'
+import { clerkClient } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
+import { getAuthenticatedUserRole } from '@/lib/auth'
 import type { UserRole, ApiResponse } from '@/types'
 import { z } from 'zod'
 
 const ADMIN_ROLES: UserRole[] = ['SUPER_ADMIN', 'CONTENT_MANAGER', 'MODERATOR']
 
-async function getRole(): Promise<UserRole | null> {
-  const { userId, sessionClaims } = await auth()
-  if (!userId) return null
-  return (sessionClaims?.metadata as { role?: UserRole } | undefined)?.role ?? null
-}
-
 // ── GET /api/admin/users ──────────────────────────────────────────────────────
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const role = await getRole()
-  if (!role || !ADMIN_ROLES.includes(role)) {
+  const auth = await getAuthenticatedUserRole()
+  if (!auth || !ADMIN_ROLES.includes(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -74,8 +69,8 @@ const PatchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
-  const role = await getRole()
-  if (role !== 'SUPER_ADMIN') {
+  const auth = await getAuthenticatedUserRole()
+  if (auth?.role !== 'SUPER_ADMIN') {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
   }
 

@@ -3,23 +3,16 @@
 // SUPER_ADMIN and MODERATOR only.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { canManageCommunity } from '@/lib/auth'
-import type { UserRole, ApiResponse } from '@/types'
+import { canManageCommunity, getAuthenticatedUserRole } from '@/lib/auth'
+import type { ApiResponse } from '@/types'
 import { z } from 'zod'
-
-async function getRole(): Promise<UserRole | null> {
-  const { userId, sessionClaims } = await auth()
-  if (!userId) return null
-  return (sessionClaims?.metadata as { role?: UserRole } | undefined)?.role ?? null
-}
 
 // ── GET /api/admin/community ──────────────────────────────────────────────────
 // Returns paginated posts across all communities.
 export async function GET(req: NextRequest): Promise<NextResponse> {
-  const role = await getRole()
-  if (!role || !canManageCommunity(role)) {
+  const auth = await getAuthenticatedUserRole()
+  if (!auth || !canManageCommunity(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
 
@@ -56,8 +49,8 @@ const PatchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
-  const role = await getRole()
-  if (!role || !canManageCommunity(role)) {
+  const auth = await getAuthenticatedUserRole()
+  if (!auth || !canManageCommunity(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
   }
 
@@ -84,8 +77,8 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 // ── DELETE /api/admin/community ───────────────────────────────────────────────
 // Delete a post.
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
-  const role = await getRole()
-  if (!role || !canManageCommunity(role)) {
+  const auth = await getAuthenticatedUserRole()
+  if (!auth || !canManageCommunity(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
   }
 

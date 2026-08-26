@@ -3,18 +3,15 @@
 // SUPER_ADMIN only.
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { db } from '@/lib/db'
-import { isSuperAdmin } from '@/lib/auth'
-import type { UserRole, ApiResponse } from '@/types'
+import { isSuperAdmin, getAuthenticatedUserRole } from '@/lib/auth'
+import type { ApiResponse } from '@/types'
 import { z } from 'zod'
 import { generateSlug } from '@/lib/slugify'
 
 async function checkSuperAdmin(): Promise<boolean> {
-  const { userId, sessionClaims } = await auth()
-  if (!userId) return false
-  const role = (sessionClaims?.metadata as { role?: UserRole } | undefined)?.role
-  return !!role && isSuperAdmin(role)
+  const auth = await getAuthenticatedUserRole()
+  return !!auth && isSuperAdmin(auth.role)
 }
 
 // ── GET /api/admin/settings/careers ──────────────────────────────────────────

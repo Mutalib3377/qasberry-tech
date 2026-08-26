@@ -12,22 +12,19 @@
 // Env vars: MUX_TOKEN_ID, MUX_TOKEN_SECRET
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { createMuxUpload } from '@/lib/mux'
+import { getAuthenticatedUserRole } from '@/lib/auth'
 import type { UserRole, ApiResponse } from '@/types'
 
 const COURSE_MANAGER_ROLES: UserRole[] = ['SUPER_ADMIN', 'CONTENT_MANAGER']
 
 export async function POST(_req: NextRequest): Promise<NextResponse> {
-  // Step 1: Verify auth
-  const { userId, sessionClaims } = await auth()
-  if (!userId) {
+  // Step 1 + 2: Verify auth and role (reads live from Clerk — session JWT does not carry publicMetadata)
+  const auth = await getAuthenticatedUserRole()
+  if (!auth) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
   }
-
-  // Step 2: Verify role
-  const role = (sessionClaims?.metadata as { role?: UserRole } | undefined)?.role
-  if (!role || !COURSE_MANAGER_ROLES.includes(role)) {
+  if (!COURSE_MANAGER_ROLES.includes(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
   }
 
