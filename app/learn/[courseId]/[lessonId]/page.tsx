@@ -55,70 +55,32 @@ function MuxPlayer({ playbackId, onEnded }: { playbackId: string; onEnded: () =>
 }
 
 // ── External Video Player ─────────────────────────────────────────────────────
-// Converts raw share URLs from YouTube, Google Drive, Vimeo, and Loom
-// into embeddable iframe src URLs.
-
-function getEmbedUrl(url: string): string | null {
-  try {
-    const u = new URL(url)
-
-    // YouTube: https://www.youtube.com/watch?v=ID or https://youtu.be/ID
-    if (u.hostname.includes('youtube.com') || u.hostname.includes('youtu.be')) {
-      const id = u.hostname.includes('youtu.be')
-        ? u.pathname.slice(1)
-        : u.searchParams.get('v')
-      if (!id) return null
-      return `https://www.youtube.com/embed/${id}?rel=0&modestbranding=1`
-    }
-
-    // Google Drive: https://drive.google.com/file/d/FILE_ID/view
-    if (u.hostname.includes('drive.google.com')) {
-      const match = u.pathname.match(/\/file\/d\/([^/]+)/)
-      if (!match) return null
-      return `https://drive.google.com/file/d/${match[1]}/preview`
-    }
-
-    // Vimeo: https://vimeo.com/ID
-    if (u.hostname.includes('vimeo.com')) {
-      const id = u.pathname.split('/').filter(Boolean).pop()
-      if (!id) return null
-      return `https://player.vimeo.com/video/${id}?title=0&byline=0`
-    }
-
-    // Loom: https://www.loom.com/share/ID
-    if (u.hostname.includes('loom.com')) {
-      const id = u.pathname.split('/').filter(Boolean).pop()
-      if (!id) return null
-      return `https://www.loom.com/embed/${id}`
-    }
-
-    // Fallback: try embedding as-is
-    return url
-  } catch {
-    return null
-  }
-}
+// `videoUrl` here is already an embed-only URL (transformed server-side in
+// /api/learn/[courseId] — the raw pasted share link never reaches the client).
 
 function ExternalVideoPlayer({ videoUrl }: { videoUrl: string }) {
-  const embedUrl = getEmbedUrl(videoUrl)
-
-  if (!embedUrl) {
-    return (
-      <div className="w-full aspect-video bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center">
-        <p className="text-slate-500 text-sm">Unable to embed this video link.</p>
-      </div>
-    )
-  }
+  const isDrive = videoUrl.includes('drive.google.com')
 
   return (
     <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
       <iframe
-        src={embedUrl}
+        src={videoUrl}
         className="w-full h-full"
         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; fullscreen"
         allowFullScreen
         title="Lesson video"
       />
+      {/* Google Drive's embedded viewer has its own "open in new window" icon
+          in the top-right corner that we can't remove (cross-origin iframe) —
+          this transparent overlay blocks clicks from reaching it so playback
+          stays on-site. Rest of the player (play/pause/seek) is unaffected. */}
+      {isDrive && (
+        <div
+          className="absolute top-0 right-0 w-16 h-12 cursor-default"
+          title="This video can only be watched here"
+          onClick={(e) => { e.preventDefault(); e.stopPropagation() }}
+        />
+      )}
     </div>
   )
 }

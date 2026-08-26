@@ -5,6 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db }   from '@/lib/db'
+import { getEmbedUrl } from '@/lib/video-embed'
 import type { ApiResponse } from '@/types'
 
 export async function GET(
@@ -55,5 +56,19 @@ export async function GET(
     return NextResponse.json<ApiResponse>({ success: false, error: 'Course not found' }, { status: 404 })
   }
 
-  return NextResponse.json({ success: true, data: course })
+  // Never send the raw pasted share link to the browser — only the derived,
+  // embed-only URL. Keeps the original Drive/YouTube/Vimeo/Loom link off the
+  // client entirely, so it can't be lifted from the network response.
+  const courseWithEmbedUrls = {
+    ...course,
+    modules: course.modules.map((mod) => ({
+      ...mod,
+      lessons: mod.lessons.map((lesson) => ({
+        ...lesson,
+        videoUrl: lesson.videoUrl ? getEmbedUrl(lesson.videoUrl) : null,
+      })),
+    })),
+  }
+
+  return NextResponse.json({ success: true, data: courseWithEmbedUrls })
 }
