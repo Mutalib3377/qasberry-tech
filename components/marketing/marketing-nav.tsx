@@ -15,7 +15,7 @@ const NAV_LINKS = [
 ]
 
 // Kids is a special nav item rendered separately with a badge pill style
-const KIDS_NAV = { label: '✨ Kids', href: '/kids' }
+const KIDS_NAV = { label: '✨ Kids & Youth', href: '/kids' }
 
 export function MarketingNav() {
 	const [scrolled, setScrolled] = useState(false)
