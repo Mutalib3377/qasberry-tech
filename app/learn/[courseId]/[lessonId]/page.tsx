@@ -91,7 +91,7 @@ function ProgressBar({ completed, total }: { completed: number; total: number })
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0
   return (
     <div className="flex items-center gap-3 text-xs text-slate-500">
-      <div className="flex-1 h-1.5 rounded-full bg-slate-800 overflow-hidden">
+      <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-violet-600 to-cyan-500 transition-all duration-500"
           style={{ width: `${pct}%` }}
@@ -201,8 +201,8 @@ export default function LearnPage({ params }: PageProps) {
     return (
       <div className="min-h-screen bg-white flex items-center justify-center">
         <div className="text-center space-y-4">
-          <p className="text-rose-400">{error}</p>
-          <Link href="/dashboard" className="text-violet-400 hover:text-violet-300 text-sm">
+          <p className="text-rose-600">{error}</p>
+          <Link href="/dashboard" className="text-violet-600 hover:text-violet-700 text-sm">
             ← Back to Dashboard
           </Link>
         </div>
@@ -218,7 +218,7 @@ export default function LearnPage({ params }: PageProps) {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setSidebarOpen((v) => !v)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 transition-colors"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
           >
             {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
@@ -227,8 +227,8 @@ export default function LearnPage({ params }: PageProps) {
           </Link>
           {course && (
             <>
-              <span className="text-slate-700">/</span>
-              <span className="text-slate-400 text-sm truncate max-w-[200px]">{course.title}</span>
+              <span className="text-slate-300">/</span>
+              <span className="text-slate-500 text-sm truncate max-w-[200px]">{course.title}</span>
             </>
           )}
         </div>
@@ -264,19 +264,19 @@ export default function LearnPage({ params }: PageProps) {
                           onClick={() => goToLesson(l.id)}
                           className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-colors text-sm ${
                             isCurrent
-                              ? 'bg-violet-600/20 text-white border border-violet-600/25'
-                              : 'text-slate-400 hover:text-white hover:bg-white/5'
+                              ? 'bg-violet-50 text-violet-900 border border-violet-200 font-medium'
+                              : 'text-slate-600 hover:text-slate-900 hover:bg-slate-100 border border-transparent'
                           }`}
                         >
                           {isDone
-                            ? <CheckCircle2 size={14} className="text-emerald-400 flex-shrink-0" />
+                            ? <CheckCircle2 size={14} className="text-emerald-500 flex-shrink-0" />
                             : isCurrent
-                              ? <Circle size={14} className="text-violet-400 flex-shrink-0" />
-                              : <Lock size={14} className="text-slate-600 flex-shrink-0" />
+                              ? <Circle size={14} className="text-violet-500 flex-shrink-0" />
+                              : <Lock size={14} className="text-slate-400 flex-shrink-0" />
                           }
                           <span className="truncate flex-1">{l.title}</span>
                           {l.duration && (
-                            <span className="text-slate-600 text-xs flex-shrink-0">
+                            <span className="text-slate-400 text-xs flex-shrink-0">
                               {Math.floor(l.duration / 60)}m
                             </span>
                           )}
@@ -301,12 +301,12 @@ export default function LearnPage({ params }: PageProps) {
                   initial={{ opacity: 0, y: -16 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className="flex items-center gap-3 p-4 rounded-xl border border-amber-500/25 bg-amber-500/10"
+                  className="flex items-center gap-3 p-4 rounded-xl border border-amber-200 bg-amber-50"
                 >
-                  <Award size={18} className="text-amber-400 flex-shrink-0" />
+                  <Award size={18} className="text-amber-500 flex-shrink-0" />
                   <div>
-                    <p className="text-amber-300 font-semibold text-sm">Certificate earned! 🎉</p>
-                    <p className="text-amber-400/70 text-xs">Find it in your dashboard.</p>
+                    <p className="text-amber-900 font-semibold text-sm">Certificate earned! 🎉</p>
+                    <p className="text-amber-700 text-xs">Find it in your dashboard.</p>
                   </div>
                 </motion.div>
               )}
@@ -321,10 +321,10 @@ export default function LearnPage({ params }: PageProps) {
                 onEnded={markComplete}
               />
             ) : (
-              <div className="w-full aspect-video bg-slate-900 rounded-2xl border border-slate-800 flex items-center justify-center">
+              <div className="w-full aspect-video bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
                 <div className="text-center space-y-2">
-                  <Zap size={32} className="mx-auto text-violet-500/30" />
-                  <p className="text-slate-600 text-sm">Video not yet available</p>
+                  <Zap size={32} className="mx-auto text-violet-400" />
+                  <p className="text-slate-500 text-sm">Video not yet available</p>
                 </div>
               </div>
             )}
@@ -335,17 +335,17 @@ export default function LearnPage({ params }: PageProps) {
                 href={lesson.pdfUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-500/25 bg-blue-500/10 hover:bg-blue-500/20 transition-colors"
+                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors"
               >
-                <span className="text-blue-400 text-sm font-medium">📄 Open reading material</span>
-                <span className="text-blue-400/60 text-xs ml-auto">Opens in new tab →</span>
+                <span className="text-blue-700 text-sm font-medium">📄 Open reading material</span>
+                <span className="text-blue-500 text-xs ml-auto">Opens in new tab →</span>
               </a>
             )}
 
             {/* Lesson title + mark complete */}
             <div className="flex items-start justify-between gap-4">
               <div>
-                <h1 className="text-xl font-bold text-white">{lesson?.title}</h1>
+                <h1 className="text-xl font-bold text-slate-900">{lesson?.title}</h1>
                 {lesson?.duration && (
                   <p className="text-slate-500 text-sm mt-1">
                     {Math.floor(lesson.duration / 60)}m {lesson.duration % 60}s
@@ -358,7 +358,7 @@ export default function LearnPage({ params }: PageProps) {
                 disabled={!lesson || completed.has(lesson.id) || marking}
                 className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
                   lesson && completed.has(lesson.id)
-                    ? 'bg-emerald-600/20 border border-emerald-600/25 text-emerald-400 cursor-default'
+                    ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 cursor-default'
                     : 'bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-50'
                 }`}
               >
@@ -370,11 +370,11 @@ export default function LearnPage({ params }: PageProps) {
             </div>
 
             {/* Prev / Next navigation */}
-            <div className="flex items-center justify-between pt-4 border-t border-slate-800">
+            <div className="flex items-center justify-between pt-4 border-t border-slate-200">
               {prevLesson ? (
                 <button
                   onClick={() => goToLesson(prevLesson.id)}
-                  className="flex items-center gap-2 text-slate-400 hover:text-white text-sm transition-colors"
+                  className="flex items-center gap-2 text-slate-500 hover:text-slate-900 text-sm transition-colors"
                 >
                   <ChevronLeft size={16} />
                   Previous
