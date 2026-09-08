@@ -10,13 +10,22 @@ import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-p
 import {
   Plus, Trash2, GripVertical, CheckCircle, Loader2,
   Video, BookOpen, Lock, Unlock, Edit2, Save, Send, ImageIcon,
-  Link as LinkIcon, FileText, AlertCircle,
+  FileText, HelpCircle,
 } from 'lucide-react'
+import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
 
-//  Types 
+//  Types
 
 interface Career { id: string; name: string; slug: string }
-interface LessonRow { id: string; title: string; isFree: boolean; order: number; videoUrl?: string | null; pdfUrl?: string | null; muxAssetId?: string | null; muxPlaybackId?: string | null; duration?: number | null; uploadStatus?: 'idle' | 'uploading' | 'processing' | 'ready' | 'error' }
+interface LessonRow {
+  id: string; title: string; isFree: boolean; order: number
+  videoUrl?: string | null; pdfUrl?: string | null
+  muxAssetId?: string | null; muxPlaybackId?: string | null; muxError?: string | null
+  duration?: number | null
+  type?: LessonType; content?: string | null; documentKey?: string | null
+  quizId?: string | null; isFinalAssessment?: boolean
+  uploadStatus?: 'idle' | 'uploading' | 'processing' | 'ready' | 'error'
+}
 interface ModuleRow { id: string; title: string; order: number; lessons: LessonRow[]; isExpanded: boolean }
 
 interface CourseData {
@@ -31,7 +40,14 @@ interface CourseData {
   status: 'DRAFT' | 'PUBLISHED' | 'ARCHIVED'
   modules: Array<{
     id: string; title: string; order: number
-    lessons: Array<{ id: string; title: string; isFree: boolean; order: number; muxAssetId?: string | null; muxPlaybackId?: string | null; duration?: number | null }>
+    lessons: Array<{
+      id: string; title: string; isFree: boolean; order: number
+      videoUrl?: string | null; pdfUrl?: string | null
+      muxAssetId?: string | null; muxPlaybackId?: string | null; muxError?: string | null
+      duration?: number | null
+      type?: LessonType; content?: string | null; documentKey?: string | null
+      quizId?: string | null; isFinalAssessment?: boolean
+    }>
   }>
 }
 
@@ -171,42 +187,62 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
     else alert('Failed to update status')
   }
 
-  //  Lesson editor 
+  //  Lesson editor
   const editMod = editingLesson ? modules[editingLesson.moduleIdx] : null
   const editLesson = editingLesson ? modules[editingLesson.moduleIdx]?.lessons[editingLesson.lessonIdx] : null
   const [lessonTitle, setLessonTitle] = useState('')
   const [lessonFree, setLessonFree] = useState(false)
+  // Type-specific fields — kept in local state even while the other type's
+  // widget is hidden, so switching the selector never discards them.
+  const [lessonType, setLessonType] = useState<LessonType>('VIDEO')
   const [lessonVideoUrl, setLessonVideoUrl] = useState('')
-  const [lessonPdfUrl, setLessonPdfUrl] = useState('')
+  const [lessonContent, setLessonContent] = useState('')
+  const [lessonFields, setLessonFields] = useState({
+    muxAssetId: null as string | null,
+    muxPlaybackId: null as string | null,
+    muxError: null as string | null,
+    documentKey: null as string | null,
+    quizId: null as string | null,
+    isFinalAssessment: false,
+  })
   const [savingLessonEdit, setSavingLessonEdit] = useState(false)
 
-  // URL helpers (shared)
   function isValidUrl(url: string): boolean {
     try { new URL(url); return true } catch { return false }
-  }
-  function getVideoProviderLabel(url: string): string {
-    if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube'
-    if (url.includes('drive.google.com')) return 'Google Drive'
-    if (url.includes('vimeo.com')) return 'Vimeo'
-    if (url.includes('loom.com')) return 'Loom'
-    return 'External video'
   }
 
   function openLesson(mi: number, li: number) {
     const l = modules[mi].lessons[li]
     setLessonTitle(l.title)
     setLessonFree(l.isFree)
+    setLessonType(l.type ?? 'VIDEO')
     setLessonVideoUrl(l.videoUrl ?? '')
-    setLessonPdfUrl(l.pdfUrl ?? '')
+    setLessonContent(l.content ?? '')
+    setLessonFields({
+      muxAssetId: l.muxAssetId ?? null,
+      muxPlaybackId: l.muxPlaybackId ?? null,
+      muxError: l.muxError ?? null,
+      documentKey: l.documentKey ?? null,
+      quizId: l.quizId ?? null,
+      isFinalAssessment: l.isFinalAssessment ?? false,
+    })
     setEditingLesson({ moduleIdx: mi, lessonIdx: li })
+  }
+
+  function applyLessonFieldsChanged(patch: LessonFieldsPatch) {
+    setLessonFields((prev) => ({ ...prev, ...patch }))
+    if (patch.type) setLessonType(patch.type)
+    if (editingLesson) {
+      setModules(p => p.map((m, mi) => mi === editingLesson.moduleIdx ? {
+        ...m, lessons: m.lessons.map((l, li) => li === editingLesson.lessonIdx ? { ...l, ...patch } : l),
+      } : m))
+    }
   }
 
   async function saveLesson() {
     if (!editingLesson || !editMod || !editLesson) return
     const videoUrlValid = !lessonVideoUrl || isValidUrl(lessonVideoUrl)
-    const pdfUrlValid = !lessonPdfUrl || isValidUrl(lessonPdfUrl)
     if (!videoUrlValid) { alert('Please enter a valid video URL'); return }
-    if (!pdfUrlValid) { alert('Please enter a valid PDF URL'); return }
     setSavingLessonEdit(true)
     try {
       await fetch(`/api/admin/courses/${course.id}/modules/${editMod.id}/lessons/${editLesson.id}`, {
@@ -214,13 +250,14 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
         body: JSON.stringify({
           title: lessonTitle,
           isFree: lessonFree,
-          videoUrl: lessonVideoUrl.trim() || null,
-          pdfUrl: lessonPdfUrl.trim() || null,
+          type: lessonType,
+          videoUrl: lessonType === 'VIDEO' ? (lessonVideoUrl.trim() || null) : editLesson.videoUrl ?? null,
+          content: lessonType === 'READING' ? (lessonContent.trim() || null) : editLesson.content ?? null,
         }),
       })
       setModules(p => p.map((m, mi) => mi === editingLesson.moduleIdx ? {
         ...m, lessons: m.lessons.map((l, li) => li === editingLesson.lessonIdx
-          ? { ...l, title: lessonTitle, isFree: lessonFree, videoUrl: lessonVideoUrl.trim() || null, pdfUrl: lessonPdfUrl.trim() || null }
+          ? { ...l, title: lessonTitle, isFree: lessonFree, type: lessonType, videoUrl: lessonVideoUrl.trim() || null, content: lessonContent.trim() || null }
           : l)
       } : m))
       setEditingLesson(null)
@@ -337,71 +374,18 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
               <span className="text-sm text-slate-300">Free preview</span>
             </label>
 
-            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50 space-y-5">
-
-              {/* ── Video URL ── */}
-              <div>
-                <p className="text-xs font-medium text-slate-400 mb-2 flex items-center gap-1.5">
-                  <Video size={12} className="text-violet-400" /> Video Link
-                </p>
-                <div className="space-y-1.5">
-                  <div className="relative">
-                    <LinkIcon size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-                    <input
-                      className={`w-full pl-8 pr-3 py-2 rounded-lg bg-slate-900 border text-white text-xs placeholder-slate-600 focus:outline-none transition-colors ${lessonVideoUrl && !isValidUrl(lessonVideoUrl)
-                          ? 'border-red-500/60 focus:border-red-500'
-                          : 'border-slate-700 focus:border-violet-500'
-                        }`}
-                      placeholder="Paste YouTube, Google Drive, Vimeo or Loom URL…"
-                      value={lessonVideoUrl}
-                      onChange={e => setLessonVideoUrl(e.target.value)}
-                    />
-                  </div>
-                  {lessonVideoUrl && isValidUrl(lessonVideoUrl) && (
-                    <p className="text-xs text-emerald-400 flex items-center gap-1">
-                      <CheckCircle size={10} /> {getVideoProviderLabel(lessonVideoUrl)} — valid ✓
-                    </p>
-                  )}
-                  {lessonVideoUrl && !isValidUrl(lessonVideoUrl) && (
-                    <p className="text-xs text-red-400 flex items-center gap-1">
-                      <AlertCircle size={10} /> Enter a complete URL (https://…)
-                    </p>
-                  )}
-                </div>
-                <p className="text-xs text-slate-700 mt-1">YouTube · Google Drive · Vimeo · Loom</p>
-              </div>
-
-              {/* ── PDF URL ── */}
-              <div>
-                <p className="text-xs font-medium text-slate-400 mb-2 flex items-center gap-1.5">
-                  <FileText size={12} className="text-blue-400" /> PDF / Reading Material Link
-                </p>
-                <div className="space-y-1.5">
-                  <div className="relative">
-                    <LinkIcon size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-                    <input
-                      className={`w-full pl-8 pr-3 py-2 rounded-lg bg-slate-900 border text-white text-xs placeholder-slate-600 focus:outline-none transition-colors ${lessonPdfUrl && !isValidUrl(lessonPdfUrl)
-                          ? 'border-red-500/60 focus:border-red-500'
-                          : 'border-slate-700 focus:border-violet-500'
-                        }`}
-                      placeholder="Paste Google Drive, Dropbox or direct PDF URL…"
-                      value={lessonPdfUrl}
-                      onChange={e => setLessonPdfUrl(e.target.value)}
-                    />
-                  </div>
-                  {lessonPdfUrl && isValidUrl(lessonPdfUrl) && (
-                    <p className="text-xs text-blue-400 flex items-center gap-1">
-                      <CheckCircle size={10} /> PDF link valid ✓
-                    </p>
-                  )}
-                  {lessonPdfUrl && !isValidUrl(lessonPdfUrl) && (
-                    <p className="text-xs text-red-400 flex items-center gap-1">
-                      <AlertCircle size={10} /> Enter a complete URL (https://…)
-                    </p>
-                  )}
-                </div>
-                <p className="text-xs text-slate-700 mt-1">Google Drive · Dropbox · any direct .pdf URL</p>
-              </div>
+            <div className="p-4 rounded-xl border border-slate-800 bg-slate-900/50">
+              <LessonContentEditor
+                courseId={course.id} moduleId={editMod.id} lessonId={editLesson.id}
+                isLastLessonInCourse={editingLesson.moduleIdx === modules.length - 1 && editingLesson.lessonIdx === editMod.lessons.length - 1}
+                type={lessonType} onTypeChange={setLessonType}
+                videoUrl={lessonVideoUrl} onVideoUrlChange={setLessonVideoUrl}
+                muxAssetId={lessonFields.muxAssetId} muxPlaybackId={lessonFields.muxPlaybackId} muxError={lessonFields.muxError}
+                content={lessonContent} onContentChange={setLessonContent}
+                documentKey={lessonFields.documentKey}
+                quizId={lessonFields.quizId} isFinalAssessment={lessonFields.isFinalAssessment}
+                onLessonFieldsChanged={applyLessonFieldsChanged}
+              />
             </div>
 
             <div className="flex items-center justify-between pt-2">
@@ -447,8 +431,10 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
                                               <Video size={11} className="text-slate-600" />
                                               <span className="flex-1 text-slate-300 text-xs">{l.title}</span>
                                               {l.isFree ? <Unlock size={10} className="text-emerald-400" /> : <Lock size={10} className="text-slate-700" />}
-                                              {(l.videoUrl || l.muxPlaybackId) && <CheckCircle size={10} className="text-emerald-400" aria-label="Video linked" />}
-                                              {l.pdfUrl && <FileText size={10} className="text-blue-400" aria-label="PDF linked" />}
+                                              {l.type === 'QUIZ' && <HelpCircle size={10} className="text-violet-400" aria-label="Quiz" />}
+                                              {l.isFinalAssessment && <span title="Final assessment" className="text-amber-400 text-[10px]">★</span>}
+                                              {l.type !== 'QUIZ' && (l.videoUrl || l.muxPlaybackId) && <CheckCircle size={10} className="text-emerald-400" aria-label="Video linked" />}
+                                              {l.type !== 'QUIZ' && (l.pdfUrl || l.documentKey) && <FileText size={10} className="text-blue-400" aria-label="Notes linked" />}
                                               <button onClick={() => openLesson(mi, li)} className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-violet-400"><Edit2 size={11} /></button>
                                               <button onClick={() => deleteLesson(mi, li)} className="opacity-0 group-hover:opacity-100 p-1 text-slate-500 hover:text-red-400"><Trash2 size={11} /></button>
                                             </div>

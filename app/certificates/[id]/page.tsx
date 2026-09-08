@@ -8,6 +8,7 @@ import Image        from 'next/image'
 import Link         from 'next/link'
 import type { Metadata } from 'next'
 import { Award, CheckCircle2 } from 'lucide-react'
+import { CopyLinkButton } from '@/components/certificate/copy-link-button'
 
 interface Props { params: { id: string } }
 
@@ -99,6 +100,11 @@ export default async function CertificatePage({ params }: Props) {
               <p className="text-slate-500 text-sm">
                 successfully completed this course on {issued}
               </p>
+              {cert.finalScore != null && (
+                <p className="text-emerald-400 text-sm font-medium">
+                  Completed with {cert.finalScore}%
+                </p>
+              )}
             </div>
 
             {/* Qasberry stamp */}
@@ -111,17 +117,7 @@ export default async function CertificatePage({ params }: Props) {
 
         {/* Share bar */}
         <div className="mt-6 flex items-center justify-center gap-4">
-          <button
-            id="copy-cert-link-btn"
-            onClick={() => {
-              if (typeof window !== 'undefined') {
-                navigator.clipboard.writeText(window.location.href)
-              }
-            }}
-            className="px-5 py-2.5 rounded-xl border border-slate-700 text-slate-400 hover:text-white hover:border-slate-600 text-sm transition-colors"
-          >
-            Copy link
-          </button>
+          <CopyLinkButton />
           <Link
             href={`/dashboard`}
             className="px-5 py-2.5 rounded-xl bg-violet-600 hover:bg-violet-500 text-white text-sm font-semibold transition-colors"

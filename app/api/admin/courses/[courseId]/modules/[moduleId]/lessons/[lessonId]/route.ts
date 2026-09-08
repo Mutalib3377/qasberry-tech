@@ -5,6 +5,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { z } from 'zod'
 import { db } from '@/lib/db'
+import { deleteMuxAsset } from '@/lib/mux'
 import type { UserRole, ApiResponse } from '@/types'
 
 const COURSE_MANAGER_ROLES: UserRole[] = ['SUPER_ADMIN', 'CONTENT_MANAGER']
@@ -20,6 +21,14 @@ const updateLessonSchema = z.object({
   muxAssetId: z.string().nullable().optional(),
   muxPlaybackId: z.string().nullable().optional(),
   duration: z.number().int().nullable().optional(),
+  // Lesson type/completion-rule fields (P1 schema, P4 API support). Setting
+  // isFinalAssessment: true here is what triggers the P1 Postgres trigger
+  // (enforce_single_final_assessment) if another lesson in the course
+  // already has it set — that 500-from-a-DB-exception is expected and
+  // intentionally not caught/translated here.
+  type: z.enum(['VIDEO', 'READING', 'QUIZ']).optional(),
+  isRequired: z.boolean().optional(),
+  isFinalAssessment: z.boolean().optional(),
 })
 
 type RouteContext = { params: { courseId: string; moduleId: string; lessonId: string } }
@@ -75,7 +84,27 @@ export async function DELETE(_req: NextRequest, { params }: RouteContext): Promi
   }
 
   try {
+    // Look up the Mux asset (if any) before deleting the row, so we know
+    // whether there's anything to clean up on Mux's side afterward.
+    const lesson = await db.lesson.findUnique({
+      where: { id: params.lessonId },
+      select: { muxAssetId: true },
+    })
+
     await db.lesson.delete({ where: { id: params.lessonId } })
+
+    // Best-effort Mux cleanup — the DB delete above is the source of truth
+    // and has already succeeded; a failure here only leaks a billable Mux
+    // asset, it never blocks or reverts the lesson delete.
+    if (lesson?.muxAssetId) {
+      try {
+        await deleteMuxAsset(lesson.muxAssetId)
+        console.log(`✅ Deleted Mux asset ${lesson.muxAssetId} for removed lesson ${params.lessonId}`)
+      } catch (muxErr) {
+        console.error(`⚠️ Failed to delete Mux asset ${lesson.muxAssetId} for removed lesson ${params.lessonId} (non-fatal):`, muxErr)
+      }
+    }
+
     return NextResponse.json({ success: true, data: { message: 'Lesson deleted' } })
   } catch (err) {
     console.error('DELETE lesson error:', err)

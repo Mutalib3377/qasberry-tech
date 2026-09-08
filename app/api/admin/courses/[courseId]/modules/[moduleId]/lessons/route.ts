@@ -17,6 +17,10 @@ const createLessonSchema = z.object({
   muxAssetId: z.string().nullable().optional(),
   muxPlaybackId: z.string().nullable().optional(),
   duration: z.number().int().nullable().optional(),
+  // Lesson type/completion-rule fields (P1 schema, P4 API support).
+  type: z.enum(['VIDEO', 'READING', 'QUIZ']).optional(),
+  isRequired: z.boolean().optional(),
+  isFinalAssessment: z.boolean().optional(),
 })
 
 type RouteContext = { params: { courseId: string; moduleId: string } }
@@ -90,6 +94,11 @@ export async function POST(req: NextRequest, { params }: RouteContext): Promise<
         muxAssetId: parsed.data.muxAssetId ?? null,
         muxPlaybackId: parsed.data.muxPlaybackId ?? null,
         duration: parsed.data.duration ?? null,
+        // Omitted (undefined) falls through to the Prisma schema default
+        // (type=VIDEO, isRequired=true, isFinalAssessment=false).
+        type: parsed.data.type,
+        isRequired: parsed.data.isRequired,
+        isFinalAssessment: parsed.data.isFinalAssessment,
       },
     })
     return NextResponse.json({ success: true, data: lesson }, { status: 201 })

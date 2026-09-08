@@ -3,31 +3,18 @@
 // GET /api/learn/[courseId]
 
 import { NextRequest, NextResponse } from 'next/server'
-import { auth } from '@clerk/nextjs/server'
 import { db }   from '@/lib/db'
 import { getEmbedUrl } from '@/lib/video-embed'
+import { requireEnrolledUser } from '@/lib/enrollment'
 import type { ApiResponse } from '@/types'
 
 export async function GET(
   _req: NextRequest,
   { params }: { params: { courseId: string } }
 ): Promise<NextResponse> {
-  const { userId: clerkId } = await auth()
-  if (!clerkId) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
-  }
-
-  const user = await db.user.findUnique({ where: { clerkId } })
-  if (!user) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'User not found' }, { status: 404 })
-  }
-
-  // Check enrollment
-  const enrollment = await db.enrollment.findUnique({
-    where: { userId_courseId: { userId: user.id, courseId: params.courseId } },
-  })
-  if (!enrollment) {
-    return NextResponse.json<ApiResponse>({ success: false, error: 'Not enrolled' }, { status: 403 })
+  const check = await requireEnrolledUser(params.courseId)
+  if (!check.ok) {
+    return NextResponse.json<ApiResponse>({ success: false, error: check.error }, { status: check.status })
   }
 
   const course = await db.course.findUnique({
@@ -43,8 +30,33 @@ export async function GET(
               id: true, title: true, order: true,
               isFree: true, duration: true,
               muxPlaybackId: true,
-              videoUrl: true,  // external link (YouTube, Drive, Vimeo, Loom)
-              pdfUrl: true,    // external PDF / reading material link
+              videoUrl: true,        // external link (YouTube, Drive, Vimeo, Loom)
+              pdfUrl: true,          // external PDF / reading material link — legacy fallback
+              documentKey: true,     // Supabase Storage object key for an in-app document, if migrated
+              type: true,
+              isRequired: true,
+              isFinalAssessment: true,
+              // Quiz data for type === 'QUIZ' lessons. Explicit select all the
+              // way down — Option.isCorrect is deliberately never selected
+              // here. Same discipline as the embed-only videoUrl above and
+              // the signed-URL-only documentKey handling in P3: the client
+              // only ever sees what it's safe to see.
+              quiz: {
+                select: {
+                  id: true, title: true, instructions: true,
+                  passingScore: true, maxAttempts: true,
+                  questions: {
+                    orderBy: { order: 'asc' },
+                    select: {
+                      id: true, prompt: true, order: true, points: true,
+                      options: {
+                        orderBy: { order: 'asc' },
+                        select: { id: true, text: true, order: true }, // isCorrect intentionally omitted
+                      },
+                    },
+                  },
+                },
+              },
             },
           },
         },

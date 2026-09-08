@@ -34,6 +34,12 @@ enum CourseDifficulty {
   ADVANCED
 }
 
+enum LessonType {
+  VIDEO
+  READING
+  QUIZ
+}
+
 // ─── Models ──────────────────────────────────────────────────────────────────
 
 model User {
@@ -53,6 +59,7 @@ model User {
   certificates     Certificate[]
   posts            Post[]
   communityMembers CommunityMember[]
+  quizAttempts     QuizAttempt[]
 
   @@map("users")
 }
@@ -84,7 +91,7 @@ model Course {
   updatedAt   DateTime         @updatedAt
 
   // Relations
-  career       Career       @relation(fields: [careerId], references: [id])
+  career       Career        @relation(fields: [careerId], references: [id])
   modules      Module[]
   enrollments  Enrollment[]
   certificates Certificate[]
@@ -106,22 +113,34 @@ model Module {
 }
 
 model Lesson {
-  id             String   @id @default(cuid())
-  moduleId       String
-  title          String
-  videoUrl       String?  // YouTube / Google Drive / external video link
-  pdfUrl         String?  // Google Drive / external PDF link
-  muxAssetId     String?
-  muxPlaybackId  String?
-  duration       Int?     // in seconds
-  order          Int
-  isFree         Boolean  @default(false) // free preview lesson
-  createdAt      DateTime @default(now())
-  updatedAt      DateTime @updatedAt
+  id                String     @id @default(cuid())
+  moduleId          String
+  title             String
+  videoUrl          String? // YouTube / Google Drive / external video link — legacy fallback, kept permanently
+  pdfUrl            String? // Google Drive / external PDF link — legacy fallback, kept permanently
+  muxAssetId        String?
+  muxPlaybackId     String?
+  muxError          String? // set by the video.asset.errored webhook handler (P7) — lets the admin UI show a real error instead of polling forever
+  duration          Int? // in seconds
+  order             Int
+  isFree            Boolean    @default(false) // free preview lesson
+  type              LessonType @default(VIDEO)
+  isRequired        Boolean    @default(true) // must be completed for course completion
+  // Only one lesson per course may have isFinalAssessment = true — enforced by a Postgres
+  // trigger (enforce_single_final_assessment) added by hand in the p1_quiz_lesson_types
+  // migration.sql, not expressible as a Prisma @@unique since it spans Lesson -> Module -> Course.
+  // `prisma db pull` will not surface this trigger — see that migration file for the definition.
+  isFinalAssessment Boolean    @default(false)
+  documentKey       String? // Supabase Storage object path for an uploaded PDF (replaces pdfUrl going forward)
+  content           String? // optional markdown/rich text body for reading lessons
+  quizId            String?    @unique
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
 
   // Relations
   module   Module     @relation(fields: [moduleId], references: [id], onDelete: Cascade)
   progress Progress[]
+  quiz     Quiz?      @relation(fields: [quizId], references: [id])
 
   @@map("lessons")
 }
@@ -163,6 +182,7 @@ model Certificate {
   courseId       String
   issuedAt       DateTime @default(now())
   certificateUrl String?
+  finalScore     Int? // % score on the final-assessment quiz attempt that unlocked this certificate, if any
 
   // Relations
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -171,10 +191,95 @@ model Certificate {
   @@map("certificates")
 }
 
+// ─── Quiz / Assessment models ──────────────────────────────────────────────
+
+model Quiz {
+  id           String   @id @default(cuid())
+  title        String
+  instructions String?
+  passingScore Int // percentage, e.g. 70
+  maxAttempts  Int? // null = unlimited retakes
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Relations
+  lesson    Lesson?
+  questions Question[]
+  attempts  QuizAttempt[]
+
+  @@map("quizzes")
+}
+
+model Question {
+  id     String @id @default(cuid())
+  quizId String
+  prompt String
+  order  Int
+  points Int    @default(1)
+
+  // Relations
+  quiz    Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  options Option[]
+  answers QuizAnswer[]
+
+  @@index([quizId])
+  @@map("questions")
+}
+
+model Option {
+  id         String  @id @default(cuid())
+  questionId String
+  text       String
+  order      Int
+  isCorrect  Boolean @default(false)
+  // Security: NEVER select this field into a student-facing API response (enforced in P4/P8, not here).
+
+  // Relations
+  question Question     @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  answers  QuizAnswer[]
+
+  @@index([questionId])
+  @@map("options")
+}
+
+model QuizAttempt {
+  id          String    @id @default(cuid())
+  userId      String
+  quizId      String
+  score       Int
+  passed      Boolean
+  startedAt   DateTime  @default(now())
+  submittedAt DateTime?
+
+  // Relations
+  user    User         @relation(fields: [userId], references: [id])
+  quiz    Quiz         @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  answers QuizAnswer[]
+
+  @@index([userId, quizId])
+  @@index([quizId, passed, score]) // supports "best attempt" read-time query
+  @@map("quiz_attempts")
+}
+
+model QuizAnswer {
+  id               String @id @default(cuid())
+  attemptId        String
+  questionId       String
+  selectedOptionId String
+
+  // Relations
+  attempt        QuizAttempt @relation(fields: [attemptId], references: [id], onDelete: Cascade)
+  question       Question    @relation(fields: [questionId], references: [id])
+  selectedOption Option      @relation(fields: [selectedOptionId], references: [id])
+
+  @@index([attemptId])
+  @@map("quiz_answers")
+}
+
 model Community {
-  id          String @id @default(cuid())
+  id          String  @id @default(cuid())
   name        String
-  slug        String @unique
+  slug        String  @unique
   careerId    String
   description String?
 

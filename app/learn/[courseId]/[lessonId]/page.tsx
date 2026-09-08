@@ -11,18 +11,26 @@ import {
   ChevronLeft, Award, Menu, X, Zap,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
+import MuxPlayerReact from '@mux/mux-player-react'
+import { PdfViewer } from '@/components/lesson/pdf-viewer'
+import { QuizPlayer, type QuizPlayerData, type QuizAttemptOutcome } from '@/components/lesson/quiz-player'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface Lesson {
-  id:            string
-  title:         string
-  order:         number
-  isFree:        boolean
-  duration:      number | null
-  muxPlaybackId: string | null // only returned for enrolled lessons
-  videoUrl:      string | null // external link: YouTube, Drive, Vimeo, Loom
-  pdfUrl:        string | null // external PDF link
+  id:                 string
+  title:              string
+  order:              number
+  isFree:             boolean
+  duration:           number | null
+  muxPlaybackId:      string | null // only returned for enrolled lessons
+  videoUrl:           string | null // external link: YouTube, Drive, Vimeo, Loom
+  pdfUrl:             string | null // external PDF link — legacy fallback
+  documentKey:        string | null // Supabase Storage object key for an in-app document, if migrated
+  type:               'VIDEO' | 'READING' | 'QUIZ'
+  isRequired:         boolean
+  isFinalAssessment:  boolean
+  quiz:               QuizPlayerData | null
 }
 
 interface Module {
@@ -39,16 +47,34 @@ interface CourseData {
 }
 
 // ── Mux Video Player ─────────────────────────────────────────────────────────
+// `token` is a short-lived signed-playback JWT fetched from
+// /api/learn/[courseId]/[lessonId]/playback-token — a signed-policy Mux asset
+// (see lib/mux.ts createMuxUpload) is unplayable without one, so we show a
+// loading state rather than the player until it arrives.
 
-function MuxPlayer({ playbackId, onEnded }: { playbackId: string; onEnded: () => void }) {
+function MuxVideoPlayer({
+  playbackId, token, title, onEnded,
+}: { playbackId: string; token: string | null; title: string; onEnded: () => void }) {
+  if (!token) {
+    return (
+      <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden flex items-center justify-center">
+        <div className="relative w-10 h-10">
+          <div className="absolute inset-0 rounded-full border-2 border-white/20" />
+          <div className="absolute inset-0 rounded-full border-2 border-t-white animate-spin" />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden">
-      <iframe
-        src={`https://stream.mux.com/${playbackId}.m3u8`}
-        className="w-full h-full"
-        allow="autoplay; fullscreen"
-        allowFullScreen
+    <div className="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl">
+      <MuxPlayerReact
+        playbackId={playbackId}
+        tokens={{ playback: token }}
+        metadata={{ video_title: title }}
         onEnded={onEnded}
+        streamType="on-demand"
+        className="w-full h-full"
       />
     </div>
   )
@@ -116,12 +142,20 @@ export default function LearnPage({ params }: PageProps) {
   const [course,     setCourse]     = useState<CourseData | null>(null)
   const [lesson,     setLesson]     = useState<Lesson | null>(null)
   const [completed,  setCompleted]  = useState<Set<string>>(new Set())
+  // `completedCount` / `total` are the progress-bar's numerator / denominator,
+  // both from GET /api/progress → getCourseCompletionCounts (the same helper
+  // that gates the certificate). `completed` (the Set) is only for per-lesson
+  // sidebar checkmarks and can legitimately hold more ids than `completedCount`
+  // when a course has a completed non-required lesson.
+  const [completedCount, setCompletedCount] = useState(0)
   const [total,      setTotal]      = useState(0)
   const [sidebarOpen, setSidebarOpen] = useState(true)
   const [loading,    setLoading]    = useState(true)
   const [marking,    setMarking]    = useState(false)
   const [certIssued, setCertIssued] = useState(false)
   const [error,      setError]      = useState<string | null>(null)
+  const [playbackToken, setPlaybackToken] = useState<string | null>(null)
+  const [documentUrl,   setDocumentUrl]   = useState<string | null>(null)
 
   // Fetch course + progress
   useEffect(() => {
@@ -141,6 +175,7 @@ export default function LearnPage({ params }: PageProps) {
 
         setCourse(courseData.data)
         setCompleted(new Set(progressData.data.completedLessonIds as string[]))
+        setCompletedCount(progressData.data.completed as number)
         setTotal(progressData.data.total as number)
 
         // Find the current lesson
@@ -156,8 +191,54 @@ export default function LearnPage({ params }: PageProps) {
     load()
   }, [courseId, lessonId])
 
+  // Fetch a fresh signed playback token whenever the current lesson has a Mux
+  // asset. Reset to null on every lesson change first, so a stale token from
+  // the previous lesson is never handed to a different playbackId.
+  useEffect(() => {
+    setPlaybackToken(null)
+    if (!lesson?.muxPlaybackId) return
+
+    let cancelled = false
+    async function loadToken() {
+      try {
+        const res  = await fetch(`/api/learn/${courseId}/${lesson!.id}/playback-token`)
+        const data = await res.json()
+        if (!cancelled && data.success) setPlaybackToken(data.data.token as string)
+      } catch {
+        // Swallow — MuxVideoPlayer just keeps showing its loading state.
+      }
+    }
+    loadToken()
+    return () => { cancelled = true }
+  }, [courseId, lesson?.id, lesson?.muxPlaybackId])
+
+  // Fetch a fresh signed document URL whenever the current lesson has an
+  // in-app document. loadDocumentUrl is also handed to PdfViewer as its
+  // "Reload notes" action, for when a long dwell time expires the URL.
+  const loadDocumentUrl = useCallback(async () => {
+    if (!lesson?.documentKey) return
+    try {
+      const res  = await fetch(`/api/learn/${courseId}/${lesson.id}/document-url`)
+      const data = await res.json()
+      if (data.success) setDocumentUrl(data.data.url as string)
+    } catch {
+      // Swallow — PdfViewer just keeps showing its loading state; the user
+      // can still retry via "Reload notes" once a url was set at least once,
+      // or this effect retries automatically on the next lesson-dependency change.
+    }
+  }, [courseId, lesson?.id, lesson?.documentKey])
+
+  useEffect(() => {
+    setDocumentUrl(null)
+    if (!lesson?.documentKey) return
+    loadDocumentUrl()
+  }, [loadDocumentUrl, lesson?.documentKey])
+
   const markComplete = useCallback(async () => {
-    if (!lesson || completed.has(lesson.id) || marking) return
+    // Quiz lessons are never marked complete this way — P5's progress route
+    // rejects a direct call for a type === 'QUIZ' lesson (403); completion
+    // for those only ever happens via handleQuizResult below, on a pass.
+    if (!lesson || completed.has(lesson.id) || marking || lesson.type === 'QUIZ') return
     setMarking(true)
     try {
       const res  = await fetch('/api/progress', {
@@ -168,6 +249,7 @@ export default function LearnPage({ params }: PageProps) {
       const data = await res.json()
       if (data.success) {
         setCompleted((prev) => new Set(Array.from(prev).concat(lesson.id)))
+        setCompletedCount(data.data.completed)
         setTotal(data.data.total)
         if (data.data.certificateIssued) setCertIssued(true)
       }
@@ -175,6 +257,35 @@ export default function LearnPage({ params }: PageProps) {
       setMarking(false)
     }
   }, [lesson, completed, marking, courseId])
+
+  // Re-pull the authoritative progress numbers. Used after a quiz pass, whose
+  // POST /api/quizzes/[quizId]/attempts response carries the completion
+  // booleans but not the bar's completed/total counts.
+  const refreshProgress = useCallback(async () => {
+    try {
+      const res  = await fetch(`/api/progress?courseId=${courseId}`)
+      const data = await res.json()
+      if (data.success) {
+        setCompleted(new Set(data.data.completedLessonIds as string[]))
+        setCompletedCount(data.data.completed as number)
+        setTotal(data.data.total as number)
+      }
+    } catch {
+      // Keep the optimistic state set below — a transient refresh failure
+      // shouldn't roll back a pass the user just saw succeed.
+    }
+  }, [courseId])
+
+  // Fired by QuizPlayer after every submission. Reuses the exact same
+  // `completed` set + certificate toast the video/reading markComplete path
+  // already drives — no second completion UI.
+  const handleQuizResult = useCallback((outcome: QuizAttemptOutcome, quizLessonId: string) => {
+    if (outcome.passed) {
+      setCompleted((prev) => new Set(Array.from(prev).concat(quizLessonId)))
+      refreshProgress()
+    }
+    if (outcome.certificateCreated) setCertIssued(true)
+  }, [refreshProgress])
 
   // Navigate to adjacent lesson
   function goToLesson(id: string) {
@@ -185,6 +296,21 @@ export default function LearnPage({ params }: PageProps) {
   const currentIdx = allLessons.findIndex((l) => l.id === lessonId)
   const prevLesson = allLessons[currentIdx - 1] ?? null
   const nextLesson = allLessons[currentIdx + 1] ?? null
+
+  // Genuine course completion — computed client-side from isRequired/
+  // isFinalAssessment (returned by /api/learn/[courseId]) so we also know
+  // *which* lesson is still outstanding, not just the count. As of P8.1 the
+  // count itself (GET /api/progress `total`) already matches markLessonComplete()
+  // via the shared getCourseCompletionCounts() helper, so this derivation and
+  // the progress bar now agree; this block stays because it additionally needs
+  // the specific outstanding lesson to link to.
+  const requiredLessons = allLessons.filter((l) => l.isRequired)
+  const courseGenuinelyComplete = requiredLessons.length > 0 && requiredLessons.every((l) => completed.has(l.id))
+  const finalAssessmentLesson = allLessons.find((l) => l.isFinalAssessment) ?? null
+  const outstandingLesson =
+    finalAssessmentLesson && !completed.has(finalAssessmentLesson.id)
+      ? finalAssessmentLesson
+      : requiredLessons.find((l) => !completed.has(l.id)) ?? null
 
   if (loading) {
     return (
@@ -232,7 +358,7 @@ export default function LearnPage({ params }: PageProps) {
             </>
           )}
         </div>
-        <ProgressBar completed={completed.size} total={total} />
+        <ProgressBar completed={completedCount} total={total} />
       </header>
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
@@ -312,37 +438,62 @@ export default function LearnPage({ params }: PageProps) {
               )}
             </AnimatePresence>
 
-            {/* Video player — external link takes priority, then Mux */}
-            {lesson?.videoUrl ? (
-              <ExternalVideoPlayer videoUrl={lesson.videoUrl} />
-            ) : lesson?.muxPlaybackId ? (
-              <MuxPlayer
-                playbackId={lesson.muxPlaybackId}
-                onEnded={markComplete}
-              />
+            {/* Quiz lessons render QuizPlayer instead of the video/document
+                content area — mutually exclusive, a lesson is one type. */}
+            {lesson?.type === 'QUIZ' ? (
+              lesson.quiz && (
+                <QuizPlayer
+                  quiz={lesson.quiz}
+                  onResult={(outcome) => handleQuizResult(outcome, lesson.id)}
+                />
+              )
             ) : (
-              <div className="w-full aspect-video bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
-                <div className="text-center space-y-2">
-                  <Zap size={32} className="mx-auto text-violet-400" />
-                  <p className="text-slate-500 text-sm">Video not yet available</p>
-                </div>
-              </div>
+              <>
+                {/* Video player — Mux takes priority once a lesson has been migrated;
+                    videoUrl (YouTube/Drive/Vimeo/Loom) remains the fallback for every
+                    lesson that hasn't been, and for intentional external embeds. */}
+                {lesson?.muxPlaybackId ? (
+                  <MuxVideoPlayer
+                    playbackId={lesson.muxPlaybackId}
+                    token={playbackToken}
+                    title={lesson.title}
+                    onEnded={markComplete}
+                  />
+                ) : lesson?.videoUrl ? (
+                  <ExternalVideoPlayer videoUrl={lesson.videoUrl} />
+                ) : (
+                  <div className="w-full aspect-video bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
+                    <div className="text-center space-y-2">
+                      <Zap size={32} className="mx-auto text-violet-400" />
+                      <p className="text-slate-500 text-sm">Video not yet available</p>
+                    </div>
+                  </div>
+                )}
+
+                {/* Notes / reading material — in-app viewer takes priority once a
+                    lesson has been migrated; pdfUrl (external link) remains the
+                    fallback for every lesson that hasn't been. This renders
+                    independently of whichever video player is shown above — a
+                    lesson can have both a video and notes. */}
+                {lesson?.documentKey ? (
+                  <PdfViewer url={documentUrl} onReload={loadDocumentUrl} />
+                ) : lesson?.pdfUrl ? (
+                  <a
+                    href={lesson.pdfUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors"
+                  >
+                    <span className="text-blue-700 text-sm font-medium">📄 Open reading material</span>
+                    <span className="text-blue-500 text-xs ml-auto">Opens in new tab →</span>
+                  </a>
+                ) : null}
+              </>
             )}
 
-            {/* PDF / Reading material link */}
-            {lesson?.pdfUrl && (
-              <a
-                href={lesson.pdfUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-3 px-4 py-3 rounded-xl border border-blue-200 bg-blue-50 hover:bg-blue-100 transition-colors"
-              >
-                <span className="text-blue-700 text-sm font-medium">📄 Open reading material</span>
-                <span className="text-blue-500 text-xs ml-auto">Opens in new tab →</span>
-              </a>
-            )}
-
-            {/* Lesson title + mark complete */}
+            {/* Lesson title + mark complete — quiz lessons are completed by
+                passing the quiz above, not this button (P5's progress route
+                rejects a direct call for a QUIZ lesson anyway). */}
             <div className="flex items-start justify-between gap-4">
               <div>
                 <h1 className="text-xl font-bold text-slate-900">{lesson?.title}</h1>
@@ -352,21 +503,23 @@ export default function LearnPage({ params }: PageProps) {
                   </p>
                 )}
               </div>
-              <button
-                id="mark-complete-btn"
-                onClick={markComplete}
-                disabled={!lesson || completed.has(lesson.id) || marking}
-                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
-                  lesson && completed.has(lesson.id)
-                    ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 cursor-default'
-                    : 'bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-50'
-                }`}
-              >
-                {lesson && completed.has(lesson.id)
-                  ? <><CheckCircle2 size={14} /> Completed</>
-                  : <>{marking ? 'Saving…' : 'Mark Complete'}</>
-                }
-              </button>
+              {lesson?.type !== 'QUIZ' && (
+                <button
+                  id="mark-complete-btn"
+                  onClick={markComplete}
+                  disabled={!lesson || completed.has(lesson.id) || marking}
+                  className={`flex-shrink-0 flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold transition-colors ${
+                    lesson && completed.has(lesson.id)
+                      ? 'bg-emerald-50 border border-emerald-200 text-emerald-700 cursor-default'
+                      : 'bg-violet-600 hover:bg-violet-500 text-white disabled:opacity-50'
+                  }`}
+                >
+                  {lesson && completed.has(lesson.id)
+                    ? <><CheckCircle2 size={14} /> Completed</>
+                    : <>{marking ? 'Saving…' : 'Mark Complete'}</>
+                  }
+                </button>
+              )}
             </div>
 
             {/* Prev / Next navigation */}
@@ -389,13 +542,28 @@ export default function LearnPage({ params }: PageProps) {
                   Next lesson
                   <ChevronRight size={16} />
                 </button>
-              ) : (
+              ) : courseGenuinelyComplete ? (
                 <Link
                   href="/dashboard"
                   className="flex items-center gap-2 px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-semibold rounded-xl transition-colors"
                 >
                   <Award size={14} />
                   Finish course
+                </Link>
+              ) : outstandingLesson ? (
+                <button
+                  onClick={() => goToLesson(outstandingLesson.id)}
+                  className="flex items-center gap-2 px-4 py-2 bg-amber-600 hover:bg-amber-500 text-white text-sm font-semibold rounded-xl transition-colors"
+                >
+                  {outstandingLesson.isFinalAssessment ? <Award size={14} /> : <ChevronRight size={14} />}
+                  {outstandingLesson.isFinalAssessment ? 'Take final quiz' : `Continue: ${outstandingLesson.title}`}
+                </button>
+              ) : (
+                <Link
+                  href="/dashboard"
+                  className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition-colors"
+                >
+                  Back to Dashboard
                 </Link>
               )}
             </div>

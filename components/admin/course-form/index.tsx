@@ -29,10 +29,9 @@ import {
   Edit2,
   Send,
   Save,
-  Link as LinkIcon,
   FileText,
-  AlertCircle,
 } from 'lucide-react'
+import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -47,12 +46,17 @@ interface LessonDraft {
   tempId: string       // always present
   title: string
   isFree: boolean
-  videoUrl?: string | null   // YouTube / Google Drive / Vimeo link
-  pdfUrl?: string | null     // Google Drive / direct PDF link
-  // Legacy Mux fields kept for backward-compat
+  videoUrl?: string | null   // YouTube / Google Drive / Vimeo link — legacy fallback
+  pdfUrl?: string | null     // Google Drive / direct PDF link — legacy fallback
   muxAssetId?: string | null
   muxPlaybackId?: string | null
+  muxError?: string | null
   duration?: number | null
+  type?: LessonType
+  content?: string | null
+  documentKey?: string | null
+  quizId?: string | null
+  isFinalAssessment?: boolean
 }
 
 interface ModuleDraft {
@@ -636,18 +640,6 @@ function StepCurriculum({
 
 // ─── Step 3: Lesson Detail Editor ─────────────────────────────────────────────
 
-function isValidUrl(url: string): boolean {
-  try { new URL(url); return true } catch { return false }
-}
-
-function getVideoProviderLabel(url: string): string {
-  if (url.includes('youtube.com') || url.includes('youtu.be')) return 'YouTube'
-  if (url.includes('drive.google.com')) return 'Google Drive'
-  if (url.includes('vimeo.com')) return 'Vimeo'
-  if (url.includes('loom.com')) return 'Loom'
-  return 'External video'
-}
-
 function StepLessonDetail({
   courseId,
   moduleIdx,
@@ -669,8 +661,20 @@ function StepLessonDetail({
   const [saving,   setSaving]   = useState(false)
   const [title,    setTitle]    = useState(lesson?.title    ?? '')
   const [isFree,   setIsFree]   = useState(lesson?.isFree   ?? false)
+  // Type-specific fields — kept in local state even while the other type's
+  // widget is hidden, so switching the selector never discards them; only
+  // what's relevant to the selected type is sent on save.
+  const [type,     setType]     = useState<LessonType>(lesson?.type ?? 'VIDEO')
   const [videoUrl, setVideoUrl] = useState(lesson?.videoUrl ?? '')
-  const [pdfUrl,   setPdfUrl]   = useState(lesson?.pdfUrl   ?? '')
+  const [content,  setContent]  = useState(lesson?.content  ?? '')
+  const [fields,   setFields]   = useState({
+    muxAssetId: lesson?.muxAssetId ?? null,
+    muxPlaybackId: lesson?.muxPlaybackId ?? null,
+    muxError: lesson?.muxError ?? null,
+    documentKey: lesson?.documentKey ?? null,
+    quizId: lesson?.quizId ?? null,
+    isFinalAssessment: lesson?.isFinalAssessment ?? false,
+  })
 
   if (!lesson || !mod) {
     return (
@@ -681,13 +685,19 @@ function StepLessonDetail({
     )
   }
 
-  const videoUrlValid = !videoUrl || isValidUrl(videoUrl)
-  const pdfUrlValid   = !pdfUrl   || isValidUrl(pdfUrl)
+  function applyLessonFieldsChanged(patch: LessonFieldsPatch) {
+    setFields((prev) => ({ ...prev, ...patch }))
+    if (patch.type) setType(patch.type)
+    setModules((prev) => prev.map((m, mi) => mi === moduleIdx ? {
+      ...m, lessons: m.lessons.map((l, li) => li === lessonIdx ? { ...l, ...patch } : l),
+    } : m))
+  }
+
+  const videoUrlValid = !videoUrl || isValidUrlLocal(videoUrl)
 
   async function save() {
     if (!mod?.id || !lesson?.id) return
     if (!videoUrlValid) { alert('Please enter a valid video URL (e.g. https://youtube.com/...)'); return }
-    if (!pdfUrlValid)   { alert('Please enter a valid PDF URL (e.g. https://drive.google.com/...)'); return }
     setSaving(true)
     try {
       const res = await fetch(
@@ -698,8 +708,9 @@ function StepLessonDetail({
           body: JSON.stringify({
             title,
             isFree,
-            videoUrl: videoUrl.trim() || null,
-            pdfUrl:   pdfUrl.trim()   || null,
+            type,
+            videoUrl: type === 'VIDEO' ? (videoUrl.trim() || null) : lesson.videoUrl ?? null,
+            content:  type === 'READING' ? (content.trim() || null) : lesson.content ?? null,
           }),
         }
       )
@@ -711,7 +722,7 @@ function StepLessonDetail({
                   ...m,
                   lessons: m.lessons.map((l, li) =>
                     li === lessonIdx
-                      ? { ...l, title, isFree, videoUrl: videoUrl.trim() || null, pdfUrl: pdfUrl.trim() || null }
+                      ? { ...l, title, isFree, type, videoUrl: videoUrl.trim() || null, content: content.trim() || null }
                       : l
                   ),
                 }
@@ -731,6 +742,7 @@ function StepLessonDetail({
   }
 
   const inputCls = 'w-full px-4 py-2.5 rounded-xl bg-slate-900 border border-slate-700 text-white text-sm placeholder-slate-500 focus:outline-none focus:border-violet-500 transition-colors'
+  const isLastLesson = moduleIdx === modules.length - 1 && lessonIdx === mod.lessons.length - 1
 
   return (
     <div className="space-y-6">
@@ -767,70 +779,20 @@ function StepLessonDetail({
         <span className="text-xs text-slate-600">(non-enrolled users can watch this)</span>
       </div>
 
-      {/* ── Video URL ── */}
-      <div>
-        <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-1.5">
-          <Video size={14} className="text-violet-400" /> Video Link
-        </label>
-        <div className="space-y-2">
-          <div className="relative">
-            <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-            <input
-              className={`${inputCls} pl-9 ${videoUrl && !videoUrlValid ? 'border-red-500/60 focus:border-red-500' : ''}`}
-              placeholder="Paste YouTube, Google Drive, Vimeo or Loom URL…"
-              value={videoUrl}
-              onChange={(e) => setVideoUrl(e.target.value)}
-            />
-          </div>
-          {videoUrl && videoUrlValid && (
-            <p className="text-xs text-emerald-400 flex items-center gap-1">
-              <CheckCircle size={11} /> {getVideoProviderLabel(videoUrl)} — link valid ✓
-            </p>
-          )}
-          {videoUrl && !videoUrlValid && (
-            <p className="text-xs text-red-400 flex items-center gap-1">
-              <AlertCircle size={11} /> Enter a complete URL starting with https://
-            </p>
-          )}
-        </div>
-        <p className="text-xs text-slate-600 mt-1.5">
-          Supported: YouTube · Google Drive (share as &quot;Anyone with link&quot;) · Vimeo · Loom · any direct video URL
-        </p>
-      </div>
-
-      {/* ── PDF / Reading Material URL ── */}
-      <div>
-        <label className="flex items-center gap-1.5 text-sm font-medium text-slate-300 mb-1.5">
-          <FileText size={14} className="text-blue-400" /> PDF / Reading Material Link
-        </label>
-        <div className="space-y-2">
-          <div className="relative">
-            <LinkIcon size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 pointer-events-none" />
-            <input
-              className={`${inputCls} pl-9 ${pdfUrl && !pdfUrlValid ? 'border-red-500/60 focus:border-red-500' : ''}`}
-              placeholder="Paste Google Drive, Dropbox or direct PDF URL…"
-              value={pdfUrl}
-              onChange={(e) => setPdfUrl(e.target.value)}
-            />
-          </div>
-          {pdfUrl && pdfUrlValid && (
-            <p className="text-xs text-blue-400 flex items-center gap-1">
-              <CheckCircle size={11} /> PDF link valid ✓
-            </p>
-          )}
-          {pdfUrl && !pdfUrlValid && (
-            <p className="text-xs text-red-400 flex items-center gap-1">
-              <AlertCircle size={11} /> Enter a complete URL starting with https://
-            </p>
-          )}
-        </div>
-        <p className="text-xs text-slate-600 mt-1.5">
-          Supported: Google Drive (share as &quot;Anyone with link&quot;) · Dropbox · any direct .pdf URL
-        </p>
-      </div>
+      <LessonContentEditor
+        courseId={courseId} moduleId={mod.id!} lessonId={lesson.id!}
+        isLastLessonInCourse={isLastLesson}
+        type={type} onTypeChange={setType}
+        videoUrl={videoUrl} onVideoUrlChange={setVideoUrl}
+        muxAssetId={fields.muxAssetId} muxPlaybackId={fields.muxPlaybackId} muxError={fields.muxError}
+        content={content} onContentChange={setContent}
+        documentKey={fields.documentKey}
+        quizId={fields.quizId} isFinalAssessment={fields.isFinalAssessment}
+        onLessonFieldsChanged={applyLessonFieldsChanged}
+      />
 
       {/* Actions */}
-      <div className="flex justify-between pt-4">
+      <div className="flex justify-between pt-4 border-t border-slate-800">
         <button
           onClick={onBack}
           className="px-4 py-2.5 border border-slate-700 text-slate-300 hover:text-white rounded-xl text-sm transition-colors"
@@ -839,7 +801,7 @@ function StepLessonDetail({
         </button>
         <button
           onClick={save}
-          disabled={saving || !videoUrlValid || !pdfUrlValid}
+          disabled={saving || !videoUrlValid}
           className="inline-flex items-center gap-2 px-6 py-2.5 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm font-semibold rounded-xl transition-colors"
         >
           {saving ? <Loader2 size={14} className="animate-spin" /> : <Save size={14} />}
@@ -848,6 +810,10 @@ function StepLessonDetail({
       </div>
     </div>
   )
+}
+
+function isValidUrlLocal(url: string): boolean {
+  try { new URL(url); return true } catch { return false }
 }
 
 // ─── Step 4: Review + Publish ─────────────────────────────────────────────────

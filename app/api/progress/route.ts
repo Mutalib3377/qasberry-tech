@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth } from '@clerk/nextjs/server'
 import { db }   from '@/lib/db'
 import { z }    from 'zod'
-import { sendCertificateEmail } from '@/lib/email'
+import { markLessonComplete, getCourseCompletionCounts } from '@/lib/completion'
 import type { ApiResponse } from '@/types'
 
 const BodySchema = z.object({
@@ -41,57 +41,28 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Not enrolled' }, { status: 403 })
   }
 
-  // Upsert progress (idempotent)
-  await db.progress.upsert({
-    where:  { userId_lessonId: { userId: user.id, lessonId } },
-    update: {},
-    create: { userId: user.id, lessonId },
-  })
-
-  // ── Check if all lessons in the course are completed ────────────────────────
-  const allLessons = await db.lesson.findMany({
-    where: { module: { courseId } },
-    select: { id: true },
-  })
-
-  const completedCount = await db.progress.count({
-    where: {
-      userId:   user.id,
-      lessonId: { in: allLessons.map((l) => l.id) },
-    },
-  })
-
-  let certificateIssued = false
-  if (completedCount >= allLessons.length && allLessons.length > 0) {
-    // Issue certificate if not already issued
-    const existing = await db.certificate.findFirst({
-      where: { userId: user.id, courseId },
-    })
-    if (!existing) {
-      const cert = await db.certificate.create({
-        data: { userId: user.id, courseId },
-        include: { course: { select: { title: true } } },
-      })
-      certificateIssued = true
-
-      // Send certificate email (best-effort)
-      await sendCertificateEmail({
-        to:            user.email,
-        studentName:   user.name ?? 'Student',
-        courseTitle:   cert.course.title,
-        certificateId: cert.id,
-      }).catch((err) => {
-        console.error('⚠️ Certificate email failed (non-fatal):', err)
-      })
-    }
+  // A quiz lesson's Progress row must only ever be created by a passing quiz
+  // attempt (app/api/quizzes/[quizId]/attempts/route.ts), never by a direct
+  // "Mark Complete" call. This is an integrity/security rule, not a
+  // completion-rule change — it applies unconditionally, regardless of the
+  // ENABLE_QUIZ_COMPLETION_GATING flag, and is a no-op today since no
+  // production lesson has type = 'QUIZ' yet.
+  const lesson = await db.lesson.findUnique({ where: { id: lessonId }, select: { type: true } })
+  if (lesson?.type === 'QUIZ') {
+    return NextResponse.json<ApiResponse>(
+      { success: false, error: 'Quiz lessons are completed by submitting a passing quiz attempt, not marked complete directly.' },
+      { status: 403 }
+    )
   }
+
+  const result = await markLessonComplete(user.id, lessonId)
 
   return NextResponse.json({
     success: true,
     data: {
-      completed:  completedCount,
-      total:      allLessons.length,
-      certificateIssued,
+      completed:  result.completed,
+      total:      result.total,
+      certificateIssued: result.certificateCreated,
     },
   })
 }
@@ -113,6 +84,10 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json<ApiResponse>({ success: false, error: 'User not found' }, { status: 404 })
   }
 
+  // completedLessonIds still spans *every* lesson — the sidebar needs a
+  // checkmark on a completed optional lesson too. Only `total` (the progress
+  // bar's denominator) must match what actually gates the certificate, so it
+  // comes from the shared helper markLessonComplete() uses, not a local count.
   const allLessons = await db.lesson.findMany({
     where:  { module: { courseId } },
     select: { id: true },
@@ -126,11 +101,14 @@ export async function GET(req: NextRequest): Promise<NextResponse> {
     select: { lessonId: true },
   })
 
+  const { completed, total } = await getCourseCompletionCounts(user.id, courseId)
+
   return NextResponse.json({
     success: true,
     data: {
       completedLessonIds: progress.map((p) => p.lessonId),
-      total: allLessons.length,
+      completed,
+      total,
     },
   })
 }

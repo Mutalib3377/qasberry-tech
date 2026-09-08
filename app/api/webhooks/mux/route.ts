@@ -25,6 +25,7 @@ interface MuxAssetReadyData {
   playback_ids?: Array<{ id: string; policy: string }>
   duration?: number
   upload_id?: string
+  errors?: { type?: string; messages?: string[] }
 }
 
 interface MuxWebhookEvent {
@@ -101,7 +102,27 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Invalid JSON' }, { status: 400 })
   }
 
-  // We only care about video.asset.ready — ignore all other events
+  // video.asset.errored: processing failed — there is no muxPlaybackId to
+  // write, but P7 added Lesson.muxError precisely so this can be persisted
+  // and surfaced in the admin UI instead of leaving the lesson stuck showing
+  // "processing" forever with no explanation.
+  if (event.type === 'video.asset.errored') {
+    const erroredAssetId = event.data.id
+    const messages = event.data.errors?.messages?.join('; ') ?? 'Video processing failed'
+    console.error(`❌ Mux webhook: asset ${erroredAssetId} failed processing (video.asset.errored): ${messages}`)
+
+    const lesson = await db.lesson.findFirst({ where: { muxAssetId: erroredAssetId }, select: { id: true, title: true } })
+    if (lesson) {
+      await db.lesson.update({ where: { id: lesson.id }, data: { muxError: messages } })
+      console.error(`❌ Mux asset error affects lesson ${lesson.id} ("${lesson.title}") — muxError set, admin UI will show it.`)
+    } else {
+      console.warn(`⚠️ Mux webhook: errored asset ${erroredAssetId} has no matching lesson (may have been deleted)`)
+    }
+
+    return NextResponse.json({ success: true, data: { message: 'Asset error logged' } })
+  }
+
+  // We only care about video.asset.ready beyond this point — ignore all other events
   if (event.type !== 'video.asset.ready') {
     return NextResponse.json({ success: true, data: { message: 'Event ignored' } })
   }
@@ -133,6 +154,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       data: {
         muxPlaybackId,
         duration: durationSeconds,
+        muxError: null, // clear any error from a prior failed attempt on this lesson
       },
     })
 
