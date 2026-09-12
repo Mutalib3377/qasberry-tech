@@ -455,11 +455,38 @@ export function LessonContentEditor(props: LessonContentEditorProps) {
     return () => { cancelled = true }
   }, [type, quizId, courseId, moduleId, lessonId])
 
+  // Guards against silently orphaning already-built content: each widget
+  // (video upload, quiz builder, document upload) persists its own type's
+  // fields to the DB immediately, independent of the parent's "Save Lesson"
+  // button — but that Save button always writes whatever `type` is *currently
+  // selected*, with no memory of what used to be selected. Switch tabs away
+  // from a type that already has real content and hit Save, and the lesson's
+  // `type` silently flips while quizId/muxAssetId/documentKey are left behind,
+  // unreferenced by the now-different type — the content still exists, the
+  // lesson just stops showing it. Confirming here is a UI-only speed bump;
+  // it changes nothing server-side and nothing about the fields' own APIs.
+  function handleTypeChange(newType: LessonType) {
+    if (newType === type) return
+    const hasBuiltContent =
+      (type === 'QUIZ' && !!quizId) ||
+      (type === 'VIDEO' && !!(muxPlaybackId || muxAssetId)) ||
+      (type === 'READING' && !!documentKey)
+    if (hasBuiltContent) {
+      const ok = window.confirm(
+        `This lesson already has a ${type.toLowerCase()} built. Switching to ${newType} ` +
+        `will stop students from seeing that ${type.toLowerCase()} — its content isn't deleted, ` +
+        `so switching back later restores it. Continue?`
+      )
+      if (!ok) return
+    }
+    onTypeChange(newType)
+  }
+
   return (
     <div className="space-y-5">
       <div>
         <label className="block text-xs font-medium text-slate-400 mb-2">Lesson Type</label>
-        <TypeSelector value={type} onChange={onTypeChange} />
+        <TypeSelector value={type} onChange={handleTypeChange} />
       </div>
 
       {type === 'VIDEO' && (
