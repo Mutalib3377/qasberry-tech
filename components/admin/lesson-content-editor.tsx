@@ -100,6 +100,50 @@ function TypeSelector({ value, onChange }: { value: LessonType; onChange: (t: Le
 
 type UploadStatus = 'idle' | 'uploading' | 'processing' | 'ready' | 'error'
 
+// The browser -> Mux PUT is a direct upload outside our server, so it never
+// shows up in our own logs or has a Vercel function timeout to fall back on.
+// Plain fetch() has no upload-progress events and no built-in timeout, so a
+// stalled connection (flaky wifi, a proxy that silently drops the stream,
+// etc.) leaves the promise pending forever — an infinite spinner with no
+// error. XHR gives us progress events, which double as a stall detector:
+// if no progress arrives for STALL_TIMEOUT_MS, we abort and surface a real
+// error instead of hanging.
+const STALL_TIMEOUT_MS = 30_000
+
+function putVideoToMux(uploadUrl: string, file: File, onProgress: (pct: number) => void): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const xhr = new XMLHttpRequest()
+    let stallTimer: ReturnType<typeof setTimeout>
+
+    function resetStallTimer() {
+      clearTimeout(stallTimer)
+      stallTimer = setTimeout(() => xhr.abort(), STALL_TIMEOUT_MS)
+    }
+
+    xhr.upload.onprogress = (e) => {
+      if (e.lengthComputable) onProgress(Math.round((e.loaded / e.total) * 100))
+      resetStallTimer()
+    }
+    xhr.onload = () => {
+      clearTimeout(stallTimer)
+      if (xhr.status >= 200 && xhr.status < 300) resolve()
+      else reject(new Error(`Upload to Mux failed (status ${xhr.status})`))
+    }
+    xhr.onerror = () => {
+      clearTimeout(stallTimer)
+      reject(new Error('Upload to Mux failed — network error'))
+    }
+    xhr.onabort = () => {
+      clearTimeout(stallTimer)
+      reject(new Error('Upload stalled — no progress for 30 seconds. Check your connection and try again.'))
+    }
+
+    xhr.open('PUT', uploadUrl)
+    xhr.send(file)
+    resetStallTimer()
+  })
+}
+
 function VideoWidget({
   courseId, moduleId, lessonId, videoUrl, onVideoUrlChange,
   muxAssetId, muxPlaybackId, muxError, onLessonFieldsChanged,
@@ -113,6 +157,7 @@ function VideoWidget({
     muxPlaybackId ? 'ready' : muxError ? 'error' : muxAssetId ? 'processing' : 'idle'
   )
   const [errorMsg, setErrorMsg] = useState<string | null>(muxError)
+  const [uploadProgress, setUploadProgress] = useState<number | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null)
 
@@ -152,6 +197,7 @@ function VideoWidget({
     if (file.size > 2 * 1024 * 1024 * 1024) { alert('Video must be under 2GB'); return }
     setStatus('uploading')
     setErrorMsg(null)
+    setUploadProgress(0)
     try {
       const createRes = await fetch('/api/admin/mux/upload', { method: 'POST' })
       const createData = await createRes.json() as { success: boolean; data?: { uploadId: string; uploadUrl: string }; error?: string }
@@ -159,8 +205,7 @@ function VideoWidget({
       const { uploadId, uploadUrl } = createData.data
 
       // Browser -> Mux directly. Never routed through our own server.
-      const putRes = await fetch(uploadUrl, { method: 'PUT', body: file })
-      if (!putRes.ok) throw new Error('Upload to Mux failed')
+      await putVideoToMux(uploadUrl, file, setUploadProgress)
 
       // Resolve upload -> asset id (can take a few seconds after the PUT completes).
       let confirmed = false
@@ -188,6 +233,7 @@ function VideoWidget({
       setStatus('error')
       setErrorMsg((err as Error).message)
     } finally {
+      setUploadProgress(null)
       if (fileInputRef.current) fileInputRef.current.value = ''
     }
   }
@@ -216,7 +262,8 @@ function VideoWidget({
 
         {status === 'uploading' && (
           <div className="flex items-center gap-3 px-4 py-4 rounded-xl border border-slate-700 bg-slate-900/50 text-slate-300 text-sm">
-            <Loader2 size={16} className="animate-spin text-violet-400" /> Uploading to Mux…
+            <Loader2 size={16} className="animate-spin text-violet-400" />
+            Uploading to Mux{uploadProgress !== null ? `… ${uploadProgress}%` : '…'}
           </div>
         )}
 
