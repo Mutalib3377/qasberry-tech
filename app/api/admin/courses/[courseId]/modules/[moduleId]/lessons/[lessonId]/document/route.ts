@@ -123,3 +123,40 @@ export async function POST(req: NextRequest, { params }: RouteContext): Promise<
     return NextResponse.json<ApiResponse>({ success: false, error: 'Failed to upload document' }, { status: 500 })
   }
 }
+
+// DELETE — remove the lesson's PDF: clears documentKey and deletes the
+// Storage object. Content (if any) and the lesson itself are untouched.
+export async function DELETE(_req: NextRequest, { params }: RouteContext): Promise<NextResponse> {
+  const { userId } = await auth()
+  if (!userId) return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
+
+  const role = await getUserRole(userId)
+  if (!role || !COURSE_MANAGER_ROLES.includes(role)) {
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
+  }
+
+  const lesson = await db.lesson.findUnique({
+    where: { id: params.lessonId },
+    select: { documentKey: true },
+  })
+  if (!lesson?.documentKey) {
+    return NextResponse.json<ApiResponse>({ success: false, error: 'This lesson has no document' }, { status: 404 })
+  }
+
+  try {
+    await db.lesson.update({ where: { id: params.lessonId }, data: { documentKey: null } })
+
+    // Best-effort — the DB update above is the source of truth and has
+    // already succeeded; a failure here only leaks an orphaned Storage object.
+    try {
+      await deleteLessonDocument(lesson.documentKey)
+    } catch (cleanupErr) {
+      console.error(`⚠️ Failed to delete Storage object ${lesson.documentKey} for lesson ${params.lessonId} (non-fatal):`, cleanupErr)
+    }
+
+    return NextResponse.json({ success: true, data: { message: 'Document removed' } })
+  } catch (err) {
+    console.error('DELETE document error:', err)
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Failed to remove document' }, { status: 500 })
+  }
+}

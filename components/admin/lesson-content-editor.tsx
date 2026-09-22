@@ -333,6 +333,7 @@ function ReadingWidget({
 }) {
   const [uploading, setUploading] = useState(false)
   const [uploadError, setUploadError] = useState<string | null>(null)
+  const [removing, setRemoving] = useState(false)
   const [previewUrl, setPreviewUrl] = useState<string | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
@@ -374,6 +375,25 @@ function ReadingWidget({
     }
   }
 
+  async function handleRemove() {
+    if (!confirm('Remove this PDF? Students will no longer be able to view it.')) return
+    setRemoving(true)
+    setUploadError(null)
+    try {
+      const res = await fetch(`/api/admin/courses/${courseId}/modules/${moduleId}/lessons/${lessonId}/document`, {
+        method: 'DELETE',
+      })
+      const data = await res.json() as { success: boolean; error?: string }
+      if (!res.ok || !data.success) throw new Error(data.error ?? 'Failed to remove document')
+      onLessonFieldsChanged({ documentKey: null })
+      setPreviewUrl(null)
+    } catch (err) {
+      setUploadError((err as Error).message)
+    } finally {
+      setRemoving(false)
+    }
+  }
+
   return (
     <div className="space-y-5">
       <div>
@@ -391,15 +411,28 @@ function ReadingWidget({
         <p className="text-xs font-medium text-slate-400 mb-2 flex items-center gap-1.5">
           <FileText size={12} className="text-blue-400" /> PDF notes
         </p>
-        <button
-          type="button"
-          onClick={() => fileInputRef.current?.click()}
-          disabled={uploading}
-          className="inline-flex items-center gap-2 px-4 py-2 border border-slate-700 hover:border-violet-500/50 text-slate-300 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
-        >
-          {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
-          {uploading ? 'Uploading…' : documentKey ? 'Replace PDF' : 'Upload PDF'}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading || removing}
+            className="inline-flex items-center gap-2 px-4 py-2 border border-slate-700 hover:border-violet-500/50 text-slate-300 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+          >
+            {uploading ? <Loader2 size={13} className="animate-spin" /> : <Upload size={13} />}
+            {uploading ? 'Uploading…' : documentKey ? 'Replace PDF' : 'Upload PDF'}
+          </button>
+          {documentKey && (
+            <button
+              type="button"
+              onClick={handleRemove}
+              disabled={uploading || removing}
+              className="inline-flex items-center gap-2 px-4 py-2 border border-red-900/50 hover:border-red-500/50 text-red-400 text-xs font-medium rounded-lg transition-colors disabled:opacity-50"
+            >
+              {removing ? <Loader2 size={13} className="animate-spin" /> : <X size={13} />}
+              {removing ? 'Removing…' : 'Remove PDF'}
+            </button>
+          )}
+        </div>
         {uploadError && <p className="text-xs text-red-400 mt-1.5">{uploadError}</p>}
         <input ref={fileInputRef} type="file" accept="application/pdf" className="hidden" onChange={handleFileSelect} />
       </div>
