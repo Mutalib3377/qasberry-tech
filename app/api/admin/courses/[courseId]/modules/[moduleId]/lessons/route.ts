@@ -14,6 +14,7 @@ const createLessonSchema = z.object({
   order: z.number().int().min(0).default(0),
   isFree: z.boolean().default(false),
   videoUrl: z.string().url().nullable().optional(),
+  content: z.string().nullable().optional(),
   muxAssetId: z.string().nullable().optional(),
   muxPlaybackId: z.string().nullable().optional(),
   duration: z.number().int().nullable().optional(),

@@ -17,6 +17,8 @@ const updateLessonSchema = z.object({
   // External link fields — YouTube, Google Drive, Vimeo, etc.
   videoUrl: z.string().url().nullable().optional(),
   pdfUrl: z.string().url().nullable().optional(),
+  // Plain markdown/text body for READING lessons with no PDF attached.
+  content: z.string().nullable().optional(),
   // Legacy Mux fields (kept for backward-compat)
   muxAssetId: z.string().nullable().optional(),
   muxPlaybackId: z.string().nullable().optional(),
