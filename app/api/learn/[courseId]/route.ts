@@ -33,6 +33,7 @@ export async function GET(
               videoUrl: true,        // external link (YouTube, Drive, Vimeo, Loom)
               pdfUrl: true,          // external PDF / reading material link — legacy fallback
               documentKey: true,     // Supabase Storage object key for an in-app document, if migrated
+              content: true,         // plain markdown notes for READING lessons with no PDF
               type: true,
               isRequired: true,
               isFinalAssessment: true,

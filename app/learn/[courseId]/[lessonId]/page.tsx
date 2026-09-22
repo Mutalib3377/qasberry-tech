@@ -27,6 +27,7 @@ interface Lesson {
   videoUrl:           string | null // external link: YouTube, Drive, Vimeo, Loom
   pdfUrl:             string | null // external PDF link — legacy fallback
   documentKey:        string | null // Supabase Storage object key for an in-app document, if migrated
+  content:            string | null // plain markdown notes for READING lessons with no PDF
   type:               'VIDEO' | 'READING' | 'QUIZ'
   isRequired:         boolean
   isFinalAssessment:  boolean
@@ -449,30 +450,37 @@ export default function LearnPage({ params }: PageProps) {
               )
             ) : (
               <>
-                {/* Video player — Mux takes priority once a lesson has been migrated;
-                    videoUrl (YouTube/Drive/Vimeo/Loom) remains the fallback for every
-                    lesson that hasn't been, and for intentional external embeds. */}
-                {lesson?.muxPlaybackId ? (
-                  <MuxVideoPlayer
-                    playbackId={lesson.muxPlaybackId}
-                    token={playbackToken}
-                    title={lesson.title}
-                    onEnded={markComplete}
-                  />
-                ) : lesson?.videoUrl ? (
-                  <ExternalVideoPlayer videoUrl={lesson.videoUrl} />
-                ) : (
-                  <div className="w-full aspect-video bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
-                    <div className="text-center space-y-2">
-                      <Zap size={32} className="mx-auto text-violet-400" />
-                      <p className="text-slate-500 text-sm">Video not yet available</p>
+                {/* Video player — only for VIDEO lessons. Mux takes priority once a
+                    lesson has been migrated; videoUrl (YouTube/Drive/Vimeo/Loom)
+                    remains the fallback for every lesson that hasn't been, and for
+                    intentional external embeds. READING lessons have no video to
+                    show, so they skip this block entirely rather than showing a
+                    "Video not yet available" placeholder that doesn't apply to them. */}
+                {lesson?.type === 'VIDEO' && (
+                  lesson.muxPlaybackId ? (
+                    <MuxVideoPlayer
+                      playbackId={lesson.muxPlaybackId}
+                      token={playbackToken}
+                      title={lesson.title}
+                      onEnded={markComplete}
+                    />
+                  ) : lesson.videoUrl ? (
+                    <ExternalVideoPlayer videoUrl={lesson.videoUrl} />
+                  ) : (
+                    <div className="w-full aspect-video bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
+                      <div className="text-center space-y-2">
+                        <Zap size={32} className="mx-auto text-violet-400" />
+                        <p className="text-slate-500 text-sm">Video not yet available</p>
+                      </div>
                     </div>
-                  </div>
+                  )
                 )}
 
-                {/* Notes / reading material — in-app viewer takes priority once a
-                    lesson has been migrated; pdfUrl (external link) remains the
-                    fallback for every lesson that hasn't been. This renders
+                {/* Notes / reading material — in-app document viewer takes priority
+                    once a lesson has been migrated; pdfUrl (external link) is the
+                    fallback for every lesson that hasn't been; plain pasted content
+                    (markdown/text, no rendering — just preserves line breaks) is the
+                    fallback for READING lessons with no PDF at all. This renders
                     independently of whichever video player is shown above — a
                     lesson can have both a video and notes. */}
                 {lesson?.documentKey ? (
@@ -487,6 +495,14 @@ export default function LearnPage({ params }: PageProps) {
                     <span className="text-blue-700 text-sm font-medium">📄 Open reading material</span>
                     <span className="text-blue-500 text-xs ml-auto">Opens in new tab →</span>
                   </a>
+                ) : lesson?.content ? (
+                  <div className="whitespace-pre-wrap text-slate-700 text-sm leading-relaxed px-4 py-4 rounded-2xl border border-slate-200 bg-white">
+                    {lesson.content}
+                  </div>
+                ) : lesson?.type === 'READING' ? (
+                  <div className="w-full py-10 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
+                    <p className="text-slate-500 text-sm">Reading content not yet available</p>
+                  </div>
                 ) : null}
               </>
             )}
