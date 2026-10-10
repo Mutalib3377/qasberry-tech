@@ -13,6 +13,7 @@ import {
 import { motion, AnimatePresence } from 'framer-motion'
 import MuxPlayerReact from '@mux/mux-player-react'
 import { PdfViewer } from '@/components/lesson/pdf-viewer'
+import { Markdown } from '@/components/shared/markdown'
 import { QuizPlayer, type QuizPlayerData, type QuizAttemptOutcome } from '@/components/lesson/quiz-player'
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -27,7 +28,7 @@ interface Lesson {
   videoUrl:           string | null // external link: YouTube, Drive, Vimeo, Loom
   pdfUrl:             string | null // external PDF link — legacy fallback
   documentKey:        string | null // Supabase Storage object key for an in-app document, if migrated
-  content:            string | null // plain markdown notes for READING lessons with no PDF
+  content:            string | null // markdown notes for READING lessons with no PDF
   type:               'VIDEO' | 'READING' | 'QUIZ'
   isRequired:         boolean
   isFinalAssessment:  boolean
@@ -478,8 +479,8 @@ export default function LearnPage({ params }: PageProps) {
 
                 {/* Notes / reading material — in-app document viewer takes priority
                     once a lesson has been migrated; pdfUrl (external link) is the
-                    fallback for every lesson that hasn't been; plain pasted content
-                    (markdown/text, no rendering — just preserves line breaks) is the
+                    fallback for every lesson that hasn't been; pasted/written content
+                    (markdown, rendered with formatting) is the
                     fallback for READING lessons with no PDF at all. This renders
                     independently of whichever video player is shown above — a
                     lesson can have both a video and notes. */}
@@ -496,9 +497,9 @@ export default function LearnPage({ params }: PageProps) {
                     <span className="text-blue-500 text-xs ml-auto">Opens in new tab →</span>
                   </a>
                 ) : lesson?.content ? (
-                  <div className="whitespace-pre-wrap text-slate-700 text-sm leading-relaxed px-4 py-4 rounded-2xl border border-slate-200 bg-white">
+                  <Markdown className="text-slate-700 text-sm leading-relaxed px-4 py-4 rounded-2xl border border-slate-200 bg-white">
                     {lesson.content}
-                  </div>
+                  </Markdown>
                 ) : lesson?.type === 'READING' ? (
                   <div className="w-full py-10 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
                     <p className="text-slate-500 text-sm">Reading content not yet available</p>

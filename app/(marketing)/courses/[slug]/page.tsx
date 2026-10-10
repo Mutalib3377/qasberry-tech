@@ -15,6 +15,7 @@ import { MarketingNav } from '@/components/marketing/marketing-nav'
 import { Footer }       from '@/components/marketing/footer'
 import { EnrollButton } from '@/components/course/enroll-button'
 import { Badge }        from '@/components/shared/Badge'
+import { Markdown, stripMarkdown } from '@/components/shared/markdown'
 
 interface PageProps {
   params: { slug: string }
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   })
   return {
     title:       course ? `${course.title} | Qasberry` : 'Course | Qasberry',
-    description: course?.description ?? undefined,
+    description: course?.description ? stripMarkdown(course.description).slice(0, 160) : undefined,
   }
 }
 
@@ -105,7 +106,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-charcoal tracking-tight leading-tight">{course.title}</h1>
               {course.description && (
-                <p className="text-brand-secondary text-lg leading-relaxed">{course.description}</p>
+                <Markdown className="text-brand-secondary text-lg leading-relaxed">{course.description}</Markdown>
               )}
               <div className="flex flex-wrap items-center gap-5 text-sm font-medium text-brand-tertiary pt-1">
                 <span className="flex items-center gap-1.5">

@@ -9,6 +9,7 @@ import { isAdminRole, canManageCourses } from '@/lib/auth'
 import type { UserRole } from '@/types'
 import type { Metadata } from 'next'
 import Link from 'next/link'
+import { Markdown } from '@/components/shared/markdown'
 import {
   ChevronLeft,
   Edit2,
@@ -144,9 +145,9 @@ export default async function AdminCourseDetailPage({ params }: PageProps) {
         </div>
 
         {course.description && (
-          <p className="mt-4 pt-4 border-t border-slate-800 text-slate-400 text-sm leading-relaxed">
+          <Markdown tone="dark" className="mt-4 pt-4 border-t border-slate-800 text-slate-400 text-sm leading-relaxed">
             {course.description}
-          </p>
+          </Markdown>
         )}
       </div>
 

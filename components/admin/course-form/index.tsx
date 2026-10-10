@@ -31,6 +31,8 @@ import {
   Save,
   FileText,
 } from 'lucide-react'
+import { RichTextEditor } from '@/components/shared/rich-text-editor'
+import { Markdown } from '@/components/shared/markdown'
 import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -195,12 +197,11 @@ function StepBasicInfo({
       {/* Description */}
       <div>
         <label className="block text-sm font-medium text-slate-300 mb-1.5">Description</label>
-        <textarea
-          className={`${inputCls} resize-none`}
-          rows={4}
+        <RichTextEditor
+          rows={6}
           placeholder="What will students learn in this course?"
           value={info.description}
-          onChange={(e) => onChange({ ...info, description: e.target.value })}
+          onChange={(description) => onChange({ ...info, description })}
           maxLength={2000}
         />
         <p className="text-xs text-slate-600 mt-1">{info.description.length}/2000</p>
@@ -886,7 +887,7 @@ function StepReview({
               </span>
             </div>
             {info.description && (
-              <p className="text-slate-400 text-sm line-clamp-2">{info.description}</p>
+              <Markdown tone="dark" className="text-slate-400 text-sm">{info.description}</Markdown>
             )}
           </div>
         </div>

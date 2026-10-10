@@ -24,6 +24,7 @@ import {
 } from 'lucide-react'
 import { QuizBuilder, type QuizData } from '@/components/lesson/quiz-builder'
 import { PdfViewer } from '@/components/lesson/pdf-viewer'
+import { RichTextEditor } from '@/components/shared/rich-text-editor'
 
 export type LessonType = 'VIDEO' | 'READING' | 'QUIZ'
 
@@ -398,12 +399,11 @@ function ReadingWidget({
     <div className="space-y-5">
       <div>
         <label className="block text-xs font-medium text-slate-400 mb-1.5">Content (optional)</label>
-        <textarea
-          className={`${inputCls} resize-none`}
-          rows={5}
-          placeholder="Write the lesson's reading content here (markdown supported)…"
+        <RichTextEditor
+          rows={12}
+          placeholder="Write or paste the lesson's reading content here…"
           value={content}
-          onChange={(e) => onContentChange(e.target.value)}
+          onChange={onContentChange}
         />
       </div>
 

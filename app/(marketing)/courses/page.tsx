@@ -9,6 +9,7 @@ import { BookOpen, Users, Star, Zap, Search } from 'lucide-react'
 import { MarketingNav } from '@/components/marketing/marketing-nav'
 import { Footer }       from '@/components/marketing/footer'
 import { Badge }        from '@/components/shared/Badge'
+import { stripMarkdown } from '@/components/shared/markdown'
 
 export const metadata: Metadata = {
   title: 'Courses | Qasberry',
@@ -191,7 +192,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                   </h2>
 
                   {course.description && (
-                    <p className="text-brand-secondary text-sm leading-relaxed line-clamp-2">{course.description}</p>
+                    <p className="text-brand-secondary text-sm leading-relaxed line-clamp-2">{stripMarkdown(course.description)}</p>
                   )}
 
                   <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-medium text-brand-tertiary">

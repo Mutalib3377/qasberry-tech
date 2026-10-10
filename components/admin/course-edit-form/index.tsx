@@ -12,6 +12,7 @@ import {
   Video, BookOpen, Lock, Unlock, Edit2, Save, Send, ImageIcon,
   FileText, HelpCircle,
 } from 'lucide-react'
+import { RichTextEditor } from '@/components/shared/rich-text-editor'
 import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
 
 //  Types
@@ -280,7 +281,7 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
 
         <div>
           <label className="block text-xs font-medium text-slate-400 mb-1.5">Description</label>
-          <textarea className={`${inputCls} resize-none`} rows={3} value={description} onChange={e => setDesc(e.target.value)} maxLength={2000} />
+          <RichTextEditor rows={6} value={description} onChange={setDesc} maxLength={2000} placeholder="What will students learn in this course?" />
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
