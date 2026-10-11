@@ -1,203 +1,315 @@
 'use client'
 
+import Image from 'next/image'
 import Link from 'next/link'
+import { useRef, useState } from 'react'
+import { useRouter } from 'next/navigation'
 import { motion, useReducedMotion } from 'framer-motion'
-import { ArrowRight, PlayCircle } from 'lucide-react'
-import { QasberryBotInput } from './qasberry-bot-input'
+import {
+  ArrowDown,
+  ArrowRight,
+  ArrowUpRight,
+  Award,
+  Brain,
+  BriefcaseBusiness,
+  ChartColumnIncreasing,
+  ChartNoAxesColumnIncreasing,
+  FileBadge,
+  GraduationCap,
+  Search,
+  Smile,
+} from 'lucide-react'
+import { AUDIENCES, type AudienceKey } from './audiences'
 
-const HERO_VIDEO_SRC = '/MASTER_CINEMATIC_VIDEO_PROMPT.mp4'
-const HERO_VIDEO_POSTER = '/logo.png'
+// Placeholder cropped from the design mockup — swap for the final artwork.
+const HERO_ILLUSTRATION_SRC = '/hero-banner.png'
 
-const FLOATING_CARDS = [
-  {
-    title: 'Career context mapped',
-    detail: 'Nurse track signal: high confidence',
-    className: 'top-8 left-2 sm:left-4',
-    rotate: -6,
-  },
-  {
-    title: 'Curriculum synthesis',
-    detail: 'Roadmap assembled with 3 learning arcs',
-    className: 'top-32 right-0 sm:right-2',
-    rotate: 5,
-  },
-  {
-    title: 'AI skill projection',
-    detail: 'Estimated completion: 6 weeks',
-    className: 'bottom-10 left-10 sm:left-20',
-    rotate: -3,
-  },
+const BENEFITS = [
+  { label: 'Learn with AI', icon: GraduationCap },
+  { label: 'Build Skills',  icon: ChartNoAxesColumnIncreasing },
+  { label: 'Get Certified', icon: FileBadge },
 ]
 
-function NetworkVisual() {
+const AUDIENCE_TILES: Record<AudienceKey, { blurb: string; icon: typeof Smile; tile: string }> = {
+  kids: {
+    blurb: 'Learn, explore and grow with AI.',
+    icon: Smile,
+    tile: 'border-indigo-100 bg-[linear-gradient(135deg,#f3f6ff,#eef2ff)] hover:border-indigo-300',
+  },
+  sales: {
+    blurb: 'Learn, build and advance with AI.',
+    icon: BriefcaseBusiness,
+    tile: 'border-violet-100 bg-[linear-gradient(135deg,#f8f4ff,#f1ebff)] hover:border-violet-300',
+  },
+}
+
+function FloatingCard({
+  children,
+  className,
+  rotate,
+  delay,
+}: {
+  children: React.ReactNode
+  className: string
+  rotate: number
+  delay: number
+}) {
   const reduceMotion = useReducedMotion()
 
   return (
-    <div className="relative w-full max-w-[460px] aspect-square">
-      <div className="absolute inset-0 rounded-[42px] bg-[radial-gradient(circle_at_20%_10%,rgba(107,95,255,0.24),transparent_42%),radial-gradient(circle_at_82%_18%,rgba(93,177,255,0.22),transparent_46%),radial-gradient(circle_at_60%_80%,rgba(99,224,255,0.24),transparent_42%)]" />
-      <div className="absolute inset-5 rounded-[36px] border border-slate-200/70 bg-white/72 backdrop-blur-xl shadow-[0_40px_90px_-56px_rgba(15,23,42,0.45)] overflow-hidden">
-        <div className="absolute inset-0 bg-[linear-gradient(120deg,rgba(255,255,255,0.6),rgba(255,255,255,0.1)_48%,rgba(255,255,255,0.6))]" />
-        <svg viewBox="0 0 500 500" className="absolute inset-0 w-full h-full" aria-hidden>
-          <defs>
-            <linearGradient id="line" x1="0" y1="0" x2="1" y2="1">
-              <stop offset="0%" stopColor="#7a70ff" stopOpacity="0.4" />
-              <stop offset="100%" stopColor="#57c7ff" stopOpacity="0.45" />
-            </linearGradient>
-          </defs>
-          <path d="M82 142C164 166 236 180 350 122" stroke="url(#line)" strokeWidth="2" fill="none" />
-          <path d="M162 238C236 242 306 264 390 332" stroke="url(#line)" strokeWidth="2" fill="none" />
-          <path d="M110 324C190 290 270 236 348 178" stroke="url(#line)" strokeWidth="2" fill="none" />
-          <path d="M120 100C188 132 244 196 262 258" stroke="url(#line)" strokeWidth="2" fill="none" />
-        </svg>
-        {[{ x: '14%', y: '24%' }, { x: '37%', y: '44%' }, { x: '68%', y: '30%' }, { x: '71%', y: '69%' }, { x: '24%', y: '66%' }].map((node, index) => (
-          <motion.span
-            key={`${node.x}-${node.y}`}
-            style={{ left: node.x, top: node.y }}
-            animate={reduceMotion ? undefined : { scale: [1, 1.22, 1], opacity: [0.55, 1, 0.55] }}
-            transition={{ duration: 3.6 + index * 0.4, repeat: Infinity, ease: 'easeInOut' }}
-            className="absolute h-3.5 w-3.5 rounded-full bg-[linear-gradient(140deg,#6f61ff,#53cfff)] shadow-[0_0_0_6px_rgba(104,132,255,0.14)]"
-          />
-        ))}
+    <motion.div
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: reduceMotion ? 0 : 0.6, delay }}
+      className={`absolute hidden xl:block ${className}`}
+    >
+      <motion.div
+        animate={reduceMotion ? undefined : { y: [0, -8, 0] }}
+        transition={{ duration: 5 + delay * 2, repeat: Infinity, ease: 'easeInOut' }}
+        style={{ rotate }}
+        className="rounded-2xl border border-white bg-white/90 backdrop-blur-md px-4 py-3.5 shadow-[0_18px_40px_-24px_rgba(49,46,129,0.35)]"
+      >
+        {children}
+      </motion.div>
+    </motion.div>
+  )
+}
 
-        <motion.div
-          animate={reduceMotion ? undefined : { y: [0, -10, 0] }}
-          transition={{ duration: 4.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 px-5 py-3 rounded-2xl border border-slate-200 bg-white/95 shadow-[0_20px_50px_-36px_rgba(15,23,42,0.45)]"
-        >
-          <div className="text-[10px] uppercase tracking-[0.14em] text-slate-500 font-semibold">Qasberry AI Core</div>
-          <div className="text-sm font-semibold text-slate-900 mt-1">Learning Graph Active</div>
-        </motion.div>
-      </div>
-
-      {FLOATING_CARDS.map((card, index) => (
-        <motion.div
-          key={card.title}
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-60px' }}
-          transition={{ delay: index * 0.12, duration: 0.5 }}
-          animate={reduceMotion ? undefined : { y: [0, -6, 0] }}
-          className={[
-            'absolute z-10 px-3 py-2 rounded-xl border border-slate-200 bg-white/86 backdrop-blur-sm shadow-[0_12px_30px_-28px_rgba(15,23,42,0.34)]',
-            card.className,
-          ].join(' ')}
-          style={{ transform: `rotate(${card.rotate}deg)` }}
-        >
-          <div className="text-[11px] font-semibold text-slate-900 leading-tight">{card.title}</div>
-          <div className="text-[10px] text-slate-500 mt-0.5 leading-snug">{card.detail}</div>
-        </motion.div>
-      ))}
+function IconBubble({ className, children }: { className: string; children: React.ReactNode }) {
+  return (
+    <div
+      className={`absolute hidden xl:flex h-14 w-14 items-center justify-center rounded-full text-white shadow-[0_14px_30px_-12px_rgba(79,70,229,0.6)] ${className}`}
+    >
+      {children}
     </div>
   )
 }
 
 export function HeroSection() {
   const reduceMotion = useReducedMotion()
+  const router = useRouter()
+  const [query, setQuery] = useState('')
+  const sectionRef = useRef<HTMLElement>(null)
+
+  function scrollToContent() {
+    const next = sectionRef.current?.nextElementSibling
+    if (!next) return
+    // Offset so the fixed marketing nav doesn't cover the section heading
+    const NAV_OFFSET = 48
+    window.scrollTo({
+      top: next.getBoundingClientRect().top + window.scrollY - NAV_OFFSET,
+      behavior: reduceMotion ? 'auto' : 'smooth',
+    })
+  }
+
+  function handleSearch(e: React.FormEvent) {
+    e.preventDefault()
+    const q = query.trim()
+    router.push(q ? `/courses?q=${encodeURIComponent(q)}` : '/courses')
+  }
+
+  const fadeUp = (delay: number) => ({
+    initial: { opacity: 0, y: 16 },
+    animate: { opacity: 1, y: 0 },
+    transition: { duration: reduceMotion ? 0 : 0.55, delay },
+  })
 
   return (
-    <section className="relative overflow-hidden pt-32 sm:pt-36 pb-20 sm:pb-28">
-      <div className="pointer-events-none absolute inset-0">
-        {!reduceMotion && HERO_VIDEO_SRC && (
-          <video
-            className="absolute inset-0 h-full w-full object-cover object-center"
-            autoPlay
-            muted
-            loop
-            playsInline
-            preload="metadata"
-            poster={HERO_VIDEO_POSTER}
-            aria-hidden
+    <section
+      ref={sectionRef}
+      className="relative overflow-hidden bg-[linear-gradient(180deg,#fbfdfe_0%,#f6f8fe_40%,#eef2fd_72%,#ffffff_100%)] pt-28 sm:pt-32"
+    >
+      {/* Soft background shapes */}
+      <div className="pointer-events-none absolute inset-0" aria-hidden>
+        <div className="absolute top-[38%] -left-40 h-[520px] w-[620px] rounded-full bg-[radial-gradient(ellipse,rgba(199,210,254,0.45),transparent_68%)]" />
+        <div className="absolute top-[34%] -right-40 h-[520px] w-[620px] rounded-full bg-[radial-gradient(ellipse,rgba(221,214,254,0.45),transparent_68%)]" />
+        <div className="absolute top-[34%] right-[6%] hidden xl:block h-14 w-14 rounded-full bg-indigo-100/50" />
+      </div>
+
+      {/* Connector curves between the floating cards and the illustration */}
+      <svg
+        className="pointer-events-none absolute inset-x-0 top-0 mx-auto hidden xl:block h-full w-full max-w-[1536px]"
+        viewBox="0 0 1536 1024"
+        preserveAspectRatio="xMidYMin slice"
+        fill="none"
+        aria-hidden
+      >
+        <path d="M216 602 C 230 680, 330 715, 412 725" stroke="#a5b4fc" strokeWidth="1.5" />
+        <circle cx="216" cy="602" r="4" fill="#6366f1" />
+        <circle cx="412" cy="725" r="4" fill="#818cf8" />
+        <circle cx="304" cy="798" r="6" fill="#a5b4fc" />
+        <path d="M1212 576 C 1210 650, 1120 700, 1050 722" stroke="#a5b4fc" strokeWidth="1.5" />
+        <circle cx="1212" cy="576" r="4" fill="#6366f1" />
+        <path d="M1290 812 C 1240 830, 1180 840, 1130 845" stroke="#c4b5fd" strokeWidth="1.5" />
+      </svg>
+
+      {/* Floating cards (large screens only) */}
+      <FloatingCard className="left-[8.5%] top-[49%]" rotate={4} delay={0.5}>
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+            <Brain size={22} />
+          </span>
+          <span className="text-sm font-medium leading-tight text-slate-800">Build<br />Real Skills</span>
+        </div>
+      </FloatingCard>
+      <IconBubble className="left-[20%] top-[62%] bg-[linear-gradient(135deg,#6366f1,#3b82f6)]">
+        <GraduationCap size={24} />
+      </IconBubble>
+
+      <FloatingCard className="right-[9.5%] top-[46%]" rotate={-6} delay={0.6}>
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+            <ChartColumnIncreasing size={22} />
+          </span>
+          <span className="text-sm font-medium leading-tight text-slate-800">Grow Your<br />Career</span>
+        </div>
+      </FloatingCard>
+      <FloatingCard className="right-[6.5%] top-[60%]" rotate={-6} delay={0.75}>
+        <div className="flex items-center gap-3">
+          <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+            <FileBadge size={22} />
+          </span>
+          <span className="text-sm font-medium leading-tight text-slate-800">Earn Your<br />Certificate</span>
+          <Award size={26} className="ml-2 text-indigo-500" />
+        </div>
+        <div className="mt-3 space-y-1.5">
+          <div className="h-1.5 w-28 rounded-full bg-slate-100" />
+          <div className="h-1.5 w-20 rounded-full bg-slate-100" />
+        </div>
+      </FloatingCard>
+      <IconBubble className="right-[12.5%] top-[75%] bg-[linear-gradient(135deg,#a78bfa,#7c3aed)]">
+        <ChartNoAxesColumnIncreasing size={24} />
+      </IconBubble>
+
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 text-center">
+        <motion.div {...fadeUp(0)} className="inline-block">
+          <Link
+            href="/courses"
+            className="group inline-flex items-center gap-3 rounded-full border border-slate-200/80 bg-white py-1 pl-1 pr-4 text-sm font-medium text-[#0f1535] shadow-[0_4px_14px_-6px_rgba(15,23,42,0.18)] hover:border-slate-300 hover:shadow-[0_6px_18px_-6px_rgba(15,23,42,0.24)] transition-all"
           >
-            <source src={HERO_VIDEO_SRC} type="video/mp4" />
-          </video>
-        )}
-        <div className="absolute inset-0 bg-white/70" />
-      </div>
+            <span className="rounded-full bg-[linear-gradient(90deg,#f472b6,#c084fc)] px-3 py-1 text-[13px] font-semibold text-white">
+              New
+            </span>
+            AI Learning for a Brighter Future
+            <ArrowUpRight size={16} className="text-slate-700 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" />
+          </Link>
+        </motion.div>
 
-      <div className="pointer-events-none absolute inset-0">
-        <div className="absolute -top-28 left-[10%] h-[360px] w-[360px] rounded-full bg-[radial-gradient(circle,rgba(109,101,255,0.24),transparent_65%)]" />
-        <div className="absolute top-20 right-[-10%] h-[420px] w-[420px] rounded-full bg-[radial-gradient(circle,rgba(96,197,255,0.2),transparent_68%)]" />
-        <div className="absolute bottom-[-120px] left-1/2 -translate-x-1/2 h-[420px] w-[920px] bg-[radial-gradient(ellipse,rgba(116,144,255,0.16),transparent_70%)]" />
-      </div>
+        <motion.h1
+          {...fadeUp(0.06)}
+          className="mt-5 text-[2.5rem] leading-[1.08] sm:text-6xl lg:text-[4.25rem] font-extrabold tracking-[-0.03em] text-[#0f1535]"
+        >
+          Learn to Leverage AI
+          <br />
+          <span className="bg-[linear-gradient(100deg,#7c3aed_0%,#4f46e5_45%,#3b5bdb_100%)] bg-clip-text text-transparent">
+            for Your Goals
+          </span>
+        </motion.h1>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
-        <div className="grid items-center gap-14 lg:grid-cols-[1.12fr_0.88fr]">
-          <div>
-            <motion.div
-              initial={{ opacity: 0, y: 14 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: reduceMotion ? 0 : 0.46 }}
-              className="inline-flex items-center rounded-full border border-slate-200 bg-white/86 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 shadow-sm"
-            >
-              Premium AI Learning Platform
-            </motion.div>
+        <motion.p {...fadeUp(0.12)} className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-slate-600">
+          Practical courses for Kids &amp; Youth and Sales &amp; Marketing professionals.
+        </motion.p>
 
-            <motion.h1
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.06 }}
-              className="mt-6 text-[2.65rem] leading-[1.1] sm:text-[4.4rem] lg:text-[5.2rem] font-black tracking-[-0.04em] text-slate-950"
-            >
-              A refined AI academy for <span className="bg-[linear-gradient(110deg,#635bff,#3ca9f8)] bg-clip-text text-transparent">modern careers.</span>
-            </motion.h1>
+        <motion.ul
+          {...fadeUp(0.18)}
+          className="mx-auto mt-7 flex flex-wrap items-center justify-center gap-x-6 gap-y-3 sm:divide-x sm:divide-slate-200"
+        >
+          {BENEFITS.map(({ label, icon: Icon }) => (
+            <li key={label} className="flex items-center gap-3 sm:pl-6 first:pl-0">
+              <span className="flex h-11 w-11 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
+                <Icon size={22} />
+              </span>
+              <span className="text-sm sm:text-[15px] font-medium text-slate-800">{label}</span>
+            </li>
+          ))}
+        </motion.ul>
 
-            <motion.p
-              initial={{ opacity: 0, y: 16 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.14 }}
-              className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-slate-600"
-            >
-              Tell Qasberry what you do. Instantly receive a career-calibrated AI roadmap with practical courses, workflows, and certifications designed for real work.
-            </motion.p>
+        <motion.div
+          {...fadeUp(0.26)}
+          className="relative z-10 mx-auto mt-8 max-w-[680px] rounded-3xl border border-white bg-white/90 backdrop-blur-xl p-4 sm:p-5 shadow-[0_30px_70px_-40px_rgba(49,46,129,0.35)]"
+        >
+          <h2 className="text-lg sm:text-xl font-bold text-[#0f1535]">What are you here for?</h2>
 
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: reduceMotion ? 0 : 0.6, delay: 0.2 }}
-              className="mt-9"
-            >
-              <QasberryBotInput />
-            </motion.div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: reduceMotion ? 0 : 0.48, delay: 0.24 }}
-              className="mt-7 flex flex-wrap items-center gap-3"
-            >
-              <Link
-                href="/courses"
-                className="group inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 text-sm font-semibold text-slate-700 hover:text-slate-950 hover:border-slate-300 hover:shadow-sm transition-all"
-              >
-                Explore courses
-                <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
-              </Link>
-              <Link
-                href="/community"
-                className="inline-flex h-12 items-center gap-2 rounded-2xl px-5 text-sm font-semibold text-slate-600 hover:text-slate-900 transition-colors"
-              >
-                <PlayCircle size={16} />
-                See learner stories
-              </Link>
-            </motion.div>
+          <div className="mt-4 grid gap-3 sm:grid-cols-2">
+            {AUDIENCES.map((audience) => {
+              const tile = AUDIENCE_TILES[audience.key]
+              const Icon = tile.icon
+              return (
+                <Link
+                  key={audience.key}
+                  href={audience.href}
+                  className={`group flex items-center gap-4 rounded-2xl border p-4 text-left transition-all hover:-translate-y-0.5 hover:shadow-md ${tile.tile}`}
+                >
+                  <span className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-white text-indigo-600 shadow-sm">
+                    <Icon size={24} />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-[15px] font-semibold text-[#0f1535]">{audience.name}</span>
+                    <span className="mt-0.5 block text-[13px] leading-snug text-slate-500">{tile.blurb}</span>
+                  </span>
+                  <ArrowRight size={18} className="shrink-0 text-indigo-600 transition-transform group-hover:translate-x-1" />
+                </Link>
+              )
+            })}
           </div>
 
-          <motion.div
-            initial={{ opacity: 0, y: 24, scale: 0.98 }}
-            whileInView={{ opacity: 1, y: 0, scale: 1 }}
-            viewport={{ once: true, margin: '-40px' }}
-            transition={{ duration: reduceMotion ? 0 : 0.72, delay: 0.1 }}
-            className="flex justify-center lg:justify-end"
+          <form
+            onSubmit={handleSearch}
+            className="mt-4 flex items-center gap-3 rounded-full border border-slate-200 bg-white py-1.5 pl-4 pr-1.5 focus-within:border-indigo-300 focus-within:ring-4 focus-within:ring-indigo-50 transition"
           >
-            <NetworkVisual />
-          </motion.div>
-        </div>
+            <Search size={18} className="shrink-0 text-slate-400" />
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="What do you want to learn? (e.g. AI for marketing, content creation...)"
+              aria-label="Search courses"
+              className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none"
+            />
+            <button
+              type="submit"
+              aria-label="Search"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-[linear-gradient(135deg,#6366f1,#7c3aed)] text-white transition hover:scale-105"
+            >
+              <ArrowRight size={16} />
+            </button>
+          </form>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: reduceMotion ? 0 : 0.7, delay: 0.35 }}
+          className="relative mx-auto -mt-2 max-w-[960px]"
+        >
+          <Image
+            src={HERO_ILLUSTRATION_SRC}
+            alt="A young learner and a sales professional learning AI alongside the Qasberry robot"
+            width={960}
+            height={369}
+            priority
+            className="h-auto w-full"
+          />
+
+          <button
+            type="button"
+            onClick={scrollToContent}
+            className="group absolute bottom-[2%] left-1/2 z-20 flex -translate-x-1/2 flex-col items-center gap-2 rounded-2xl px-3 py-1.5 text-xs sm:text-sm text-slate-600 hover:text-indigo-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-300 transition-colors"
+          >
+            <motion.span
+              animate={reduceMotion ? undefined : { y: [0, 5, 0] }}
+              transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+              className="flex h-9 w-9 items-center justify-center rounded-full border border-indigo-200 bg-white/90 text-indigo-600 shadow-sm group-hover:border-indigo-400 group-hover:bg-indigo-50 transition-colors"
+            >
+              <ArrowDown size={16} />
+            </motion.span>
+            Your future with AI starts here
+          </button>
+        </motion.div>
       </div>
+
+      {/* Blend the bottom of the banner into the white section below */}
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[5] h-48 bg-[linear-gradient(180deg,rgba(255,255,255,0)_0%,rgba(255,255,255,0.85)_65%,#ffffff_100%)]" aria-hidden />
     </section>
   )
 }

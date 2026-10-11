@@ -6,39 +6,39 @@ import { BadgeCheck, BookOpen, Clock3, Lock, Network, Sparkles, Users2 } from 'l
 const FEATURE_CARDS = [
   {
     icon: Network,
-    title: 'Adaptive AI Roadmaps',
-    body: 'Roadmaps adapt to your role, goals, and available time so each week feels focused.',
+    title: 'A Clear Path for Each Track',
+    body: 'Step-by-step learning paths for kids and for sales and marketing professionals, so you always know what to learn next.',
     className: 'lg:col-span-2 lg:row-span-1',
   },
   {
     icon: BookOpen,
-    title: 'Career-Calibrated Curriculum',
-    body: 'Every course is scoped around practical tools used in your profession.',
+    title: 'Real Tools, Real Results',
+    body: 'Hands-on lessons with the AI tools kids love and sales teams actually use.',
     className: 'lg:col-span-1',
   },
   {
     icon: Clock3,
-    title: 'Momentum-Friendly Pace',
-    body: 'Short lessons and applied exercises designed for crowded calendars.',
+    title: 'Bite-Sized Lessons',
+    body: 'Short lessons that fit after school or between sales calls.',
     className: 'lg:col-span-1',
   },
   {
     icon: Users2,
-    title: 'Peer Intelligence Layer',
-    body: 'Join communities where professionals compare workflows, prompts, and outcomes.',
+    title: 'Community',
+    body: 'Share projects, prompts and wins with other learners on your track.',
     className: 'lg:col-span-1',
   },
   {
     icon: BadgeCheck,
     title: 'Verifiable Credentials',
-    body: 'Earn trusted certificates that demonstrate real AI capability, not only course attendance.',
+    body: 'Earn certificates that prove real AI skills, for school portfolios and for your CV.',
     className: 'lg:col-span-1',
   },
   {
     icon: Lock,
     title: 'Responsible AI by Design',
-    body: 'Ethics, privacy, and risk governance are embedded into each learning path.',
-    className: 'lg:col-span-2',
+    body: 'Online safety for young learners, and data privacy and ethics for professionals, built into every path.',
+    className: 'sm:col-span-2 lg:col-span-3',
   },
 ]
 
@@ -58,9 +58,9 @@ export function FeaturesSection() {
           <span className="inline-flex items-center rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
             Why Qasberry
           </span>
-          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] tracking-tight font-bold text-slate-950">A premium system for career-first AI learning.</h2>
+          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] tracking-tight font-bold text-slate-950">AI learning that's focused, practical and fun.</h2>
           <p className="mt-4 text-slate-600 text-base leading-relaxed">
-            Built from first principles for professionals who need quality, speed, and structure when adopting AI.
+            Because we teach two audiences, every course is built for the people taking it.
           </p>
         </motion.div>
 

@@ -1,6 +1,7 @@
 // app/(marketing)/page.tsx
-// Qasberry public homepage — dark design with career search input in hero.
-// Server component: fetches careers + published course count from DB.
+// Qasberry public homepage — focused on two audiences: Kids & Youth, and
+// Sales & Marketing professionals.
+// Server component: fetches published course counts per track from DB.
 
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
@@ -8,41 +9,41 @@ import { MarketingNav }    from '@/components/marketing/marketing-nav'
 import { HeroSection }     from '@/components/marketing/hero-section'
 import { TrustSection }    from '@/components/marketing/trust-section'
 import { FeaturesSection } from '@/components/marketing/features-section'
-import { CareersSection }  from '@/components/marketing/careers-section'
+import { AudienceSection } from '@/components/marketing/audience-section'
 import { HowItWorks }      from '@/components/marketing/how-it-works'
 import { CtaBanner }       from '@/components/marketing/cta-banner'
 import { Footer }          from '@/components/marketing/footer'
+import { AUDIENCES, type AudienceKey } from '@/components/marketing/audiences'
 
 export const metadata: Metadata = {
-  title: 'Qasberry — AI Learning Academy',
+  title: 'Qasberry — AI Learning for Kids, Youth & Sales Professionals',
   description:
-    "Tell Qasberry who you are. Get your personalised AI learning roadmap and master AI in your field — whether you're a nurse, lawyer, teacher, or engineer.",
+    'Qasberry teaches AI to kids and teens getting ready for the future, and to sales and marketing professionals who want to win more with AI.',
 }
 
 export default async function HomePage() {
-  const careers = await db.career.findMany({
-    orderBy: { name: 'asc' },
-    include: { _count: { select: { courses: true } } },
-  })
+  const [trackCounts, publishedCourseCount] = await Promise.all([
+    Promise.all(
+      AUDIENCES.map((audience) =>
+        db.course.count({
+          where: { status: 'PUBLISHED', career: { slug: { in: audience.careerSlugs } } },
+        })
+      )
+    ),
+    db.course.count({ where: { status: 'PUBLISHED' } }),
+  ])
 
-  const publishedCourseCount = await db.course.count({
-    where: { status: 'PUBLISHED' },
-  })
+  const courseCounts = Object.fromEntries(
+    AUDIENCES.map((audience, i) => [audience.key, trackCounts[i]])
+  ) as Record<AudienceKey, number>
 
   return (
     <div className="min-h-screen bg-white text-[#101114] overflow-x-hidden">
       <MarketingNav />
       <HeroSection />
       <TrustSection />
+      <AudienceSection courseCounts={courseCounts} />
       <FeaturesSection />
-      <CareersSection
-        careers={careers.map((c) => ({
-          id:          c.id,
-          name:        c.name,
-          slug:        c.slug,
-          courseCount: c._count.courses,
-        }))}
-      />
       <HowItWorks />
       <CtaBanner courseCount={publishedCourseCount} />
       <Footer />

@@ -35,13 +35,13 @@ export function CtaBanner({ courseCount }: Props) {
             </div>
 
             <h2 className="mt-6 text-3xl sm:text-5xl leading-[1.15] font-black tracking-[-0.03em] text-slate-950">
-              Build your AI edge with clarity,
+              Start learning AI today,
               <br className="hidden sm:block" />
-              confidence, and momentum.
+              whatever your age or role.
             </h2>
 
             <p className="mt-5 text-slate-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Join Qasberry and receive a personalized roadmap in minutes. Designed for professionals who want results, not generic tutorials.
+              Help your child get ready for an AI-powered future, or give your sales and marketing work an AI edge. Get started in minutes.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">
@@ -58,17 +58,17 @@ export function CtaBanner({ courseCount }: Props) {
               </SignedOut>
               <SignedIn>
                 <Link
-                  href="/onboarding"
+                  href="/courses"
                   id="cta-roadmap-btn"
                   className="group inline-flex h-12 sm:h-13 items-center gap-2.5 px-6 sm:px-7 rounded-2xl bg-[linear-gradient(120deg,#5b5ff7,#4f87ff,#3aa7fb)] text-white text-sm sm:text-base font-semibold shadow-[0_18px_34px_-20px_rgba(79,135,255,0.72)] hover:shadow-[0_22px_40px_-20px_rgba(79,135,255,0.82)] transition-all"
                 >
-                  Build my roadmap
+                  Browse courses
                   <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform" />
                 </Link>
               </SignedIn>
             </div>
 
-            <p className="mt-5 text-slate-500 text-sm">No credit card required. Begin with your career context.</p>
+            <p className="mt-5 text-slate-500 text-sm">No credit card required.</p>
           </div>
         </motion.div>
       </div>

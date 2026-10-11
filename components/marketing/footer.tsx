@@ -7,27 +7,26 @@ import { ArrowRight, Globe, Send, AtSign } from 'lucide-react'
 import { Input } from '@/components/shared/Input'
 import { Button } from '@/components/shared/Button'
 import { motion } from 'framer-motion'
+import { AUDIENCES } from './audiences'
 
 // ── Link columns config ───────────────────────────────────────────────────────
 
 const PLATFORM_LINKS = [
-  { label: 'Features',     href: '/#features' },
-  { label: 'Careers',      href: '/#careers' },
+  { label: 'Why Qasberry', href: '/#features' },
+  { label: 'Our Tracks',   href: '/#tracks' },
   { label: 'How It Works', href: '/#how' },
-  { label: 'Roadmap',      href: '/onboarding' },
   { label: 'Community',    href: '/community' },
 ]
 
 const LEARN_LINKS = [
   { label: 'Browse Courses', href: '/courses' },
   { label: 'My Dashboard',   href: '/dashboard' },
-  { label: 'My Roadmap',     href: '/onboarding' },
   { label: 'Certificates',   href: '/dashboard' },
 ]
 
 const RESOURCE_LINKS = [
   { label: 'Help Center', href: '/courses' },
-  { label: 'Career Paths', href: '/#careers' },
+  ...AUDIENCES.map((a) => ({ label: a.name, href: a.href })),
   { label: 'Case Studies', href: '/community' },
 ]
 
@@ -76,7 +75,7 @@ export function Footer() {
             </Link>
 
             <p className="text-sm text-slate-600 leading-relaxed max-w-sm">
-              The premium AI learning academy for ambitious professionals who want practical outcomes.
+              The AI academy for kids, youth, and sales and marketing professionals.
             </p>
 
             <div className="flex items-center gap-3">
@@ -190,7 +189,7 @@ export function Footer() {
 
         <div className="mt-6 border-t border-slate-200 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-slate-500">© {new Date().getFullYear()} Qasberry. All rights reserved.</p>
-          <p className="text-xs text-slate-400">Designed for the next generation of AI-first professionals.</p>
+          <p className="text-xs text-slate-400">Built for young learners and the people who grow businesses.</p>
         </div>
           </div>
     </footer>

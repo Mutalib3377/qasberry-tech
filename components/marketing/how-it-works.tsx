@@ -6,20 +6,20 @@ import { Compass, Layers, Trophy } from 'lucide-react'
 const STEPS = [
   {
     number: '01',
-    title:  'Define Your Goal',
-    body:   "Describe your role, outcomes, and constraints. Qasberry understands your professional context first.",
+    title:  'Pick Your Track',
+    body:   'Choose Kids & Youth or Sales & Marketing to see courses made for you.',
     icon: Compass,
   },
   {
     number: '02',
-    title:  'Receive Your AI Roadmap',
-    body:   'Get a curated sequence of lessons, tools, and workflows tuned to your learning pace.',
+    title:  'Learn by Doing',
+    body:   'Work through short lessons, quizzes and hands-on projects at your own pace.',
     icon: Layers,
   },
   {
     number: '03',
-    title:  'Apply Skills and Earn Proof',
-    body:   'Practice in realistic scenarios and graduate with credentials that reflect practical execution.',
+    title:  'Show What You Can Do',
+    body:   'Earn a certificate and use your new AI skills in class, at work and in your career.',
     icon: Trophy,
   },
 ]
@@ -40,8 +40,8 @@ export function HowItWorks() {
           <span className="inline-flex items-center px-4 py-2 rounded-full border border-slate-200 bg-white text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
             How it works
           </span>
-          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">Three clear steps from AI intent to verified capability.</h2>
-          <p className="mt-4 text-base text-slate-600 leading-relaxed">An elegant learning flow with structure, accountability, and measurable progress.</p>
+          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">From curious to confident in three steps.</h2>
+          <p className="mt-4 text-base text-slate-600 leading-relaxed">A simple path with structure, practice and progress you can see.</p>
         </motion.div>
 
         <div className="relative mt-12">

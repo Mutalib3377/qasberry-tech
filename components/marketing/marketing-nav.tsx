@@ -6,16 +6,19 @@ import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
 import { Menu, X, ArrowRight } from 'lucide-react'
+import { AUDIENCES } from './audiences'
 
 const NAV_LINKS = [
-	{ label: 'Features', href: '/#features' },
-	{ label: 'Careers', href: '/#careers' },
+	{ label: 'Why Qasberry', href: '/#features' },
 	{ label: 'How it works', href: '/#how' },
 	{ label: 'Community', href: '/community' },
 ]
 
-// Kids is a special nav item rendered separately with a badge pill style
-const KIDS_NAV = { label: '✨ Kids & Youth', href: '/kids' }
+// The two audience tracks render as pill-style nav items
+const TRACK_NAV = [
+	{ label: '✨ Kids & Youth', href: '/kids', pill: 'bg-violet-100 text-violet-700 hover:bg-violet-200', mobile: 'text-violet-700 bg-violet-50 hover:bg-violet-100' },
+	{ label: '📈 Sales & Marketing', href: AUDIENCES[1].href, pill: 'bg-sky-100 text-sky-700 hover:bg-sky-200', mobile: 'text-sky-700 bg-sky-50 hover:bg-sky-100' },
+]
 
 export function MarketingNav() {
 	const [scrolled, setScrolled] = useState(false)
@@ -57,7 +60,7 @@ export function MarketingNav() {
 						<Image src="/logo.png" alt="Qasberrytech logo" width={176} height={44} className="h-8 w-auto" priority />
 					</Link>
 
-					<nav className="hidden md:flex items-center gap-7" aria-label="Primary navigation">
+					<nav className="hidden lg:flex items-center gap-6" aria-label="Primary navigation">
 						{NAV_LINKS.map((item) => (
 							<Link
 								key={item.href}
@@ -67,16 +70,18 @@ export function MarketingNav() {
 								{item.label}
 							</Link>
 						))}
-						{/* Kids pill */}
-						<Link
-							href={KIDS_NAV.href}
-							className="text-sm font-bold px-3 py-1 rounded-full bg-violet-100 text-violet-700 hover:bg-violet-200 transition-colors"
-						>
-							{KIDS_NAV.label}
-						</Link>
+						{TRACK_NAV.map((item) => (
+							<Link
+								key={item.href}
+								href={item.href}
+								className={`text-sm font-bold px-3 py-1 rounded-full transition-colors ${item.pill}`}
+							>
+								{item.label}
+							</Link>
+						))}
 					</nav>
 
-					<div className="hidden md:flex items-center gap-2.5">
+					<div className="hidden lg:flex items-center gap-2.5">
 						<SignedOut>
 							<SignInButton mode="modal">
 								<button className="h-10 px-4 rounded-xl text-sm font-semibold text-slate-700 hover:text-slate-950 transition-colors">
@@ -101,7 +106,7 @@ export function MarketingNav() {
 					<button
 						type="button"
 						onClick={() => setOpen(true)}
-						className="md:hidden h-10 w-10 rounded-xl border border-slate-200 text-slate-700 hover:text-slate-950 hover:border-slate-300 transition-colors inline-flex items-center justify-center"
+						className="lg:hidden h-10 w-10 rounded-xl border border-slate-200 text-slate-700 hover:text-slate-950 hover:border-slate-300 transition-colors inline-flex items-center justify-center"
 						aria-label="Open menu"
 					>
 						<Menu size={18} />
@@ -150,14 +155,16 @@ export function MarketingNav() {
 										{item.label}
 									</Link>
 								))}
-								{/* Kids pill */}
-								<Link
-									href={KIDS_NAV.href}
-									onClick={() => setOpen(false)}
-									className="px-3 py-2.5 rounded-lg text-sm font-bold text-violet-700 bg-violet-50 hover:bg-violet-100 transition-colors"
-								>
-									{KIDS_NAV.label}
-								</Link>
+								{TRACK_NAV.map((item) => (
+									<Link
+										key={item.href}
+										href={item.href}
+										onClick={() => setOpen(false)}
+										className={`px-3 py-2.5 rounded-lg text-sm font-bold transition-colors ${item.mobile}`}
+									>
+										{item.label}
+									</Link>
+								))}
 							</nav>
 							<div className="mt-4 pt-4 border-t border-slate-200">
 								<SignedOut>
