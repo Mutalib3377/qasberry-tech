@@ -4,12 +4,14 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useState } from 'react'
 import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
-import { SignedIn, SignedOut, SignInButton, SignUpButton, UserButton } from '@clerk/nextjs'
+import { SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs'
 import { Menu, X, ArrowRight } from 'lucide-react'
 import { AUDIENCES } from './audiences'
 import { ENABLED_TRACKS } from '@/lib/features'
+import { UserMenu } from '@/components/shared/user-menu'
 
 const NAV_LINKS = [
+	{ label: 'Courses', href: '/courses' },
 	{ label: 'Why Qasberry', href: '/#features' },
 	{ label: 'How it works', href: '/#how' },
 	{ label: 'Community', href: '/community' },
@@ -101,7 +103,7 @@ export function MarketingNav() {
 							<Link href="/dashboard" className="h-10 px-4 rounded-xl border border-slate-200 text-sm font-semibold text-slate-700 hover:text-slate-950 hover:border-slate-300 transition-colors inline-flex items-center">
 								Dashboard
 							</Link>
-							<UserButton afterSignOutUrl="/" />
+							<UserMenu />
 						</SignedIn>
 					</div>
 
@@ -185,7 +187,7 @@ export function MarketingNav() {
 										>
 											Dashboard
 										</Link>
-										<UserButton />
+										<UserMenu />
 									</div>
 								</SignedIn>
 							</div>

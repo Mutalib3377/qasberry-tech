@@ -6,15 +6,26 @@ import { useState, useEffect, useCallback } from 'react'
 import Image from 'next/image'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import {
   CheckCircle2, Circle, Lock, ChevronRight,
-  ChevronLeft, Award, Menu, X, Zap,
+  ChevronLeft, Award, Menu, X, Zap, ArrowLeft, BookOpen,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import MuxPlayerReact from '@mux/mux-player-react'
 import { PdfViewer } from '@/components/lesson/pdf-viewer'
 import { Markdown } from '@/components/shared/markdown'
 import { QuizPlayer, type QuizPlayerData, type QuizAttemptOutcome } from '@/components/lesson/quiz-player'
+
+// Clerk's UserButton must be client-only to avoid a hydration mismatch
+const UserMenu = dynamic(
+  () => import('@/components/shared/user-menu').then((m) => m.UserMenu),
+  { ssr: false }
+)
+
+// Below this width the curriculum sidebar overlays the lesson, so it starts
+// closed and closes again after picking a lesson
+const MOBILE_BREAKPOINT = 768
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -45,6 +56,7 @@ interface Module {
 interface CourseData {
   id:      string
   title:   string
+  slug:    string
   modules: Module[]
 }
 
@@ -118,7 +130,7 @@ function ExternalVideoPlayer({ videoUrl }: { videoUrl: string }) {
 function ProgressBar({ completed, total }: { completed: number; total: number }) {
   const pct = total > 0 ? Math.round((completed / total) * 100) : 0
   return (
-    <div className="flex items-center gap-3 text-xs text-slate-500">
+    <div className="hidden sm:flex items-center gap-3 w-40 text-xs text-slate-500" aria-label={`Course progress ${pct}%`}>
       <div className="flex-1 h-1.5 rounded-full bg-slate-200 overflow-hidden">
         <div
           className="h-full bg-gradient-to-r from-violet-600 to-cyan-500 transition-all duration-500"
@@ -158,6 +170,11 @@ export default function LearnPage({ params }: PageProps) {
   const [error,      setError]      = useState<string | null>(null)
   const [playbackToken, setPlaybackToken] = useState<string | null>(null)
   const [documentUrl,   setDocumentUrl]   = useState<string | null>(null)
+
+  // Start with the curriculum closed on phones so it doesn't cover the lesson
+  useEffect(() => {
+    if (window.innerWidth < MOBILE_BREAKPOINT) setSidebarOpen(false)
+  }, [])
 
   // Fetch course + progress
   useEffect(() => {
@@ -291,6 +308,7 @@ export default function LearnPage({ params }: PageProps) {
 
   // Navigate to adjacent lesson
   function goToLesson(id: string) {
+    if (window.innerWidth < MOBILE_BREAKPOINT) setSidebarOpen(false)
     router.push(`/learn/${courseId}/${id}`)
   }
 
@@ -342,25 +360,51 @@ export default function LearnPage({ params }: PageProps) {
     <div className="h-screen bg-white text-slate-900 flex flex-col overflow-hidden">
 
       {/* ── Topbar ─────────────────────────────────────────────────────────── */}
-      <header className="flex-shrink-0 flex items-center justify-between px-5 py-3 border-b border-slate-200 bg-white/85 backdrop-blur-sm">
-        <div className="flex items-center gap-3">
+      <header className="flex-shrink-0 flex items-center justify-between gap-3 px-3 sm:px-5 py-3 border-b border-slate-200 bg-white/85 backdrop-blur-sm">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
+          <Link
+            href="/dashboard"
+            aria-label="Back to dashboard"
+            className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors flex-shrink-0"
+          >
+            <ArrowLeft size={16} />
+            <span className="hidden sm:inline">Dashboard</span>
+          </Link>
           <button
             onClick={() => setSidebarOpen((v) => !v)}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+            aria-label={sidebarOpen ? 'Hide lessons' : 'Show lessons'}
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors flex-shrink-0"
           >
             {sidebarOpen ? <X size={16} /> : <Menu size={16} />}
           </button>
-          <Link href="/dashboard" className="flex items-center">
+          <Link href="/dashboard" className="hidden md:flex items-center flex-shrink-0">
             <Image src="/logo.png" alt="Qasberrytech logo" width={150} height={38} className="h-7 w-auto" />
           </Link>
           {course && (
             <>
-              <span className="text-slate-300">/</span>
-              <span className="text-slate-500 text-sm truncate max-w-[200px]">{course.title}</span>
+              <span className="hidden md:inline text-slate-300">/</span>
+              <Link
+                href={`/courses/${course.slug}`}
+                title="View course overview"
+                className="text-slate-600 hover:text-violet-700 text-sm font-medium truncate max-w-[140px] sm:max-w-[240px] transition-colors"
+              >
+                {course.title}
+              </Link>
             </>
           )}
         </div>
-        <ProgressBar completed={completedCount} total={total} />
+        <div className="flex items-center gap-2 sm:gap-4 flex-shrink-0">
+          <ProgressBar completed={completedCount} total={total} />
+          <Link
+            href="/courses"
+            aria-label="Browse courses"
+            className="inline-flex items-center gap-1.5 h-9 px-2.5 rounded-lg text-sm font-medium text-slate-600 hover:text-slate-900 hover:bg-slate-100 transition-colors"
+          >
+            <BookOpen size={16} />
+            <span className="hidden lg:inline">Courses</span>
+          </Link>
+          <UserMenu />
+        </div>
       </header>
 
       {/* ── Body ──────────────────────────────────────────────────────────── */}
