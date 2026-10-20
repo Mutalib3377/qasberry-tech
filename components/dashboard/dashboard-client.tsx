@@ -16,6 +16,7 @@ import { Card } from '@/components/shared/Card'
 import { Badge } from '@/components/shared/Badge'
 import { Button } from '@/components/shared/Button'
 import { ProgressBar } from '@/components/shared/ProgressBar'
+import { SHOW_CAREER_ROADMAP } from '@/lib/features'
 
 // Role labels 
 const ROLE_LABELS: Record<string, string> = {
@@ -162,14 +163,23 @@ export function DashboardClient({ firstName, role, enrollments, certificates }: 
         <PageHeader
           eyebrow="MY LEARNING"
           title={`Welcome back, ${firstName} 👋`}
-          description="Track your active courses, roadmap progress, and career achievements in one place."
+          description="Track your active courses, progress and achievements in one place."
           action={
-            <Link id="dashboard-roadmap-btn" href="/onboarding">
-              <Button variant="primary">
-                <Zap size={15} />
-                Build my roadmap
-              </Button>
-            </Link>
+            SHOW_CAREER_ROADMAP ? (
+              <Link id="dashboard-roadmap-btn" href="/onboarding">
+                <Button variant="primary">
+                  <Zap size={15} />
+                  Build my roadmap
+                </Button>
+              </Link>
+            ) : (
+              <Link href="/courses">
+                <Button variant="primary">
+                  <Zap size={15} />
+                  Browse courses
+                </Button>
+              </Link>
+            )
           }
         />
 
@@ -211,11 +221,11 @@ export function DashboardClient({ firstName, role, enrollments, certificates }: 
             <EmptyState
               icon={<BookOpen size={24} />}
               heading="You haven't enrolled in any courses yet."
-              description="Browse our career-first AI learning tracks to get started on your roadmap."
+              description="Browse our fun, age-appropriate AI courses to get started."
               action={
                 <Link href="/courses">
                   <Button variant="primary" size="sm">
-                    Browse career tracks <ArrowRight size={14} />
+                    Browse Youth courses <ArrowRight size={14} />
                   </Button>
                 </Link>
               }
@@ -247,7 +257,8 @@ export function DashboardClient({ firstName, role, enrollments, certificates }: 
           )}
         </section>
 
-        {/* Roadmap CTA Card */}
+        {/* Roadmap CTA Card — hidden in the MVP (lib/features.ts) */}
+        {SHOW_CAREER_ROADMAP && (
         <Card variant="featured" className="p-8 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6">
           <div className="space-y-1 max-w-xl">
             <h3 className="text-xl font-bold text-brand-charcoal">Need a customized learning path?</h3>
@@ -261,6 +272,7 @@ export function DashboardClient({ firstName, role, enrollments, certificates }: 
             </Button>
           </Link>
         </Card>
+        )}
       </div>
     </AppShell>
   )

@@ -1,6 +1,6 @@
 'use client'
 // components/kids/kids-why.tsx
-// "Why Qasberry Kids?" — 6 premium feature cards with SVG illustrations.
+// "Why Qasberry Youth?" — 6 premium feature cards with SVG illustrations.
 // Bento-grid layout, illustrated icons, framer-motion animations.
 
 import { motion, useReducedMotion } from 'framer-motion'
@@ -46,7 +46,7 @@ const WHY_CARDS = [
   {
     emoji: '🛡️',
     title: 'Safe Learning Environment',
-    desc: 'Child safety is built into every part of Qasberry Kids — from age-appropriate content to responsible AI lessons that teach children how to use technology wisely.',
+    desc: 'Child safety is built into every part of Qasberry Youth — from age-appropriate content to responsible AI lessons that teach children how to use technology wisely.',
     span: 'lg:col-span-1',
     gradient: 'from-rose-400/10 to-pink-400/10',
     border: 'hover:border-rose-300',
@@ -55,7 +55,7 @@ const WHY_CARDS = [
   {
     emoji: '🚀',
     title: 'Future-Ready Education',
-    desc: 'AI literacy is the most important skill of this generation. Qasberry Kids ensures children start building this advantage early — before it becomes essential.',
+    desc: 'AI literacy is the most important skill of this generation. Qasberry Youth ensures children start building this advantage early — before it becomes essential.',
     span: 'lg:col-span-2',
     gradient: 'from-purple-500/10 to-fuchsia-500/10',
     border: 'hover:border-purple-300',
@@ -78,7 +78,7 @@ export function KidsWhy() {
             transition={{ duration: 0.4 }}
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 shadow-sm"
           >
-            Why Qasberry Kids
+            Why Qasberry Youth
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
@@ -100,7 +100,7 @@ export function KidsWhy() {
             transition={{ duration: 0.5, delay: 0.14 }}
             className="mt-4 text-slate-500 text-base leading-relaxed"
           >
-            Qasberry Kids isn&apos;t just another online course platform. It&apos;s a thoughtfully crafted learning system built around how children actually learn best.
+            Qasberry Youth isn&apos;t just another online course platform. It&apos;s a thoughtfully crafted learning system built around how children actually learn best.
           </motion.p>
         </div>
 

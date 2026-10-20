@@ -149,11 +149,11 @@ export function KidsTopics({ courses }: Props) {
           className="mt-12 text-center"
         >
           <Link
-            href="/courses?career=kid"
+            href="/courses"
             id="kids-view-all-courses"
             className="group inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 py-3.5 text-sm font-semibold text-slate-700 hover:text-slate-950 hover:border-slate-300 hover:shadow-sm transition-all"
           >
-            Browse all Kids courses
+            Browse all Youth courses
             <ArrowRight size={14} className="transition-transform group-hover:translate-x-0.5" />
           </Link>
         </motion.div>

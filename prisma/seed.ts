@@ -15,7 +15,7 @@ const careers = [
   { name: 'Marketer', slug: 'marketer' },
   { name: 'Student', slug: 'student' },
   { name: 'Entrepreneur', slug: 'entrepreneur' },
-  { name: 'Kids', slug: 'kid' },
+  { name: 'Youth', slug: 'kid' }, // renamed from "Kids"; slug kept so existing courses stay linked
 ]
 
 async function main() {

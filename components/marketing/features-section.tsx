@@ -6,20 +6,23 @@ import { BadgeCheck, BookOpen, Clock3, Lock, Network, Sparkles, Users2 } from 'l
 const FEATURE_CARDS = [
   {
     icon: Network,
-    title: 'A Clear Path for Each Track',
-    body: 'Step-by-step learning paths for kids and for sales and marketing professionals, so you always know what to learn next.',
+    // MVP: original — 'A Clear Path for Each Track' / '...for kids and for sales and marketing professionals...'
+    title: 'A Clear Learning Path',
+    body: 'Step-by-step learning paths for young learners, so they always know what to learn next.',
     className: 'lg:col-span-2 lg:row-span-1',
   },
   {
     icon: BookOpen,
     title: 'Real Tools, Real Results',
-    body: 'Hands-on lessons with the AI tools kids love and sales teams actually use.',
+    // MVP: original — 'Hands-on lessons with the AI tools kids love and sales teams actually use.'
+    body: 'Hands-on lessons with real AI tools, made safe and simple for young learners.',
     className: 'lg:col-span-1',
   },
   {
     icon: Clock3,
     title: 'Bite-Sized Lessons',
-    body: 'Short lessons that fit after school or between sales calls.',
+    // MVP: original — 'Short lessons that fit after school or between sales calls.'
+    body: 'Short lessons that fit after school or on a weekend.',
     className: 'lg:col-span-1',
   },
   {
@@ -31,13 +34,14 @@ const FEATURE_CARDS = [
   {
     icon: BadgeCheck,
     title: 'Verifiable Credentials',
-    body: 'Earn certificates that prove real AI skills, for school portfolios and for your CV.',
+    body: 'Earn certificates that prove real AI skills, ready for school portfolios.',
     className: 'lg:col-span-1',
   },
   {
     icon: Lock,
     title: 'Responsible AI by Design',
-    body: 'Online safety for young learners, and data privacy and ethics for professionals, built into every path.',
+    // MVP: original — 'Online safety for young learners, and data privacy and ethics for professionals, built into every path.'
+    body: 'Online safety, privacy and AI ethics for young learners, built into every path.',
     className: 'sm:col-span-2 lg:col-span-3',
   },
 ]
@@ -60,7 +64,8 @@ export function FeaturesSection() {
           </span>
           <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] tracking-tight font-bold text-slate-950">AI learning that's focused, practical and fun.</h2>
           <p className="mt-4 text-slate-600 text-base leading-relaxed">
-            Because we teach two audiences, every course is built for the people taking it.
+            {/* MVP: original — "Because we teach two audiences, every course is built for the people taking it." */}
+            Every course is built for young learners, and for the grown-ups helping them.
           </p>
         </motion.div>
 

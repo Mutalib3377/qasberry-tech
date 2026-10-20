@@ -3,14 +3,15 @@
 import Link from 'next/link'
 import { motion, useReducedMotion } from 'framer-motion'
 import { ArrowRight, Check } from 'lucide-react'
-import { AUDIENCES, type AudienceKey } from './audiences'
+import { VISIBLE_AUDIENCES, type AudienceKey } from './audiences'
 
 interface Props {
-  courseCounts: Record<AudienceKey, number>
+  courseCounts: Partial<Record<AudienceKey, number>>
 }
 
 export function AudienceSection({ courseCounts }: Props) {
   const reduceMotion = useReducedMotion()
+  const single = VISIBLE_AUDIENCES.length === 1
 
   return (
     <section id="tracks" className="py-16 sm:py-20">
@@ -23,18 +24,29 @@ export function AudienceSection({ courseCounts }: Props) {
           className="text-center max-w-3xl mx-auto"
         >
           <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
-            Two tracks
+            {single ? 'Our track' : 'Two tracks'}
           </span>
-          <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">One academy. Two audiences we know deeply.</h2>
-          <p className="mt-4 text-base text-slate-600 leading-relaxed">
-            We don&apos;t try to teach everyone. We build AI learning for young learners and for the people who drive revenue.
-          </p>
+          {single ? (
+            <>
+              <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">Built for young learners, from the ground up.</h2>
+              <p className="mt-4 text-base text-slate-600 leading-relaxed">
+                We don&apos;t try to teach everyone. Every course is designed for young learners, with support for the parents and teachers guiding them.
+              </p>
+            </>
+          ) : (
+            <>
+              <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">One academy. Two audiences we know deeply.</h2>
+              <p className="mt-4 text-base text-slate-600 leading-relaxed">
+                We don&apos;t try to teach everyone. We build AI learning for young learners and for the people who drive revenue.
+              </p>
+            </>
+          )}
         </motion.div>
 
-        <div className="mt-10 grid grid-cols-1 lg:grid-cols-2 gap-5">
-          {AUDIENCES.map((audience, index) => {
+        <div className={`mt-10 grid grid-cols-1 gap-5 ${single ? 'max-w-3xl mx-auto' : 'lg:grid-cols-2'}`}>
+          {VISIBLE_AUDIENCES.map((audience, index) => {
             const Icon = audience.icon
-            const count = courseCounts[audience.key]
+            const count = courseCounts[audience.key] ?? 0
 
             return (
               <motion.div

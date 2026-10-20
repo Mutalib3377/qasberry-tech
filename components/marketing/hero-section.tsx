@@ -19,7 +19,7 @@ import {
   Search,
   Smile,
 } from 'lucide-react'
-import { AUDIENCES, type AudienceKey } from './audiences'
+import { VISIBLE_AUDIENCES, type AudienceKey } from './audiences'
 
 // Placeholder cropped from the design mockup — swap for the final artwork.
 const HERO_ILLUSTRATION_SRC = '/hero-banner.png'
@@ -87,6 +87,7 @@ function IconBubble({ className, children }: { className: string; children: Reac
 
 export function HeroSection() {
   const reduceMotion = useReducedMotion()
+  const single = VISIBLE_AUDIENCES.length === 1
   const router = useRouter()
   const [query, setQuery] = useState('')
   const sectionRef = useRef<HTMLElement>(null)
@@ -161,7 +162,8 @@ export function HeroSection() {
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-50 text-indigo-600">
             <ChartColumnIncreasing size={22} />
           </span>
-          <span className="text-sm font-medium leading-tight text-slate-800">Grow Your<br />Career</span>
+          {/* MVP: original — "Grow Your Career" */}
+          <span className="text-sm font-medium leading-tight text-slate-800">Create<br />with AI</span>
         </div>
       </FloatingCard>
       <FloatingCard className="right-[6.5%] top-[60%]" rotate={-6} delay={0.75}>
@@ -207,7 +209,8 @@ export function HeroSection() {
         </motion.h1>
 
         <motion.p {...fadeUp(0.12)} className="mx-auto mt-5 max-w-2xl text-base sm:text-lg text-slate-600">
-          Practical courses for Kids &amp; Youth and Sales &amp; Marketing professionals.
+          {/* MVP: original — "Practical courses for Kids & Youth and Sales & Marketing professionals." */}
+          Fun, safe AI courses for Youth, with guides for parents and teachers.
         </motion.p>
 
         <motion.ul
@@ -228,10 +231,12 @@ export function HeroSection() {
           {...fadeUp(0.26)}
           className="relative z-10 mx-auto mt-8 max-w-[680px] rounded-3xl border border-white bg-white/90 backdrop-blur-xl p-4 sm:p-5 shadow-[0_30px_70px_-40px_rgba(49,46,129,0.35)]"
         >
-          <h2 className="text-lg sm:text-xl font-bold text-[#0f1535]">What are you here for?</h2>
+          <h2 className="text-lg sm:text-xl font-bold text-[#0f1535]">
+            {single ? 'Start exploring' : 'What are you here for?'}
+          </h2>
 
-          <div className="mt-4 grid gap-3 sm:grid-cols-2">
-            {AUDIENCES.map((audience) => {
+          <div className={`mt-4 grid gap-3 ${single ? '' : 'sm:grid-cols-2'}`}>
+            {VISIBLE_AUDIENCES.map((audience) => {
               const tile = AUDIENCE_TILES[audience.key]
               const Icon = tile.icon
               return (
@@ -262,7 +267,7 @@ export function HeroSection() {
               type="text"
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="What do you want to learn? (e.g. AI for marketing, content creation...)"
+              placeholder="What do you want to learn? (e.g. AI art, chatbots, coding games...)"
               aria-label="Search courses"
               className="min-w-0 flex-1 bg-transparent text-sm text-slate-900 placeholder:text-slate-400 outline-none"
             />
@@ -284,7 +289,7 @@ export function HeroSection() {
         >
           <Image
             src={HERO_ILLUSTRATION_SRC}
-            alt="A young learner and a sales professional learning AI alongside the Qasberry robot"
+            alt="A young learner exploring AI alongside the Qasberry robot"
             width={960}
             height={369}
             priority

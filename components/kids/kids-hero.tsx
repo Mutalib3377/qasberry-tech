@@ -1,6 +1,6 @@
 'use client'
 // components/kids/kids-hero.tsx
-// Hero section for the Qasberry Kids landing page.
+// Hero section for the Qasberry Youth landing page.
 // Warm, playful, premium — bright gradients, animated floating cards, dual CTA.
 
 import { motion, useReducedMotion } from 'framer-motion'
@@ -135,7 +135,7 @@ export function KidsHero() {
               transition={{ duration: reduceMotion ? 0 : 0.45 }}
               className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-700"
             >
-              Qasberry Kids
+              Qasberry Youth
             </motion.div>
 
             <motion.h1

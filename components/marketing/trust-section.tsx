@@ -6,23 +6,26 @@ import { BadgeCheck, Briefcase, ShieldCheck, Target } from 'lucide-react'
 
 const TRUST_SIGNALS = [
   {
-    title: 'Made for our audiences',
-    body: 'Every lesson is written for young learners or for revenue teams, never generic AI hype.',
+    // MVP: original body — 'Every lesson is written for young learners or for revenue teams, never generic AI hype.'
+    title: 'Made for young learners',
+    body: 'Every lesson is written for young learners, never generic AI hype.',
     icon: Target,
   },
   {
     title: 'Learn by doing',
-    body: 'Kids build real projects, and professionals leave each lesson with a workflow they can use.',
+    // MVP: original — 'Kids build real projects, and professionals leave each lesson with a workflow they can use.'
+    body: 'Learners build real projects in every lesson: chatbots, stories, games and art.',
     icon: Briefcase,
   },
   {
     title: 'Safe and responsible',
-    body: 'Age-appropriate content for kids, and privacy-first AI habits for customer data.',
+    // MVP: original — 'Age-appropriate content for kids, and privacy-first AI habits for customer data.'
+    body: 'Age-appropriate content and healthy, privacy-first AI habits from day one.',
     icon: ShieldCheck,
   },
   {
     title: 'Proof of progress',
-    body: 'Certificates that show parents, schools and employers what was actually learned.',
+    body: 'Certificates that show parents and schools what was actually learned.',
     icon: BadgeCheck,
   },
 ]
@@ -46,7 +49,8 @@ function TrustCard({ title, body, index, icon: Icon }: { title: string; body: st
 }
 
 export function TrustSection() {
-  const logos = useMemo(() => ['SCHOOLS', 'PARENTS', 'SALES TEAMS', 'MARKETERS', 'FOUNDERS'], [])
+  // MVP: original — ['SCHOOLS', 'PARENTS', 'SALES TEAMS', 'MARKETERS', 'FOUNDERS']
+  const logos = useMemo(() => ['YOUTH', 'TEENS', 'PARENTS', 'TEACHERS', 'SCHOOLS'], [])
 
   return (
     <section className="relative py-14 sm:py-16" aria-label="Trust signals">
@@ -55,8 +59,9 @@ export function TrustSection() {
           <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
             <div className="max-w-2xl">
               <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-slate-500">Who Qasberry is for</p>
-              <h2 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Focused AI learning for the next generation and the people who grow businesses.</h2>
-              <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">Instead of courses for every profession, we go deep on two audiences: young learners building future-ready skills, and sales and marketing teams who use AI to hit their numbers.</p>
+              {/* MVP: original copy also covered sales & marketing teams */}
+              <h2 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Focused AI learning for the next generation.</h2>
+              <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">Instead of courses for everyone, we go deep on young learners building future-ready skills, and on the parents and teachers who support them.</p>
             </div>
             <div className="flex flex-wrap gap-2.5">
               {logos.map((logo) => (

@@ -14,7 +14,7 @@ const TESTIMONIALS = [
     color:  'from-violet-500 to-indigo-500',
     bg:     'bg-violet-50',
     stars:  5,
-    quote:  "Qasberry Kids has transformed how I introduce technology to my Year 4 class. The lesson plans are incredibly well-structured — I walked in on my first AI lesson feeling genuinely confident, and the children were absolutely engaged from minute one.",
+    quote:  "Qasberry Youth has transformed how I introduce technology to my Year 4 class. The lesson plans are incredibly well-structured — I walked in on my first AI lesson feeling genuinely confident, and the children were absolutely engaged from minute one.",
   },
   {
     role:   'Parent of a 9-year-old',
@@ -23,7 +23,7 @@ const TESTIMONIALS = [
     color:  'from-sky-500 to-blue-500',
     bg:     'bg-sky-50',
     stars:  5,
-    quote:  "My daughter comes home from school excited to show me what she learned about AI. She built her first 'AI story generator' project last week and was so proud. Qasberry Kids makes the subject approachable and genuinely fun without dumbing it down.",
+    quote:  "My daughter comes home from school excited to show me what she learned about AI. She built her first 'AI story generator' project last week and was so proud. Qasberry Youth makes the subject approachable and genuinely fun without dumbing it down.",
   },
   {
     role:   'Student, Age 13',
@@ -82,7 +82,7 @@ export function KidsTestimonials() {
             transition={{ duration: 0.5, delay: 0.14 }}
             className="mt-4 text-slate-500 text-base leading-relaxed"
           >
-            Real outcomes from the Qasberry Kids community — children, parents, and educators sharing their experiences.
+            Real outcomes from the Qasberry Youth community — children, parents, and educators sharing their experiences.
           </motion.p>
         </div>
 

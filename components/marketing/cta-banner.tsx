@@ -35,13 +35,15 @@ export function CtaBanner({ courseCount }: Props) {
             </div>
 
             <h2 className="mt-6 text-3xl sm:text-5xl leading-[1.15] font-black tracking-[-0.03em] text-slate-950">
+              {/* MVP: original second line — "whatever your age or role." */}
               Start learning AI today,
               <br className="hidden sm:block" />
-              whatever your age or role.
+              and build the future.
             </h2>
 
             <p className="mt-5 text-slate-600 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
-              Help your child get ready for an AI-powered future, or give your sales and marketing work an AI edge. Get started in minutes.
+              {/* MVP: original also offered sales & marketing an AI edge */}
+              Help your child get ready for an AI-powered future with fun, safe lessons. Get started in minutes.
             </p>
 
             <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 sm:gap-4">

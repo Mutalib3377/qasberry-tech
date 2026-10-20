@@ -128,7 +128,7 @@ export function KidsPathways() {
           >
             How do you want to use{' '}
             <span className="bg-[linear-gradient(110deg,#635bff,#38bdf8)] bg-clip-text text-transparent">
-              Qasberry Kids?
+              Qasberry Youth?
             </span>
           </motion.h2>
           <motion.p
@@ -151,7 +151,7 @@ export function KidsPathways() {
             sub="A structured, fun learning journey designed for children aged 6–16. Learn AI through short lessons, creative activities, and real projects."
             features={LEARNER_FEATURES}
             ctaLabel="Start Learning"
-            ctaHref="/courses?career=kid"
+            ctaHref="/courses"
             gradientBg="bg-gradient-to-r from-violet-500 via-indigo-500 to-sky-500"
             gradientGlow="bg-[radial-gradient(circle_at_12%_10%,rgba(99,91,255,0.08),transparent_50%)]"
             ctaStyle="bg-[linear-gradient(120deg,#635bff,#38bdf8)] text-white shadow-[0_10px_24px_-12px_rgba(99,91,255,0.6)] hover:shadow-[0_14px_30px_-12px_rgba(99,91,255,0.7)]"

@@ -4,7 +4,9 @@
 // to client sub-components.
 
 import type { Metadata } from 'next'
+import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
+import { ENABLED_TRACKS } from '@/lib/features'
 import { stripMarkdown } from '@/components/shared/markdown'
 import { AUDIENCES } from '@/components/marketing/audiences'
 import { MarketingNav }   from '@/components/marketing/marketing-nav'
@@ -33,6 +35,9 @@ export const metadata: Metadata = {
 const SALES = AUDIENCES.find((a) => a.key === 'sales')!
 
 export default async function SalesMarketingPage() {
+  // MVP: track is hidden — switch it back on in lib/features.ts
+  if (!ENABLED_TRACKS.includes('sales')) redirect('/youth')
+
   const courses = await db.course.findMany({
     where: { status: 'PUBLISHED', career: { slug: { in: SALES.careerSlugs } } },
     orderBy: { createdAt: 'asc' },

@@ -1,6 +1,6 @@
 // app/(marketing)/page.tsx
-// Qasberry public homepage — focused on two audiences: Kids & Youth, and
-// Sales & Marketing professionals.
+// Qasberry public homepage. MVP: Youth track only — other tracks are
+// switched off in lib/features.ts.
 // Server component: fetches published course counts per track from DB.
 
 import type { Metadata } from 'next'
@@ -13,29 +13,31 @@ import { AudienceSection } from '@/components/marketing/audience-section'
 import { HowItWorks }      from '@/components/marketing/how-it-works'
 import { CtaBanner }       from '@/components/marketing/cta-banner'
 import { Footer }          from '@/components/marketing/footer'
-import { AUDIENCES, type AudienceKey } from '@/components/marketing/audiences'
+import { VISIBLE_AUDIENCES, type AudienceKey } from '@/components/marketing/audiences'
+import { visibleCareerWhere } from '@/lib/features'
 
 export const metadata: Metadata = {
-  title: 'Qasberry — AI Learning for Kids, Youth & Sales Professionals',
+  // MVP: original — 'Qasberry — AI Learning for Kids, Youth & Sales Professionals'
+  title: 'Qasberry Youth — Fun, Safe AI Learning for Young Learners',
   description:
-    'Qasberry teaches AI to kids and teens getting ready for the future, and to sales and marketing professionals who want to win more with AI.',
+    'Qasberry teaches AI to young learners through short, playful lessons and real projects, with guides for parents and teachers.',
 }
 
 export default async function HomePage() {
   const [trackCounts, publishedCourseCount] = await Promise.all([
     Promise.all(
-      AUDIENCES.map((audience) =>
+      VISIBLE_AUDIENCES.map((audience) =>
         db.course.count({
           where: { status: 'PUBLISHED', career: { slug: { in: audience.careerSlugs } } },
         })
       )
     ),
-    db.course.count({ where: { status: 'PUBLISHED' } }),
+    db.course.count({ where: { status: 'PUBLISHED', ...visibleCareerWhere() } }),
   ])
 
   const courseCounts = Object.fromEntries(
-    AUDIENCES.map((audience, i) => [audience.key, trackCounts[i]])
-  ) as Record<AudienceKey, number>
+    VISIBLE_AUDIENCES.map((audience, i) => [audience.key, trackCounts[i]])
+  ) as Partial<Record<AudienceKey, number>>
 
   return (
     <div className="min-h-screen bg-white text-[#101114] overflow-x-hidden">

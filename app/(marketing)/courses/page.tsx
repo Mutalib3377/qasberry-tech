@@ -3,6 +3,7 @@
 // Server component with unified whitish glassmorphism card design.
 
 import { db }          from '@/lib/db'
+import { MVP_CAREER_SLUGS, visibleCareerWhere } from '@/lib/features'
 import Link            from 'next/link'
 import type { Metadata } from 'next'
 import { BookOpen, Users, Star, Zap, Search } from 'lucide-react'
@@ -13,7 +14,7 @@ import { stripMarkdown } from '@/components/shared/markdown'
 
 export const metadata: Metadata = {
   title: 'Courses | Qasberry',
-  description: 'Browse Qasberry\'s AI courses tailored for your career. Filter by career track, difficulty, or price.',
+  description: 'Browse Qasberry\'s fun, age-appropriate AI courses for young learners. Filter by difficulty or search by topic.',
 }
 
 interface PageProps {
@@ -29,7 +30,11 @@ const DIFFICULTY_VARIANTS: Record<string, 'success' | 'warning' | 'error'> = {
 export default async function CourseCatalogPage({ searchParams }: PageProps) {
   const { career: careerSlug, difficulty, q } = searchParams
 
-  const careers = await db.career.findMany({ orderBy: { name: 'asc' } })
+  // MVP: only careers switched on in lib/features.ts are listed
+  const careers = await db.career.findMany({
+    where:   MVP_CAREER_SLUGS.length ? { slug: { in: [...MVP_CAREER_SLUGS] } } : {},
+    orderBy: { name: 'asc' },
+  })
 
   const selectedCareer = careerSlug
     ? careers.find((c) => c.slug === careerSlug)
@@ -38,6 +43,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
   const courses = await db.course.findMany({
     where: {
       status: 'PUBLISHED',
+      ...visibleCareerWhere(),
       ...(selectedCareer ? { careerId: selectedCareer.id } : {}),
       ...(difficulty ? { difficulty: difficulty as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' } : {}),
       ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
@@ -65,7 +71,8 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
             Course Catalog
           </Badge>
           <h1 className="text-4xl font-extrabold tracking-tight text-brand-charcoal">Browse Courses</h1>
-          <p className="text-brand-secondary text-lg">AI courses tailored to your profession and career goals.</p>
+          {/* MVP: original — "AI courses tailored to your profession and career goals." */}
+          <p className="text-brand-secondary text-lg">Fun, age-appropriate AI courses for young learners.</p>
         </div>
 
         {/* Filters */}
@@ -83,7 +90,8 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
             </div>
           </form>
 
-          {/* Career filter */}
+          {/* Career filter — hidden while only one career is visible */}
+          {careers.length > 1 && (
           <div className="flex flex-wrap gap-2">
             <Link
               href="/courses"
@@ -109,6 +117,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
               </Link>
             ))}
           </div>
+          )}
 
           {/* Difficulty filter */}
           <div className="flex gap-2">

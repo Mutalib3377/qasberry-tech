@@ -7,7 +7,7 @@ import { ArrowRight, Globe, Send, AtSign } from 'lucide-react'
 import { Input } from '@/components/shared/Input'
 import { Button } from '@/components/shared/Button'
 import { motion } from 'framer-motion'
-import { AUDIENCES } from './audiences'
+import { VISIBLE_AUDIENCES } from './audiences'
 
 // ── Link columns config ───────────────────────────────────────────────────────
 
@@ -26,7 +26,7 @@ const LEARN_LINKS = [
 
 const RESOURCE_LINKS = [
   { label: 'Help Center', href: '/courses' },
-  ...AUDIENCES.map((a) => ({ label: a.name, href: a.href })),
+  ...VISIBLE_AUDIENCES.map((a) => ({ label: a.name, href: a.href })),
   { label: 'Case Studies', href: '/community' },
 ]
 
@@ -75,7 +75,8 @@ export function Footer() {
             </Link>
 
             <p className="text-sm text-slate-600 leading-relaxed max-w-sm">
-              The AI academy for kids, youth, and sales and marketing professionals.
+              {/* MVP: original — "The AI academy for kids, youth, and sales and marketing professionals." */}
+              The AI academy for youth.
             </p>
 
             <div className="flex items-center gap-3">
@@ -109,7 +110,7 @@ export function Footer() {
                 <form onSubmit={handleNewsletter} className="mt-3 flex flex-col sm:flex-row gap-2">
                   <Input
                     type="email"
-                    placeholder="you@company.com"
+                    placeholder="you@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     required
@@ -189,7 +190,8 @@ export function Footer() {
 
         <div className="mt-6 border-t border-slate-200 pt-4 flex flex-col sm:flex-row items-center justify-between gap-2">
           <p className="text-xs text-slate-500">© {new Date().getFullYear()} Qasberry. All rights reserved.</p>
-          <p className="text-xs text-slate-400">Built for young learners and the people who grow businesses.</p>
+          {/* MVP: original — "Built for young learners and the people who grow businesses." */}
+          <p className="text-xs text-slate-400">Built for young learners and the people who guide them.</p>
         </div>
           </div>
     </footer>

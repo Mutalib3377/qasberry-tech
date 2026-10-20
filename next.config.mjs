@@ -26,6 +26,11 @@ const nextConfig = {
     ],
   },
 
+  // The Kids track was renamed to Youth — keep old links working
+  async redirects() {
+    return [{ source: '/kids', destination: '/youth', permanent: true }]
+  },
+
   // Required for Prisma with Next.js 14
   experimental: {
     serverComponentsExternalPackages: ['@prisma/client'],

@@ -16,8 +16,9 @@ export const metadata: Metadata = {
     template: '%s | Qasberry',
   },
   description:
-    'Discover your personalised AI learning roadmap. Qasberry helps nurses, teachers, lawyers, developers and every professional master AI in their field.',
-  keywords: ['AI learning', 'AI courses', 'AI education', 'career AI', 'Qasberry'],
+    // MVP: original — 'Discover your personalised AI learning roadmap. Qasberry helps nurses, teachers, lawyers, developers and every professional master AI in their field.'
+    'Fun, safe AI learning for youth. Qasberry teaches young learners how AI works through short lessons and real projects, with guides for parents and teachers.',
+  keywords: ['AI learning', 'AI for youth', 'AI for kids', 'AI education', 'youth AI courses', 'Qasberry'],
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any' },

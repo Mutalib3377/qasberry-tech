@@ -2,6 +2,7 @@
 // Community Gallery page — unified light design system.
 
 import { db } from '@/lib/db'
+import { visibleCareerWhere } from '@/lib/features'
 import Link from 'next/link'
 import { MarketingNav } from '@/components/marketing/marketing-nav'
 import { Footer } from '@/components/marketing/footer'
@@ -11,11 +12,12 @@ import { Users, MessageSquare, ArrowRight, Zap } from 'lucide-react'
 
 export const metadata = {
   title: 'Community Hubs | Qasberry',
-  description: 'Connect with peers, share knowledge, and grow together in our career-specific AI communities.',
+  description: 'Share projects, ideas and wins with other young AI learners on Qasberry.',
 }
 
 export default async function CommunityGalleryPage() {
   const communities = await db.community.findMany({
+    where: visibleCareerWhere(), // MVP: hidden careers' communities aren't listed
     include: {
       career: true,
       _count: {
@@ -39,8 +41,9 @@ export default async function CommunityGalleryPage() {
             Qasberry Community Hubs
           </h1>
           <p className="text-brand-secondary max-w-2xl mx-auto text-lg leading-relaxed">
-            Join a specialized community built for your career path. 
-            Connect directly with peers leveraging AI in your industry.
+            {/* MVP: original — "Join a specialized community built for your career path..." */}
+            Share projects, ideas and wins with other young learners,
+            plus the parents and teachers cheering them on.
           </p>
         </div>
 

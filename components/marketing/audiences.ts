@@ -3,20 +3,21 @@
 // section, nav and footer so the links and copy stay in one place.
 
 import { Rocket, TrendingUp } from 'lucide-react'
+import { ENABLED_TRACKS, YOUTH_CAREER_SLUGS } from '@/lib/features'
 
 export type AudienceKey = 'kids' | 'sales'
 
 export const AUDIENCES = [
   {
-    key: 'kids' as const,
-    name: 'Kids & Youth',
+    key: 'kids' as const, // internal key — the track is shown as "Youth"
+    name: 'Youth',
     who: 'Ages 6–16',
     // Career slug(s) in the DB whose courses belong to this track
-    careerSlugs: ['kid'],
-    href: '/kids',
+    careerSlugs: [...YOUTH_CAREER_SLUGS],
+    href: '/youth',
     tagline: 'Fun, safe AI lessons for young learners, plus resources for parents and teachers.',
     pitch:
-      'Kids and teens learn how AI works by building with it: chatbots, stories, games and art. Lessons are short, playful and age-appropriate, with guides for parents and teachers.',
+      'Young learners discover how AI works by building with it: chatbots, stories, games and art. Lessons are short, playful and age-appropriate, with guides for parents and teachers.',
     outcomes: [
       'Understand how AI really works',
       'Build fun projects with AI tools',
@@ -24,7 +25,7 @@ export const AUDIENCES = [
       'Think creatively and critically',
     ],
     level: 'Beginner',
-    cta: 'Explore Kids & Youth',
+    cta: 'Explore Youth',
     icon: Rocket,
     iconWrap: 'bg-violet-100 text-violet-700',
     accentText: 'text-violet-700',
@@ -53,3 +54,7 @@ export const AUDIENCES = [
     glow: 'bg-[radial-gradient(circle,rgba(56,189,248,0.22),transparent_65%)]',
   },
 ]
+
+// Tracks visible in the current MVP — use this for anything user-facing.
+// AUDIENCES keeps the full list so hidden tracks can be switched back on.
+export const VISIBLE_AUDIENCES = AUDIENCES.filter((a) => ENABLED_TRACKS.includes(a.key))

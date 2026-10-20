@@ -82,7 +82,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-bold text-brand-charcoal">5. Children&apos;s Privacy</h2>
             <p>
-              Our dedicated Qasberry Kids section is designed with safety as a top priority. We do not collect unnecessary personal information from children. Parents and educators maintain full control over child learning profiles.
+              Our dedicated Qasberry Youth section is designed with safety as a top priority. We do not collect unnecessary personal information from children. Parents and educators maintain full control over child learning profiles.
             </p>
           </section>
 

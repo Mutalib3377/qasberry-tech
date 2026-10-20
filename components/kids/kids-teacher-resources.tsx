@@ -58,7 +58,7 @@ export function KidsTeacherResources() {
             transition={{ duration: 0.5, delay: 0.14 }}
             className="mt-4 text-slate-400 text-base leading-relaxed"
           >
-            You don&apos;t need to be an AI expert to teach AI. Qasberry Kids gives you all the tools to bring artificial intelligence into your classroom with confidence.
+            You don&apos;t need to be an AI expert to teach AI. Qasberry Youth gives you all the tools to bring artificial intelligence into your classroom with confidence.
           </motion.p>
         </div>
 
@@ -98,7 +98,7 @@ export function KidsTeacherResources() {
           className="mt-14 flex flex-col sm:flex-row items-center justify-center gap-4"
         >
           <a
-            href="/courses?career=kid"
+            href="/courses"
             id="kids-teacher-resources-cta"
             className="group inline-flex items-center gap-2.5 rounded-2xl bg-white px-7 py-4 text-sm font-bold text-slate-950 hover:bg-slate-100 shadow-[0_12px_28px_-12px_rgba(255,255,255,0.3)] hover:shadow-[0_16px_34px_-12px_rgba(255,255,255,0.4)] transition-all"
           >

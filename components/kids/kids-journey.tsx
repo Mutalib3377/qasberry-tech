@@ -57,7 +57,7 @@ const STEPS = [
     icon:  Award,
     emoji: '🏆',
     title: 'Earn Certificates',
-    desc:  'Get a Qasberry Kids certificate to celebrate your achievement.',
+    desc:  'Get a Qasberry Youth certificate to celebrate your achievement.',
     color: 'from-purple-500 to-violet-500',
     bg:    'bg-purple-50 border-purple-200',
     iconColor: 'text-purple-600',

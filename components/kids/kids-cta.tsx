@@ -61,13 +61,13 @@ export function KidsCta() {
             </h2>
 
             <p className="mt-6 max-w-xl mx-auto text-blue-100/80 text-base sm:text-lg leading-relaxed">
-              Whether you&apos;re a child ready to discover the world of AI, a parent looking for safe and structured learning, or an educator bringing AI into your classroom — Qasberry Kids is ready for you.
+              Whether you&apos;re a child ready to discover the world of AI, a parent looking for safe and structured learning, or an educator bringing AI into your classroom — Qasberry Youth is ready for you.
             </p>
 
             {/* 3 CTA buttons */}
             <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 flex-wrap">
               <Link
-                href="/courses?career=kid"
+                href="/courses"
                 id="kids-final-cta-start-learning"
                 className="group inline-flex items-center gap-2.5 rounded-2xl bg-white px-7 py-4 text-sm font-bold text-slate-950 shadow-[0_12px_28px_-14px_rgba(255,255,255,0.4)] hover:shadow-[0_16px_34px_-14px_rgba(255,255,255,0.5)] hover:bg-slate-100 transition-all"
               >

@@ -5,6 +5,7 @@
 import { db }          from '@/lib/db'
 import { currentUser } from '@clerk/nextjs/server'
 import { notFound }    from 'next/navigation'
+import { isCareerVisible } from '@/lib/features'
 import Link            from 'next/link'
 import type { Metadata } from 'next'
 import { MarketingNav }  from '@/components/marketing/marketing-nav'
@@ -39,7 +40,8 @@ export default async function CommunityPage({ params, searchParams }: Props) {
     currentUser(),
   ])
 
-  if (!community) notFound()
+  // MVP: communities in hidden careers aren't reachable
+  if (!community || !isCareerVisible(community.career.slug)) notFound()
 
   // Check membership
   let isMember = false
@@ -80,8 +82,8 @@ export default async function CommunityPage({ params, searchParams }: Props) {
 
         {/* Community header */}
         <div className="space-y-3">
-          <Link href="/#careers" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
-            ← All Careers
+          <Link href="/community" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+            ← All Communities
           </Link>
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">

@@ -1,9 +1,10 @@
-// app/(marketing)/kids/page.tsx
-// Qasberry Kids landing page — server component.
-// Fetches published Kid courses from DB and passes them to client sub-components.
+// app/(marketing)/youth/page.tsx
+// Qasberry Youth landing page — server component.
+// Fetches published Youth courses from DB and passes them to client sub-components.
 
 import type { Metadata } from 'next'
 import { db } from '@/lib/db'
+import { YOUTH_CAREER_SLUGS } from '@/lib/features'
 import { MarketingNav }           from '@/components/marketing/marketing-nav'
 import { Footer }                 from '@/components/marketing/footer'
 import { KidsHero }               from '@/components/kids/kids-hero'
@@ -18,36 +19,32 @@ import { KidsFaq }                from '@/components/kids/kids-faq'
 import { KidsCta }                from '@/components/kids/kids-cta'
 
 export const metadata: Metadata = {
-  title: 'Qasberry Kids — AI Learning for Children & Educators',
+  title: 'Qasberry Youth — AI Learning for Children & Educators',
   description:
-    'Introduce children to Artificial Intelligence through fun, interactive lessons. Qasberry Kids delivers age-appropriate AI education for learners aged 6–16 and provides teachers with everything they need to bring AI into the classroom.',
-  keywords: ['AI for kids', 'AI education children', 'kids AI learning', 'AI classroom', 'teach AI', 'Qasberry Kids'],
+    'Introduce children to Artificial Intelligence through fun, interactive lessons. Qasberry Youth delivers age-appropriate AI education for learners aged 6–16 and provides teachers with everything they need to bring AI into the classroom.',
+  keywords: ['AI for youth', 'AI for kids', 'AI education children', 'youth AI learning', 'AI classroom', 'teach AI', 'Qasberry Youth'],
   openGraph: {
-    title: 'Qasberry Kids — Learn AI Young. Build the Future.',
+    title: 'Qasberry Youth — Learn AI Young. Build the Future.',
     description: 'Fun, structured AI learning for children — plus teacher resources, lesson plans, and a free YouTube channel.',
     type: 'website',
   },
 }
 
-export default async function KidsPage() {
-  // Fetch published courses in the Kids (slug: 'kid') career category
-  const kidsCareer = await db.career.findUnique({ where: { slug: 'kid' } })
-
-  const courses = kidsCareer
-    ? await db.course.findMany({
-        where:   { careerId: kidsCareer.id, status: 'PUBLISHED' },
-        orderBy: { createdAt: 'asc' },
-        select: {
-          id:          true,
-          title:       true,
-          slug:        true,
-          description: true,
-          thumbnail:   true,
-          isFree:      true,
-          price:       true,
-        },
-      })
-    : []
+export default async function YouthPage() {
+  // Fetch published courses in the Youth career category (see YOUTH_CAREER_SLUGS)
+  const courses = await db.course.findMany({
+    where:   { status: 'PUBLISHED', career: { slug: { in: [...YOUTH_CAREER_SLUGS] } } },
+    orderBy: { createdAt: 'asc' },
+    select: {
+      id:          true,
+      title:       true,
+      slug:        true,
+      description: true,
+      thumbnail:   true,
+      isFree:      true,
+      price:       true,
+    },
+  })
 
   // Normalise Decimal → number for client components
   const normalisedCourses = courses.map((c) => ({

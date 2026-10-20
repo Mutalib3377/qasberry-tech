@@ -16,7 +16,7 @@ function YoutubeLogo({ size = 18, className = '' }: { size?: number; className?:
   )
 }
 
-// Real Qasberry Kids YouTube content
+// Real Qasberry YouTube content (video titles are the published titles — keep as-is)
 const YOUTUBE_CHANNEL_URL = 'https://www.youtube.com/results?sp=mAEB&search_query=qasberrytech'
 const FEATURED_VIDEO_ID   = '63k98uZzfi4'
 const FEATURED_TITLE      = 'AI Can SEE?! 👀 | Fun AI Learning for Kids (Qasberry Kids)'
@@ -104,7 +104,7 @@ export function KidsYouTube() {
             transition={{ duration: 0.5, delay: 0.14 }}
             className="mt-4 text-slate-400 text-base leading-relaxed"
           >
-            The Qasberry Kids YouTube channel brings free AI education to every child — fun experiments, beginner-friendly lessons, and exciting AI projects you can try at home.
+            The Qasberry YouTube channel brings free AI education to every child — fun experiments, beginner-friendly lessons, and exciting AI projects you can try at home.
           </motion.p>
         </div>
 
@@ -123,7 +123,7 @@ export function KidsYouTube() {
                   src={`https://www.youtube.com/embed/${FEATURED_VIDEO_ID}?autoplay=1`}
                   allow="autoplay; encrypted-media; picture-in-picture"
                   allowFullScreen
-                  title="Qasberry Kids Featured Video"
+                  title="Qasberry Youth Featured Video"
                 />
               ) : (
                 <button

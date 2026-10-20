@@ -6,8 +6,9 @@ import { Compass, Layers, Trophy } from 'lucide-react'
 const STEPS = [
   {
     number: '01',
-    title:  'Pick Your Track',
-    body:   'Choose Kids & Youth or Sales & Marketing to see courses made for you.',
+    // MVP: original — 'Pick Your Track' / 'Choose Kids & Youth or Sales & Marketing to see courses made for you.'
+    title:  'Pick a Course',
+    body:   'Browse fun, age-appropriate AI courses and choose where to start.',
     icon: Compass,
   },
   {
@@ -19,7 +20,8 @@ const STEPS = [
   {
     number: '03',
     title:  'Show What You Can Do',
-    body:   'Earn a certificate and use your new AI skills in class, at work and in your career.',
+    // MVP: original — '...in class, at work and in your career.'
+    body:   'Earn a certificate and use your new AI skills in class, at home and in your own projects.',
     icon: Trophy,
   },
 ]

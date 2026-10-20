@@ -4,6 +4,7 @@
 
 import { db }           from '@/lib/db'
 import { notFound }     from 'next/navigation'
+import { isCareerVisible } from '@/lib/features'
 import { currentUser }  from '@clerk/nextjs/server'
 import Link             from 'next/link'
 import type { Metadata } from 'next'
@@ -56,7 +57,8 @@ export default async function CourseDetailPage({ params }: PageProps) {
     currentUser(),
   ])
 
-  if (!course) notFound()
+  // MVP: courses in hidden careers aren't reachable from the public site
+  if (!course || !isCareerVisible(course.career.slug)) notFound()
 
   // Check if signed-in user is already enrolled
   let isEnrolled = false

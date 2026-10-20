@@ -198,20 +198,20 @@ export async function sendWelcomeEmail({ to, firstName }: WelcomeEmailOptions): 
   const content = `
     <h1 style="margin:0 0 8px;color:#fff;font-size:24px;font-weight:700;">Welcome to Qasberry! ⚡</h1>
     <p style="margin:0 0 24px;color:#94a3b8;font-size:15px;line-height:1.6;">
-      Hi ${firstName}, we're thrilled to have you. Qasberry is an AI learning academy built 
-      specifically for professionals like you — career-first, practical, and beautifully designed.
+      Hi ${firstName}, we're thrilled to have you. Qasberry is an AI learning academy built
+      for youth — fun, safe, and hands-on, with guides for parents and teachers.
     </p>
 
     <p style="margin:0 0 16px;color:#94a3b8;font-size:15px;line-height:1.6;">
-      Your next step: <strong style="color:#fff;">tell us your career</strong> so our AI 
-      can build a personalised learning roadmap just for you.
+      Your next step: <strong style="color:#fff;">pick a course</strong> and start
+      building your first AI project.
     </p>
 
     <table cellpadding="0" cellspacing="0" style="margin:0 0 32px;">
       <tr>
         <td style="background:#7c3aed;border-radius:10px;padding:14px 28px;">
-          <a href="${APP_URL}/onboarding" style="color:#fff;font-weight:600;font-size:15px;text-decoration:none;">
-            Build my AI roadmap →
+          <a href="${APP_URL}/courses" style="color:#fff;font-weight:600;font-size:15px;text-decoration:none;">
+            Browse courses →
           </a>
         </td>
       </tr>
