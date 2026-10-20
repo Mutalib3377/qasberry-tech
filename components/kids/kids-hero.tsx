@@ -104,8 +104,8 @@ function KidsIllustration() {
           }}
           className={`absolute ${card.x} ${card.y} z-20 px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-[0_8px_24px_-16px_rgba(15,23,42,0.35)]`}
         >
-          <div className="text-xs font-semibold text-slate-900 leading-tight">{card.text}</div>
-          <div className="text-[10px] text-slate-500 mt-0.5">{card.sub}</div>
+          <div className="text-sm font-bold text-slate-900 leading-tight">{card.text}</div>
+          <div className="text-xs font-medium text-slate-600 mt-0.5">{card.sub}</div>
         </motion.div>
       ))}
     </div>
@@ -188,10 +188,15 @@ export function KidsHero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: reduceMotion ? 0 : 0.5, delay: 0.35 }}
-              className="mt-8 flex flex-wrap items-center gap-4 text-xs text-slate-500"
+              className="mt-8 flex flex-wrap items-center gap-2.5 sm:gap-3 text-sm sm:text-[15px] font-semibold text-slate-800"
             >
               {['🎯 Age 6–16', '📚 Structured curriculum', '🏆 Earn certificates', '👩‍🏫 Teacher resources included'].map((b) => (
-                <span key={b} className="flex items-center gap-1.5">{b}</span>
+                <span
+                  key={b}
+                  className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 shadow-sm"
+                >
+                  {b}
+                </span>
               ))}
             </motion.div>
           </div>
