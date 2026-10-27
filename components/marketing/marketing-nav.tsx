@@ -20,7 +20,7 @@ const NAV_LINKS = [
 // The two audience tracks render as pill-style nav items
 // Hidden tracks are filtered out via ENABLED_TRACKS (lib/features.ts)
 const TRACK_NAV = [
-	{ key: 'kids', label: '✨ Youth', href: '/youth', pill: 'bg-violet-100 text-violet-700 hover:bg-violet-200', mobile: 'text-violet-700 bg-violet-50 hover:bg-violet-100' },
+	{ key: 'kids', label: '✨ Youths', href: '/youth', pill: 'bg-violet-100 text-violet-700 hover:bg-violet-200', mobile: 'text-violet-700 bg-violet-50 hover:bg-violet-100' },
 	{ key: 'sales', label: '📈 Sales & Marketing', href: AUDIENCES[1].href, pill: 'bg-sky-100 text-sky-700 hover:bg-sky-200', mobile: 'text-sky-700 bg-sky-50 hover:bg-sky-100' },
 ].filter((item) => ENABLED_TRACKS.includes(item.key))
 
