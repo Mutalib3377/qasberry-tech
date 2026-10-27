@@ -14,6 +14,7 @@ import {
 } from 'lucide-react'
 import { RichTextEditor } from '@/components/shared/rich-text-editor'
 import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
+import { plural } from '@/lib/plural'
 
 //  Types
 
@@ -413,7 +414,7 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
                               <span {...drag.dragHandleProps} className="text-slate-700 hover:text-slate-500 cursor-grab"><GripVertical size={14} /></span>
                               <BookOpen size={13} className="text-violet-400" />
                               <span className="flex-1 text-white text-sm font-medium">{mod.title}</span>
-                              <span className="text-slate-600 text-xs">{mod.lessons.length} lessons</span>
+                              <span className="text-slate-600 text-xs">{plural(mod.lessons.length, 'lesson')}</span>
                               <button onClick={() => setModules(p => p.map((m, i) => i === mi ? { ...m, isExpanded: !m.isExpanded } : m))} className="p-1 text-slate-500 hover:text-white">
                                 {mod.isExpanded ? '▲' : '▼'}
                               </button>

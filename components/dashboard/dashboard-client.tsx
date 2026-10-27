@@ -17,6 +17,7 @@ import { Badge } from '@/components/shared/Badge'
 import { Button } from '@/components/shared/Button'
 import { ProgressBar } from '@/components/shared/ProgressBar'
 import { SHOW_CAREER_ROADMAP } from '@/lib/features'
+import { plural } from '@/lib/plural'
 
 // Role labels 
 const ROLE_LABELS: Record<string, string> = {
@@ -82,7 +83,7 @@ function EnrollmentCard({ e, index }: { e: Enrollment; index: number }) {
             {e.career}
           </Badge>
           <h3 className="text-brand-charcoal font-bold text-base leading-snug">{e.courseTitle}</h3>
-          <p className="text-brand-tertiary text-xs">{e.completedCount} of {e.lessonCount} lessons completed</p>
+          <p className="text-brand-tertiary text-xs">{e.completedCount} of {plural(e.lessonCount, 'lesson')} completed</p>
         </div>
 
         {/* Progress bar */}

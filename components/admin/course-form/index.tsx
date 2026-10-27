@@ -34,6 +34,7 @@ import {
 import { RichTextEditor } from '@/components/shared/rich-text-editor'
 import { Markdown } from '@/components/shared/markdown'
 import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
+import { plural } from '@/lib/plural'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -508,7 +509,7 @@ function StepCurriculum({
                         </span>
                         <BookOpen size={14} className="text-violet-400 flex-shrink-0" />
                         <span className="flex-1 text-white text-sm font-medium">{mod.title}</span>
-                        <span className="text-slate-600 text-xs">{mod.lessons.length} lessons</span>
+                        <span className="text-slate-600 text-xs">{plural(mod.lessons.length, 'lesson')}</span>
                         <button
                           onClick={() =>
                             setModules((prev) =>
@@ -895,7 +896,7 @@ function StepReview({
         {/* Curriculum summary */}
         <div className="border-t border-slate-800 pt-4">
           <p className="text-sm font-medium text-slate-300 mb-3">
-            {modules.length} modules · {totalLessons} lessons
+            {plural(modules.length, 'module')} · {plural(totalLessons, 'lesson')}
           </p>
           <div className="space-y-2">
             {modules.map((mod) => (

@@ -23,6 +23,7 @@ import {
   Archive,
   Globe,
 } from 'lucide-react'
+import { plural } from '@/lib/plural'
 
 interface PageProps {
   params: { courseId: string }
@@ -134,11 +135,11 @@ export default async function AdminCourseDetailPage({ params }: PageProps) {
               </span>
               <span className="flex items-center gap-1.5">
                 <BookOpen size={13} />
-                {course.modules.length} modules
+                {plural(course.modules.length, 'module')}
               </span>
               <span className="flex items-center gap-1.5">
                 <Video size={13} />
-                {totalLessons} lessons
+                {plural(totalLessons, 'lesson')}
               </span>
             </div>
           </div>
@@ -172,7 +173,7 @@ export default async function AdminCourseDetailPage({ params }: PageProps) {
                   <span className="text-slate-600 text-xs font-mono w-5">{idx + 1}</span>
                   <BookOpen size={13} className="text-violet-400" />
                   <span className="flex-1 text-white text-sm font-medium">{mod.title}</span>
-                  <span className="text-slate-600 text-xs">{mod.lessons.length} lessons</span>
+                  <span className="text-slate-600 text-xs">{plural(mod.lessons.length, 'lesson')}</span>
                 </div>
 
                 {/* Lessons */}

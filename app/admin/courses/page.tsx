@@ -21,6 +21,7 @@ import {
   Archive,
 } from 'lucide-react'
 import { CourseActions } from '@/components/admin/course-actions'
+import { plural } from '@/lib/plural'
 
 export const metadata: Metadata = { title: 'Courses' }
 
@@ -171,7 +172,7 @@ export default async function AdminCoursesPage({ searchParams }: PageProps) {
                         <div>
                           <p className="text-white font-medium line-clamp-1">{course.title}</p>
                           <p className="text-slate-500 text-xs mt-0.5">
-                            {DIFFICULTY_LABELS[course.difficulty]} · {course._count.modules} modules
+                            {DIFFICULTY_LABELS[course.difficulty]} · {plural(course._count.modules, 'module')}
                           </p>
                         </div>
                       </div>
@@ -234,7 +235,7 @@ export default async function AdminCoursesPage({ searchParams }: PageProps) {
       {totalPages > 1 && (
         <div className="flex items-center justify-between pt-2">
           <p className="text-sm text-slate-500">
-            Page {page} of {totalPages} · {total} courses
+            Page {page} of {totalPages} · {plural(total, 'course')}
           </p>
           <div className="flex gap-2">
             {page > 1 && (
