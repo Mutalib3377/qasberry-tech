@@ -18,7 +18,7 @@ export const metadata: Metadata = {
 }
 
 interface PageProps {
-  searchParams: { career?: string; difficulty?: string; q?: string }
+  searchParams: { career?: string; difficulty?: string; q?: string; sort?: string }
 }
 
 const DIFFICULTY_VARIANTS: Record<string, 'success' | 'warning' | 'error'> = {
@@ -29,6 +29,22 @@ const DIFFICULTY_VARIANTS: Record<string, 'success' | 'warning' | 'error'> = {
 
 export default async function CourseCatalogPage({ searchParams }: PageProps) {
   const { career: careerSlug, difficulty, q } = searchParams
+  // Oldest first by default; ?sort=newest flips it
+  const newestFirst = searchParams.sort === 'newest'
+
+  // Carry the sort choice across the other filter links
+  const withSort = (href: string) =>
+    newestFirst ? `${href}${href.includes('?') ? '&' : '?'}sort=newest` : href
+
+  const sortHref = (sort: 'oldest' | 'newest') => {
+    const params = new URLSearchParams()
+    if (careerSlug) params.set('career', careerSlug)
+    if (difficulty) params.set('difficulty', difficulty)
+    if (q)          params.set('q', q)
+    if (sort === 'newest') params.set('sort', 'newest')
+    const qs = params.toString()
+    return qs ? `/courses?${qs}` : '/courses'
+  }
 
   // MVP: only careers switched on in lib/features.ts are listed
   const careers = await db.career.findMany({
@@ -52,7 +68,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
       career:      true,
       _count:      { select: { enrollments: true } },
     },
-    orderBy: { createdAt: 'desc' },
+    orderBy: { createdAt: newestFirst ? 'desc' : 'asc' },
   })
 
   return (
@@ -79,6 +95,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
         <div className="flex flex-wrap gap-4 items-center pt-2">
           {/* Search */}
           <form method="GET" className="flex-1 min-w-[240px] max-w-sm">
+            {newestFirst && <input type="hidden" name="sort" value="newest" />}
             <div className="relative flex items-center">
               <Search size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
               <input
@@ -94,7 +111,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
           {careers.length > 1 && (
           <div className="flex flex-wrap gap-2">
             <Link
-              href="/courses"
+              href={withSort('/courses')}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                 !careerSlug
                   ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
@@ -106,7 +123,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
             {careers.map((c) => (
               <Link
                 key={c.id}
-                href={`/courses?career=${c.slug}${difficulty ? `&difficulty=${difficulty}` : ''}`}
+                href={withSort(`/courses?career=${c.slug}${difficulty ? `&difficulty=${difficulty}` : ''}`)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                   careerSlug === c.slug
                     ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
@@ -124,7 +141,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
             {(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const).map((d) => (
               <Link
                 key={d}
-                href={`/courses?${careerSlug ? `career=${careerSlug}&` : ''}difficulty=${d}`}
+                href={withSort(`/courses?${careerSlug ? `career=${careerSlug}&` : ''}difficulty=${d}`)}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                   difficulty === d
                     ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
@@ -137,8 +154,29 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
           </div>
         </div>
 
-        {/* Results count */}
-        <p className="text-brand-tertiary text-sm font-medium">{courses.length} course{courses.length !== 1 ? 's' : ''} found</p>
+        {/* Results count + sort order */}
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <p className="text-brand-tertiary text-sm font-medium">{courses.length} course{courses.length !== 1 ? 's' : ''} found</p>
+          <div className="flex items-center gap-2">
+            <span className="text-brand-tertiary text-xs font-semibold uppercase tracking-wider">Sort</span>
+            {([['oldest', 'Oldest first'], ['newest', 'Newest first']] as const).map(([value, label]) => {
+              const active = (value === 'newest') === newestFirst
+              return (
+                <Link
+                  key={value}
+                  href={sortHref(value)}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    active
+                      ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
+                      : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
+                  }`}
+                >
+                  {label}
+                </Link>
+              )
+            })}
+          </div>
+        </div>
 
         {/* Grid */}
         {courses.length === 0 ? (
