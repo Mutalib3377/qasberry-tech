@@ -34,7 +34,7 @@ import {
 import { RichTextEditor } from '@/components/shared/rich-text-editor'
 import { Markdown } from '@/components/shared/markdown'
 import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
-import { plural } from '@/lib/plural'
+import { plural, contentSummary } from '@/lib/plural'
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -509,7 +509,7 @@ function StepCurriculum({
                         </span>
                         <BookOpen size={14} className="text-violet-400 flex-shrink-0" />
                         <span className="flex-1 text-white text-sm font-medium">{mod.title}</span>
-                        <span className="text-slate-600 text-xs">{plural(mod.lessons.length, 'lesson')}</span>
+                        <span className="text-slate-600 text-xs">{contentSummary(mod.lessons)}</span>
                         <button
                           onClick={() =>
                             setModules((prev) =>
@@ -863,7 +863,7 @@ function StepReview({
     }
   }
 
-  const totalLessons = modules.reduce((a, m) => a + m.lessons.length, 0)
+  const allLessons = modules.flatMap((m) => m.lessons)
 
   return (
     <div className="space-y-6">
@@ -896,7 +896,7 @@ function StepReview({
         {/* Curriculum summary */}
         <div className="border-t border-slate-800 pt-4">
           <p className="text-sm font-medium text-slate-300 mb-3">
-            {plural(modules.length, 'module')} · {plural(totalLessons, 'lesson')}
+            {plural(modules.length, 'module')} · {contentSummary(allLessons)}
           </p>
           <div className="space-y-2">
             {modules.map((mod) => (

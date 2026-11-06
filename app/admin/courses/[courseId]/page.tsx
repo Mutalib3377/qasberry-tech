@@ -23,7 +23,7 @@ import {
   Archive,
   Globe,
 } from 'lucide-react'
-import { plural } from '@/lib/plural'
+import { plural, contentSummary } from '@/lib/plural'
 
 interface PageProps {
   params: { courseId: string }
@@ -71,7 +71,7 @@ export default async function AdminCourseDetailPage({ params }: PageProps) {
 
   const status      = STATUS_CONFIG[course.status]
   const canEdit     = canManageCourses(role)
-  const totalLessons = course.modules.reduce((a, m) => a + m.lessons.length, 0)
+  const allLessons   = course.modules.flatMap((m) => m.lessons)
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
@@ -139,7 +139,7 @@ export default async function AdminCourseDetailPage({ params }: PageProps) {
               </span>
               <span className="flex items-center gap-1.5">
                 <Video size={13} />
-                {plural(totalLessons, 'lesson')}
+                {contentSummary(allLessons)}
               </span>
             </div>
           </div>
@@ -173,7 +173,7 @@ export default async function AdminCourseDetailPage({ params }: PageProps) {
                   <span className="text-slate-600 text-xs font-mono w-5">{idx + 1}</span>
                   <BookOpen size={13} className="text-violet-400" />
                   <span className="flex-1 text-white text-sm font-medium">{mod.title}</span>
-                  <span className="text-slate-600 text-xs">{plural(mod.lessons.length, 'lesson')}</span>
+                  <span className="text-slate-600 text-xs">{contentSummary(mod.lessons)}</span>
                 </div>
 
                 {/* Lessons */}

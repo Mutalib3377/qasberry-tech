@@ -17,7 +17,7 @@ import { Footer }       from '@/components/marketing/footer'
 import { EnrollButton } from '@/components/course/enroll-button'
 import { Badge }        from '@/components/shared/Badge'
 import { Markdown, stripMarkdown } from '@/components/shared/markdown'
-import { plural } from '@/lib/plural'
+import { plural, contentSummary } from '@/lib/plural'
 
 interface PageProps {
   params: { slug: string }
@@ -73,8 +73,8 @@ export default async function CourseDetailPage({ params }: PageProps) {
     }
   }
 
-  const totalLessons = course.modules.reduce((s, m) => s + m.lessons.length, 0)
-  const freeLessons  = course.modules.flatMap((m) => m.lessons).filter((l) => l.isFree)
+  const allLessons   = course.modules.flatMap((m) => m.lessons)
+  const freeLessons  = allLessons.filter((l) => l.isFree)
 
   return (
     <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
@@ -118,7 +118,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
                 </span>
                 <span className="flex items-center gap-1.5">
                   <BookOpen size={15} className="text-brand-purple" />
-                  {plural(totalLessons, 'lesson')}
+                  {contentSummary(allLessons)}
                 </span>
                 <span className="flex items-center gap-1.5">
                   <Clock size={15} className="text-brand-purple" />
@@ -168,7 +168,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
                       <div className="flex items-center gap-3">
                         <BookOpen size={16} className="text-brand-purple flex-shrink-0" />
                         <span className="text-brand-charcoal font-bold text-base">{mod.title}</span>
-                        <span className="text-brand-tertiary text-xs font-medium">({plural(mod.lessons.length, 'lesson')})</span>
+                        <span className="text-brand-tertiary text-xs font-medium">({contentSummary(mod.lessons)})</span>
                       </div>
                       <ChevronDown size={16} className="text-brand-tertiary group-open:rotate-180 transition-transform" />
                     </summary>
@@ -239,7 +239,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
               {/* What you get */}
               <ul className="space-y-3 pt-4 border-t border-slate-100">
                 {[
-                  `${plural(totalLessons, 'lesson')} across ${plural(course.modules.length, 'module')}`,
+                  `${contentSummary(allLessons, { natural: true })} across ${plural(course.modules.length, 'module')}`,
                   'Lifetime access',
                   'Certificate on completion',
                   course.isFree ? 'Completely free access' : 'One-time payment',

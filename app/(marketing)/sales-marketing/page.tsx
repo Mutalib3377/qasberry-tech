@@ -7,6 +7,7 @@ import type { Metadata } from 'next'
 import { redirect } from 'next/navigation'
 import { db } from '@/lib/db'
 import { ENABLED_TRACKS } from '@/lib/features'
+import { contentSummary } from '@/lib/plural'
 import { stripMarkdown } from '@/components/shared/markdown'
 import { AUDIENCES } from '@/components/marketing/audiences'
 import { MarketingNav }   from '@/components/marketing/marketing-nav'
@@ -49,7 +50,7 @@ export default async function SalesMarketingPage() {
       thumbnail:   true,
       isFree:      true,
       price:       true,
-      modules:     { select: { _count: { select: { lessons: true } } } },
+      modules:     { select: { lessons: { select: { type: true } } } },
     },
   })
 
@@ -58,7 +59,7 @@ export default async function SalesMarketingPage() {
     ...c,
     price:       Number(price),
     summary:     description ? stripMarkdown(description) : null,
-    lessonCount: modules.reduce((sum, m) => sum + m._count.lessons, 0),
+    contentSummary: contentSummary(modules.flatMap((m) => m.lessons)),
   }))
 
   return (

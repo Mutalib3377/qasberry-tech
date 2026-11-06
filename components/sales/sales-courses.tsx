@@ -16,7 +16,7 @@ export interface SalesCourse {
   thumbnail: string | null
   isFree: boolean
   price: number
-  lessonCount: number
+  contentSummary: string
 }
 
 interface Props {
@@ -85,7 +85,7 @@ export function SalesCourses({ courses, browseHref }: Props) {
                     <div className="mt-auto flex items-center justify-between pt-5 text-sm">
                       <span className="flex items-center gap-1.5 text-slate-500">
                         <BookOpen size={15} />
-                        {course.lessonCount} lesson{course.lessonCount === 1 ? '' : 's'}
+                        {course.contentSummary}
                       </span>
                       <span className="inline-flex items-center gap-1.5 font-semibold text-indigo-600">
                         View course
