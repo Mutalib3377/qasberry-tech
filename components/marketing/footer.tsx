@@ -8,6 +8,7 @@ import { Input } from '@/components/shared/Input'
 import { Button } from '@/components/shared/Button'
 import { motion } from 'framer-motion'
 import { VISIBLE_AUDIENCES } from './audiences'
+import { SHOW_COMMUNITY } from '@/lib/features'
 
 // ── Link columns config ───────────────────────────────────────────────────────
 
@@ -15,7 +16,7 @@ const PLATFORM_LINKS = [
   { label: 'Why Qasberry', href: '/#features' },
   { label: 'Our Tracks',   href: '/#tracks' },
   { label: 'How It Works', href: '/#how' },
-  { label: 'Community',    href: '/community' },
+  ...(SHOW_COMMUNITY ? [{ label: 'Community', href: '/community' }] : []),
 ]
 
 const LEARN_LINKS = [
@@ -27,7 +28,7 @@ const LEARN_LINKS = [
 const RESOURCE_LINKS = [
   { label: 'Help Center', href: '/courses' },
   ...VISIBLE_AUDIENCES.map((a) => ({ label: a.name, href: a.href })),
-  { label: 'Case Studies', href: '/community' },
+  ...(SHOW_COMMUNITY ? [{ label: 'Case Studies', href: '/community' }] : []),
 ]
 
 const LEGAL_LINKS = [

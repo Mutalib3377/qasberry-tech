@@ -15,6 +15,10 @@ export const YOUTH_CAREER_SLUGS: readonly string[] = ['kid', 'youth']
 // Leave empty to show every career (pre-MVP behaviour).
 export const MVP_CAREER_SLUGS: readonly string[] = [...YOUTH_CAREER_SLUGS]
 
+// Community hubs (/community, nav links, admin moderation). Hidden for now —
+// set to true to bring the whole feature back.
+export const SHOW_COMMUNITY = false
+
 // Professional AI roadmap bot (/onboarding + dashboard panel).
 export const SHOW_CAREER_ROADMAP = false
 

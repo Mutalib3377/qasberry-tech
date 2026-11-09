@@ -6,11 +6,15 @@ import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 import { canManageCommunity, getAuthenticatedUserRole } from '@/lib/auth'
 import type { ApiResponse } from '@/types'
+import { SHOW_COMMUNITY } from '@/lib/features'
 import { z } from 'zod'
 
 // ── GET /api/admin/community ──────────────────────────────────────────────────
 // Returns paginated posts across all communities.
 export async function GET(req: NextRequest): Promise<NextResponse> {
+  if (!SHOW_COMMUNITY) {
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Not found' }, { status: 404 })
+  }
   const auth = await getAuthenticatedUserRole()
   if (!auth || !canManageCommunity(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })
@@ -49,6 +53,9 @@ const PatchSchema = z.object({
 })
 
 export async function PATCH(req: NextRequest): Promise<NextResponse> {
+  if (!SHOW_COMMUNITY) {
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Not found' }, { status: 404 })
+  }
   const auth = await getAuthenticatedUserRole()
   if (!auth || !canManageCommunity(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })
@@ -77,6 +84,9 @@ export async function PATCH(req: NextRequest): Promise<NextResponse> {
 // ── DELETE /api/admin/community ───────────────────────────────────────────────
 // Delete a post.
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
+  if (!SHOW_COMMUNITY) {
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Not found' }, { status: 404 })
+  }
   const auth = await getAuthenticatedUserRole()
   if (!auth || !canManageCommunity(auth.role)) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Forbidden' }, { status: 403 })

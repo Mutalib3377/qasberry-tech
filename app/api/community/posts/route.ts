@@ -6,6 +6,7 @@ import { auth } from '@clerk/nextjs/server'
 import { db }   from '@/lib/db'
 import { z }    from 'zod'
 import type { ApiResponse } from '@/types'
+import { SHOW_COMMUNITY } from '@/lib/features'
 
 const BodySchema = z.object({
   communityId: z.string().min(1),
@@ -13,6 +14,9 @@ const BodySchema = z.object({
 })
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
+  if (!SHOW_COMMUNITY) {
+    return NextResponse.json<ApiResponse>({ success: false, error: 'Not found' }, { status: 404 })
+  }
   const { userId: clerkId } = await auth()
   if (!clerkId) {
     return NextResponse.json<ApiResponse>({ success: false, error: 'Unauthorized' }, { status: 401 })

@@ -14,6 +14,7 @@ import {
   Settings,
 } from 'lucide-react'
 import type { UserRole } from '@/types'
+import { SHOW_COMMUNITY } from '@/lib/features'
 import { Badge } from '@/components/shared/Badge'
 
 interface NavItem {
@@ -76,7 +77,9 @@ export function AdminSidebar({ role }: SidebarProps) {
   const pathname = usePathname()
 
   const visibleItems = NAV_ITEMS.filter(
-    (item) => !item.roles || item.roles.includes(role)
+    (item) =>
+      (!item.roles || item.roles.includes(role)) &&
+      (SHOW_COMMUNITY || item.href !== '/admin/community')
   )
 
   return (

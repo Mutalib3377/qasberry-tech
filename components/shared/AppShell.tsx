@@ -15,6 +15,8 @@ import { ArrowLeft, BookOpen, LayoutDashboard, Users } from 'lucide-react'
 
 // UserMenu wraps Clerk's UserButton, which must be lazy-loaded (ssr: false)
 // to avoid a hydration mismatch
+import { SHOW_COMMUNITY } from '@/lib/features'
+
 const UserMenu = dynamic(
   () => import('@/components/shared/user-menu').then((m) => m.UserMenu),
   { ssr: false }
@@ -24,7 +26,7 @@ const UserMenu = dynamic(
 const APP_NAV = [
   { label: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
   { label: 'Courses',   href: '/courses',   icon: BookOpen },
-  { label: 'Community', href: '/community', icon: Users },
+  ...(SHOW_COMMUNITY ? [{ label: 'Community', href: '/community', icon: Users }] : []),
 ]
 
 interface AppShellProps {

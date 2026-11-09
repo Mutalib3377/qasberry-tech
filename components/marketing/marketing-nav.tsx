@@ -7,14 +7,14 @@ import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { SignedIn, SignedOut, SignInButton, SignUpButton } from '@clerk/nextjs'
 import { Menu, X, ArrowRight } from 'lucide-react'
 import { AUDIENCES } from './audiences'
-import { ENABLED_TRACKS } from '@/lib/features'
+import { ENABLED_TRACKS, SHOW_COMMUNITY } from '@/lib/features'
 import { UserMenu } from '@/components/shared/user-menu'
 
 const NAV_LINKS = [
 	{ label: 'Courses', href: '/courses' },
 	{ label: 'Why Qasberry', href: '/#features' },
 	{ label: 'How it works', href: '/#how' },
-	{ label: 'Community', href: '/community' },
+	...(SHOW_COMMUNITY ? [{ label: 'Community', href: '/community' }] : []),
 ]
 
 // The two audience tracks render as pill-style nav items

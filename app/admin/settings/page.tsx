@@ -10,6 +10,7 @@ import type { UserRole } from '@/types'
 import type { Metadata } from 'next'
 import { CareerManager } from '@/components/admin/career-manager'
 import { CommunityManager } from '@/components/admin/community-manager'
+import { SHOW_COMMUNITY } from '@/lib/features'
 
 export const metadata: Metadata = { title: 'Settings' }
 
@@ -61,6 +62,8 @@ export default async function AdminSettingsPage() {
         }))} />
       </section>
 
+      {SHOW_COMMUNITY && (
+      <>
       <hr className="border-slate-800" />
 
       {/* Communities */}
@@ -83,6 +86,8 @@ export default async function AdminSettingsPage() {
           careers={careers.map((c) => ({ id: c.id, name: c.name }))}
         />
       </section>
+      </>
+      )}
     </div>
   )
 }

@@ -16,13 +16,14 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { SignedIn, SignedOut, SignInButton, UserButton } from '@clerk/nextjs'
 import { Menu, X } from 'lucide-react'
 import { Button } from '@/components/shared/Button'
+import { SHOW_COMMUNITY } from '@/lib/features'
 
 // ── Nav links config ──────────────────────────────────────────────────────────
 
 const NAV_LINKS = [
   { label: 'Courses',   href: '/courses'   },
   { label: 'Careers',   href: '/#careers'  },
-  { label: 'Community', href: '/community' },
+  ...(SHOW_COMMUNITY ? [{ label: 'Community', href: '/community' }] : []),
   { label: 'Pricing',   href: '/#pricing'  },
 ]
 

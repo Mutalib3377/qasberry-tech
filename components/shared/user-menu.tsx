@@ -5,6 +5,7 @@
 
 import { UserButton } from '@clerk/nextjs'
 import { BookOpen, LayoutDashboard, Users } from 'lucide-react'
+import { SHOW_COMMUNITY } from '@/lib/features'
 
 export function UserMenu() {
   return (
@@ -12,7 +13,9 @@ export function UserMenu() {
       <UserButton.MenuItems>
         <UserButton.Link label="Dashboard" labelIcon={<LayoutDashboard size={15} />} href="/dashboard" />
         <UserButton.Link label="Browse courses" labelIcon={<BookOpen size={15} />} href="/courses" />
-        <UserButton.Link label="Community" labelIcon={<Users size={15} />} href="/community" />
+        {SHOW_COMMUNITY && (
+          <UserButton.Link label="Community" labelIcon={<Users size={15} />} href="/community" />
+        )}
         <UserButton.Action label="manageAccount" />
         <UserButton.Action label="signOut" />
       </UserButton.MenuItems>

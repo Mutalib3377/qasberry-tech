@@ -1,6 +1,7 @@
 'use client'
 
 import { motion, useReducedMotion } from 'framer-motion'
+import { SHOW_COMMUNITY } from '@/lib/features'
 import { BadgeCheck, BookOpen, Clock3, Lock, Network, Sparkles, Users2 } from 'lucide-react'
 
 const FEATURE_CARDS = [
@@ -25,17 +26,22 @@ const FEATURE_CARDS = [
     body: 'Short lessons that fit after school or on a weekend.',
     className: 'lg:col-span-1',
   },
-  {
-    icon: Users2,
-    title: 'Community',
-    body: 'Share projects, prompts and wins with other learners on your track.',
-    className: 'lg:col-span-1',
-  },
+  ...(SHOW_COMMUNITY
+    ? [
+        {
+          icon: Users2,
+          title: 'Community',
+          body: 'Share projects, prompts and wins with other learners on your track.',
+          className: 'lg:col-span-1',
+        },
+      ]
+    : []),
   {
     icon: BadgeCheck,
     title: 'Verifiable Credentials',
     body: 'Earn certificates that prove real AI skills, ready for school portfolios.',
-    className: 'lg:col-span-1',
+    // Fills the Community card's slot while community is hidden
+    className: SHOW_COMMUNITY ? 'lg:col-span-1' : 'lg:col-span-2',
   },
   {
     icon: Lock,
