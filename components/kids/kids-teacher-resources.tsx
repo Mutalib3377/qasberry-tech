@@ -20,14 +20,14 @@ export function KidsTeacherResources() {
   const reduceMotion = useReducedMotion()
 
   return (
-    <section id="teacher-resources" className="py-16 sm:py-24 bg-slate-950 scroll-mt-20 relative overflow-hidden">
+    <section id="teacher-resources" className="py-16 sm:py-24 bg-slate-950 dark:border-y dark:border-rx-line scroll-mt-20 relative overflow-hidden">
       {/* Background decoration */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-0 left-[15%] h-[400px] w-[400px] rounded-full bg-[radial-gradient(circle,rgba(99,91,255,0.15),transparent_60%)]" />
         <div className="absolute bottom-0 right-[10%] h-[350px] w-[350px] rounded-full bg-[radial-gradient(circle,rgba(56,189,248,0.12),transparent_60%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <motion.span
@@ -58,7 +58,7 @@ export function KidsTeacherResources() {
             transition={{ duration: 0.5, delay: 0.14 }}
             className="mt-4 text-slate-400 text-base leading-relaxed"
           >
-            You don&apos;t need to be an AI expert to teach AI. Qasberry Youth gives you all the tools to bring artificial intelligence into your classroom with confidence.
+            You don&apos;t need to be an AI expert to teach AI. Qasberry Kids & Teens gives you all the tools to bring artificial intelligence into your classroom with confidence.
           </motion.p>
         </div>
 

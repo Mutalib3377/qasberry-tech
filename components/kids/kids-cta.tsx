@@ -20,7 +20,7 @@ export function KidsCta() {
 
   return (
     <section className="py-16 sm:py-24">
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
         <motion.div
           initial={{ opacity: 0, y: 24, scale: 0.98 }}
           whileInView={{ opacity: 1, y: 0, scale: 1 }}
@@ -61,7 +61,7 @@ export function KidsCta() {
             </h2>
 
             <p className="mt-6 max-w-xl mx-auto text-blue-100/80 text-base sm:text-lg leading-relaxed">
-              Whether you&apos;re a child ready to discover the world of AI, a parent looking for safe and structured learning, or an educator bringing AI into your classroom — Qasberry Youth is ready for you.
+              Whether you&apos;re a child ready to discover the world of AI, a parent looking for safe and structured learning, or an educator bringing AI into your classroom — Qasberry Kids & Teens is ready for you.
             </p>
 
             {/* 3 CTA buttons */}

@@ -6,6 +6,6 @@ import { redirect } from 'next/navigation'
 import { SHOW_CAREER_ROADMAP } from '@/lib/features'
 
 export default function OnboardingLayout({ children }: { children: React.ReactNode }) {
-  if (!SHOW_CAREER_ROADMAP) redirect('/youth')
+  if (!SHOW_CAREER_ROADMAP) redirect('/kids-teens')
   return <>{children}</>
 }

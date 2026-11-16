@@ -1,6 +1,6 @@
 'use client'
 // components/kids/kids-hero.tsx
-// Hero section for the Qasberry Youth landing page.
+// Hero section for the Qasberry Kids & Teens landing page.
 // Warm, playful, premium — bright gradients, animated floating cards, dual CTA.
 
 import { motion, useReducedMotion } from 'framer-motion'
@@ -17,7 +17,7 @@ function KidsIllustration() {
       <div className="absolute inset-0 rounded-full bg-[radial-gradient(circle_at_30%_30%,rgba(139,92,246,0.18),transparent_55%),radial-gradient(circle_at_70%_70%,rgba(56,189,248,0.18),transparent_55%)]" />
 
       {/* Main illustration card */}
-      <div className="absolute inset-6 rounded-[40px] border border-slate-200/80 bg-white/90 backdrop-blur-xl shadow-[0_40px_90px_-56px_rgba(15,23,42,0.3)] overflow-hidden flex items-center justify-center">
+      <div className="absolute inset-6 rounded-[40px] border border-rx-line bg-rx-chip-strong backdrop-blur-xl shadow-[0_40px_90px_-56px_rgba(15,23,42,0.3)] overflow-hidden flex items-center justify-center">
         {/* Decorative grid */}
         <div className="absolute inset-0 opacity-[0.04]"
           style={{ backgroundImage: 'linear-gradient(#7c3aed 1px,transparent 1px),linear-gradient(90deg,#7c3aed 1px,transparent 1px)', backgroundSize: '32px 32px' }} />
@@ -102,10 +102,10 @@ function KidsIllustration() {
             animationDelay: `${i * 0.8}s`,
             transform: `rotate(${card.rotate}deg)`,
           }}
-          className={`absolute ${card.x} ${card.y} z-20 px-3.5 py-2.5 rounded-2xl bg-white border border-slate-200 shadow-[0_8px_24px_-16px_rgba(15,23,42,0.35)]`}
+          className={`absolute ${card.x} ${card.y} z-20 px-3.5 py-2.5 rounded-2xl bg-rx-sheet border border-rx-line shadow-[0_8px_24px_-16px_rgba(15,23,42,0.35)]`}
         >
-          <div className="text-sm font-bold text-slate-900 leading-tight">{card.text}</div>
-          <div className="text-xs font-medium text-slate-600 mt-0.5">{card.sub}</div>
+          <div className="text-sm font-bold text-rx-text leading-tight">{card.text}</div>
+          <div className="text-xs font-medium text-rx-body mt-0.5">{card.sub}</div>
         </motion.div>
       ))}
     </div>
@@ -125,7 +125,7 @@ export function KidsHero() {
         <div className="absolute bottom-[-80px] left-1/2 -translate-x-1/2 h-[300px] w-[900px] bg-[radial-gradient(ellipse,rgba(245,158,11,0.08),transparent_65%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
         <div className="grid items-center gap-14 lg:grid-cols-[1.1fr_0.9fr]">
           {/* Left — text */}
           <div>
@@ -133,16 +133,16 @@ export function KidsHero() {
               initial={{ opacity: 0, y: 14 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.45 }}
-              className="inline-flex items-center rounded-full border border-violet-200 bg-violet-50 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-700"
+              className="inline-flex items-center rounded-full border border-violet-200 dark:border-violet-400/25 bg-violet-50 dark:bg-violet-500/10 px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-violet-700 dark:text-violet-300"
             >
-              Qasberry Youth
+              Qasberry Kids & Teens
             </motion.div>
 
             <motion.h1
               initial={{ opacity: 0, y: 18 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.07 }}
-              className="mt-6 text-[2.8rem] leading-[1.0] sm:text-[4rem] lg:text-[4.8rem] font-black tracking-[-0.04em] text-slate-950"
+              className="mt-6 text-[2.8rem] leading-[1.0] sm:text-[4rem] lg:text-[4.8rem] font-black tracking-[-0.04em] text-rx-text"
             >
               Learn AI Young.{' '}
               <span className="bg-[linear-gradient(110deg,#635bff,#38bdf8)] bg-clip-text text-transparent">
@@ -154,7 +154,7 @@ export function KidsHero() {
               initial={{ opacity: 0, y: 16 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: reduceMotion ? 0 : 0.55, delay: 0.14 }}
-              className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-slate-600"
+              className="mt-6 max-w-xl text-base sm:text-lg leading-relaxed text-rx-body"
             >
               Introduce children to Artificial Intelligence through fun, interactive lessons — while giving teachers everything they need to confidently bring AI into the classroom.
             </motion.p>
@@ -176,7 +176,7 @@ export function KidsHero() {
               <a
                 href="#teacher-resources"
                 id="kids-hero-teacher-cta"
-                className="group inline-flex h-13 items-center gap-2.5 rounded-2xl border border-amber-300 bg-amber-50 px-6 py-3.5 text-sm font-bold text-amber-800 hover:bg-amber-100 hover:border-amber-400 transition-all"
+                className="group inline-flex h-13 items-center gap-2.5 rounded-2xl border border-amber-300 dark:border-amber-400/40 bg-amber-50 dark:bg-amber-500/10 px-6 py-3.5 text-sm font-bold text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/15 hover:border-amber-400 dark:hover:border-amber-400/50 transition-all"
               >
                 I&apos;m a Teacher
                 <ArrowRight size={15} className="transition-transform group-hover:translate-x-0.5" />
@@ -188,12 +188,12 @@ export function KidsHero() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ duration: reduceMotion ? 0 : 0.5, delay: 0.35 }}
-              className="mt-8 flex flex-wrap items-center gap-2.5 sm:gap-3 text-sm sm:text-[15px] font-semibold text-slate-800"
+              className="mt-8 flex flex-wrap items-center gap-2.5 sm:gap-3 text-sm sm:text-[15px] font-semibold text-rx-text"
             >
               {['🎯 Age 6–16', '📚 Structured curriculum', '🏆 Earn certificates', '👩‍🏫 Teacher resources included'].map((b) => (
                 <span
                   key={b}
-                  className="flex items-center gap-1.5 rounded-full border border-slate-200 bg-white/80 px-3.5 py-1.5 shadow-sm"
+                  className="flex items-center gap-1.5 rounded-full border border-rx-line bg-rx-chip-strong px-3.5 py-1.5 shadow-sm"
                 >
                   {b}
                 </span>

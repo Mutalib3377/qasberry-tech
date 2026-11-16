@@ -2,14 +2,13 @@
 // Terms of Use page — Qasberry design system.
 
 import type { Metadata } from 'next'
-import { MarketingNav } from '@/components/marketing/marketing-nav'
-import { Footer } from '@/components/marketing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { Badge } from '@/components/shared/Badge'
 import { Card } from '@/components/shared/Card'
 import { FileText } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Terms of Use | Qasberry',
+  title: 'Terms of Use',
   description: 'Terms and conditions governing the use of Qasberry AI learning platform and services.',
 }
 
@@ -17,15 +16,8 @@ export default function TermsOfUsePage() {
   const lastUpdated = 'August 15, 2026'
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
-      {/* Soft Glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-violet-500/8 blur-[120px]" />
-      </div>
-
-      <MarketingNav />
-
-      <main className="relative z-10 flex-1 max-w-4xl mx-auto px-6 pt-32 pb-20 w-full space-y-10">
+    <MarketingShell width="reading">
+      <div className="space-y-10">
         {/* Header */}
         <div className="space-y-4">
           <Badge variant="primary" className="px-3.5 py-1 text-xs uppercase tracking-wider font-semibold">
@@ -98,9 +90,7 @@ export default function TermsOfUsePage() {
             </p>
           </section>
         </Card>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MarketingShell>
   )
 }

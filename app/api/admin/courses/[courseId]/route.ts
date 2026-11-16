@@ -19,6 +19,7 @@ const updateCourseSchema = z.object({
   description: z.string().max(2000).nullable().optional(),
   careerId: z.string().min(1).optional(),
   difficulty: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']).optional(),
+  ageGroups: z.array(z.enum(['AGES_6_9', 'AGES_10_12', 'AGES_13_16'])).min(1, 'Pick at least one age group').optional(),
   price: z.coerce.number().min(0).optional(),
   isFree: z.boolean().optional(),
   thumbnail: z.string().url().nullable().optional(),

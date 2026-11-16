@@ -37,7 +37,7 @@ const SALES = AUDIENCES.find((a) => a.key === 'sales')!
 
 export default async function SalesMarketingPage() {
   // MVP: track is hidden — switch it back on in lib/features.ts
-  if (!ENABLED_TRACKS.includes('sales')) redirect('/youth')
+  if (!ENABLED_TRACKS.includes('sales')) redirect('/kids-teens')
 
   const courses = await db.course.findMany({
     where: { status: 'PUBLISHED', career: { slug: { in: SALES.careerSlugs } } },

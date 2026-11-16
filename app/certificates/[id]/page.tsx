@@ -19,8 +19,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   })
   return {
     title: cert
-      ? `Certificate — ${cert.course.title} | Qasberry`
-      : 'Certificate | Qasberry',
+      ? `Certificate — ${cert.course.title}`
+      : 'Certificate',
   }
 }
 

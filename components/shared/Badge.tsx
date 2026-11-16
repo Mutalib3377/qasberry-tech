@@ -10,23 +10,23 @@ import React from 'react'
 
 const statusStyles: Record<string, string> = {
   // Content status
-  Published:        'bg-brand-success-bg  text-brand-success  border-green-200',
-  Draft:            'bg-brand-warning-bg  text-brand-warning  border-amber-200',
+  Published:        'bg-brand-success-bg  text-brand-success  border-green-200 dark:border-emerald-400/25',
+  Draft:            'bg-brand-warning-bg  text-brand-warning  border-amber-200 dark:border-amber-400/25',
 
   // Pricing
-  Free:             'bg-brand-info-bg     text-brand-info     border-blue-200',
+  Free:             'bg-brand-info-bg     text-brand-info     border-blue-200 dark:border-blue-400/25',
   Paid:             'bg-brand-purple-soft text-brand-purple   border-brand-purple/20',
 
   // Role badges
-  SUPER_ADMIN:      'bg-brand-error-bg    text-brand-error    border-red-200',
-  ADMIN:            'bg-orange-50         text-orange-700     border-orange-200',
-  INSTRUCTOR:       'bg-brand-info-bg     text-brand-info     border-blue-200',
+  SUPER_ADMIN:      'bg-brand-error-bg    text-brand-error    border-red-200 dark:border-red-400/25',
+  ADMIN:            'bg-orange-50 dark:bg-orange-500/10 text-orange-700 dark:text-orange-300     border-orange-200 dark:border-orange-400/25',
+  INSTRUCTOR:       'bg-brand-info-bg     text-brand-info     border-blue-200 dark:border-blue-400/25',
   STUDENT:          'bg-brand-surface     text-brand-secondary border-brand-border',
 
   // Difficulty
-  Beginner:         'bg-brand-success-bg  text-brand-success  border-green-200',
-  Intermediate:     'bg-brand-warning-bg  text-brand-warning  border-amber-200',
-  Advanced:         'bg-brand-error-bg    text-brand-error    border-red-200',
+  Beginner:         'bg-brand-success-bg  text-brand-success  border-green-200 dark:border-emerald-400/25',
+  Intermediate:     'bg-brand-warning-bg  text-brand-warning  border-amber-200 dark:border-amber-400/25',
+  Advanced:         'bg-brand-error-bg    text-brand-error    border-red-200 dark:border-red-400/25',
 }
 
 // ── Explicit variants ──────────────────────────────────────────────────────────
@@ -34,10 +34,10 @@ const statusStyles: Record<string, string> = {
 const variantStyles = {
   default:  'bg-brand-surface  text-brand-secondary border-brand-border',
   primary:  'bg-brand-purple-soft text-brand-purple border-brand-purple/20',
-  success:  'bg-brand-success-bg  text-brand-success  border-green-200',
-  warning:  'bg-brand-warning-bg  text-brand-warning  border-amber-200',
-  error:    'bg-brand-error-bg    text-brand-error    border-red-200',
-  info:     'bg-brand-info-bg     text-brand-info     border-blue-200',
+  success:  'bg-brand-success-bg  text-brand-success  border-green-200 dark:border-emerald-400/25',
+  warning:  'bg-brand-warning-bg  text-brand-warning  border-amber-200 dark:border-amber-400/25',
+  error:    'bg-brand-error-bg    text-brand-error    border-red-200 dark:border-red-400/25',
+  info:     'bg-brand-info-bg     text-brand-info     border-blue-200 dark:border-blue-400/25',
 }
 
 const defaultStyle = 'bg-brand-surface text-brand-secondary border-brand-border'

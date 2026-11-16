@@ -1,6 +1,6 @@
 'use client'
 // components/kids/kids-why.tsx
-// "Why Qasberry Youth?" — 6 premium feature cards with SVG illustrations.
+// "Why Qasberry Kids & Teens?" — 6 premium feature cards with SVG illustrations.
 // Bento-grid layout, illustrated icons, framer-motion animations.
 
 import { motion, useReducedMotion } from 'framer-motion'
@@ -13,8 +13,8 @@ const WHY_CARDS = [
     desc: 'Every lesson is carefully designed for the right age group — from curious 6-year-olds to ambitious 16-year-olds — with language, concepts, and activities tailored accordingly.',
     span: 'lg:col-span-2',
     gradient: 'from-violet-500/10 to-indigo-500/10',
-    border: 'hover:border-violet-300',
-    accent: 'text-violet-600',
+    border: 'hover:border-violet-300 dark:hover:border-violet-400/40',
+    accent: 'text-violet-600 dark:text-violet-300',
   },
   {
     emoji: '🖐️',
@@ -22,8 +22,8 @@ const WHY_CARDS = [
     desc: 'Children learn best by doing. Every lesson includes activities, experiments, and projects — not just reading and watching.',
     span: 'lg:col-span-1',
     gradient: 'from-sky-500/10 to-blue-500/10',
-    border: 'hover:border-sky-300',
-    accent: 'text-sky-600',
+    border: 'hover:border-sky-300 dark:hover:border-sky-400/40',
+    accent: 'text-sky-600 dark:text-sky-300',
   },
   {
     emoji: '👩‍🏫',
@@ -31,8 +31,8 @@ const WHY_CARDS = [
     desc: 'All content is created with experienced educators so it fits naturally into classroom routines and meets curriculum expectations.',
     span: 'lg:col-span-1',
     gradient: 'from-amber-400/10 to-orange-400/10',
-    border: 'hover:border-amber-300',
-    accent: 'text-amber-600',
+    border: 'hover:border-amber-300 dark:hover:border-amber-400/40',
+    accent: 'text-amber-600 dark:text-amber-300',
   },
   {
     emoji: '🌍',
@@ -40,26 +40,26 @@ const WHY_CARDS = [
     desc: 'We focus on AI skills children will actually use — communicating with AI tools, thinking critically about technology, and building creative projects.',
     span: 'lg:col-span-1',
     gradient: 'from-emerald-400/10 to-teal-400/10',
-    border: 'hover:border-emerald-300',
-    accent: 'text-emerald-600',
+    border: 'hover:border-emerald-300 dark:hover:border-emerald-400/40',
+    accent: 'text-emerald-600 dark:text-emerald-300',
   },
   {
     emoji: '🛡️',
     title: 'Safe Learning Environment',
-    desc: 'Child safety is built into every part of Qasberry Youth — from age-appropriate content to responsible AI lessons that teach children how to use technology wisely.',
+    desc: 'Child safety is built into every part of Qasberry Kids & Teens — from age-appropriate content to responsible AI lessons that teach children how to use technology wisely.',
     span: 'lg:col-span-1',
     gradient: 'from-rose-400/10 to-pink-400/10',
-    border: 'hover:border-rose-300',
-    accent: 'text-rose-600',
+    border: 'hover:border-rose-300 dark:hover:border-rose-400/40',
+    accent: 'text-rose-600 dark:text-rose-300',
   },
   {
     emoji: '🚀',
     title: 'Future-Ready Education',
-    desc: 'AI literacy is the most important skill of this generation. Qasberry Youth ensures children start building this advantage early — before it becomes essential.',
+    desc: 'AI literacy is the most important skill of this generation. Qasberry Kids & Teens ensures children start building this advantage early — before it becomes essential.',
     span: 'lg:col-span-2',
     gradient: 'from-purple-500/10 to-fuchsia-500/10',
-    border: 'hover:border-purple-300',
-    accent: 'text-purple-600',
+    border: 'hover:border-purple-300 dark:hover:border-purple-400/40',
+    accent: 'text-purple-600 dark:text-purple-300',
   },
 ]
 
@@ -67,8 +67,8 @@ export function KidsWhy() {
   const reduceMotion = useReducedMotion()
 
   return (
-    <section className="py-16 sm:py-24 bg-[#fafafc]">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="py-16 sm:py-24 bg-rx-chip">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <motion.span
@@ -76,16 +76,16 @@ export function KidsWhy() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full border border-rx-line bg-rx-sheet px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-rx-body shadow-sm"
           >
-            Why Qasberry Youth
+            Why Qasberry Kids & Teens
           </motion.span>
           <motion.h2
             initial={{ opacity: 0, y: 16 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.07 }}
-            className="mt-5 text-3xl sm:text-[2.8rem] font-black tracking-tight text-slate-950 leading-tight"
+            className="mt-5 text-3xl sm:text-[2.8rem] font-black tracking-tight text-rx-text leading-tight"
           >
             The{' '}
             <span className="bg-[linear-gradient(110deg,#635bff,#38bdf8)] bg-clip-text text-transparent">
@@ -98,9 +98,9 @@ export function KidsWhy() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.14 }}
-            className="mt-4 text-slate-500 text-base leading-relaxed"
+            className="mt-4 text-rx-muted text-base leading-relaxed"
           >
-            Qasberry Youth isn&apos;t just another online course platform. It&apos;s a thoughtfully crafted learning system built around how children actually learn best.
+            Qasberry Kids & Teens isn&apos;t just another online course platform. It&apos;s a thoughtfully crafted learning system built around how children actually learn best.
           </motion.p>
         </div>
 
@@ -114,7 +114,7 @@ export function KidsWhy() {
               viewport={{ once: true, margin: '-60px' }}
               transition={{ duration: reduceMotion ? 0 : 0.5, delay: i * 0.07 }}
               className={[
-                'group relative rounded-[28px] border border-slate-200 bg-white p-7 overflow-hidden transition-all duration-300',
+                'group relative rounded-[28px] border border-rx-line bg-rx-sheet p-7 overflow-hidden transition-all duration-300',
                 'shadow-[0_8px_30px_-20px_rgba(15,23,42,0.15)] hover:shadow-[0_20px_50px_-24px_rgba(15,23,42,0.22)]',
                 card.border,
                 card.span,
@@ -133,10 +133,10 @@ export function KidsWhy() {
                   {card.emoji}
                 </motion.div>
 
-                <h3 className={`text-lg font-black tracking-tight text-slate-950 mb-3`}>
+                <h3 className={`text-lg font-black tracking-tight text-rx-text mb-3`}>
                   {card.title}
                 </h3>
-                <p className="text-sm text-slate-600 leading-relaxed">{card.desc}</p>
+                <p className="text-sm text-rx-body leading-relaxed">{card.desc}</p>
 
                 {/* Animated accent bar */}
                 <div className={`mt-5 h-0.5 rounded-full bg-gradient-to-r ${card.gradient.replace('/10', '')} w-12 group-hover:w-24 transition-all duration-500 opacity-70`} />

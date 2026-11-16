@@ -1,6 +1,6 @@
 // app/(marketing)/courses/[slug]/page.tsx
 // Public course detail page — description, curriculum preview, enroll CTA.
-// Free lessons show a Mux preview. Server component with whitish glassmorphism layout.
+// Lessons an admin marked as free previews play inline (#free-preview), no sign-in needed.
 
 import { db }           from '@/lib/db'
 import { notFound }     from 'next/navigation'
@@ -12,11 +12,14 @@ import {
   BookOpen, Clock, Users, Zap, ChevronDown,
   CheckCircle2, Lock, Play, ArrowRight,
 } from 'lucide-react'
-import { MarketingNav } from '@/components/marketing/marketing-nav'
-import { Footer }       from '@/components/marketing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { EnrollButton } from '@/components/course/enroll-button'
+import { LessonPreviewPlayer } from '@/components/course/lesson-preview-player'
+import { buildPreviewItems } from '@/lib/lesson-preview'
 import { Badge }        from '@/components/shared/Badge'
+import { ageRangeLabel } from '@/lib/age-groups'
 import { Markdown, stripMarkdown } from '@/components/shared/markdown'
+import { ReadAloud } from '@/components/shared/read-aloud'
 import { plural, contentSummary } from '@/lib/plural'
 
 interface PageProps {
@@ -29,7 +32,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     select:  { title: true, description: true },
   })
   return {
-    title:       course ? `${course.title} | Qasberry` : 'Course | Qasberry',
+    title:       course ? course.title : 'Course',
     description: course?.description ? stripMarkdown(course.description).slice(0, 160) : undefined,
   }
 }
@@ -74,18 +77,10 @@ export default async function CourseDetailPage({ params }: PageProps) {
   }
 
   const allLessons   = course.modules.flatMap((m) => m.lessons)
-  const freeLessons  = allLessons.filter((l) => l.isFree)
+  const previewItems = buildPreviewItems(allLessons)
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
-      {/* Soft Top Glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-violet-500/8 blur-[120px]" />
-      </div>
-
-      <MarketingNav />
-
-      <main className="relative z-10 flex-1 max-w-6xl mx-auto px-6 pt-32 pb-20 w-full">
+    <MarketingShell width="wide">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
 
           {/* ── Left: course info ──────────────────────────────── */}
@@ -106,10 +101,14 @@ export default async function CourseDetailPage({ params }: PageProps) {
                 <Badge variant={DIFFICULTY_VARIANTS[course.difficulty] ?? 'default'}>
                   {course.difficulty[0] + course.difficulty.slice(1).toLowerCase()}
                 </Badge>
+                <Badge variant="info">{ageRangeLabel(course.ageGroups)}</Badge>
               </div>
               <h1 className="text-3xl sm:text-4xl font-extrabold text-brand-charcoal tracking-tight leading-tight">{course.title}</h1>
               {course.description && (
-                <Markdown className="text-brand-secondary text-lg leading-relaxed">{course.description}</Markdown>
+                <>
+                  <ReadAloud text={course.description} title={course.title} label="Listen to this course" />
+                  <Markdown className="text-brand-secondary text-lg leading-relaxed">{course.description}</Markdown>
+                </>
               )}
               <div className="flex flex-wrap items-center gap-5 text-sm font-medium text-brand-tertiary pt-1">
                 <span className="flex items-center gap-1.5">
@@ -129,33 +128,21 @@ export default async function CourseDetailPage({ params }: PageProps) {
 
             {/* Thumbnail */}
             {course.thumbnail && (
-              <div className="w-full h-72 rounded-3xl overflow-hidden border border-slate-200/80 shadow-md">
+              <div className="w-full h-72 rounded-3xl overflow-hidden border border-rx-line shadow-md">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src={course.thumbnail} alt={course.title} className="w-full h-full object-cover" />
               </div>
             )}
 
-            {/* Free lesson previews */}
-            {freeLessons.length > 0 && (
-              <div className="space-y-3">
-                <h2 className="text-lg font-bold text-brand-charcoal">Free Previews</h2>
-                <div className="space-y-2.5">
-                  {freeLessons.slice(0, 3).map((lesson) => (
-                    <div
-                      key={lesson.id}
-                      className="flex items-center gap-3 p-4 rounded-2xl border border-emerald-200/70 bg-emerald-50/60 backdrop-blur-md"
-                    >
-                      <div className="w-8 h-8 rounded-xl bg-emerald-100 flex items-center justify-center flex-shrink-0">
-                        <Play size={14} className="text-emerald-600" />
-                      </div>
-                      <span className="text-brand-charcoal font-medium text-sm">{lesson.title}</span>
-                      <Badge variant="success" className="ml-auto">
-                        Free
-                      </Badge>
-                    </div>
-                  ))}
+            {/* Free lesson previews — playable without signing in */}
+            {previewItems.length > 0 && (
+              <section id="free-preview" className="scroll-mt-28 space-y-3">
+                <div>
+                  <h2 className="text-lg font-bold text-brand-charcoal">Free preview</h2>
+                  <p className="text-sm text-brand-tertiary">Try a lesson before you enroll. No account needed.</p>
                 </div>
-              </div>
+                <LessonPreviewPlayer items={previewItems} />
+              </section>
             )}
 
             {/* Curriculum */}
@@ -163,7 +150,7 @@ export default async function CourseDetailPage({ params }: PageProps) {
               <h2 className="text-xl font-bold text-brand-charcoal">Curriculum</h2>
               <div className="space-y-3">
                 {course.modules.map((mod) => (
-                  <details key={mod.id} className="group rounded-2xl border border-slate-200/80 bg-white/80 backdrop-blur-xl shadow-sm overflow-hidden">
+                  <details key={mod.id} className="group rounded-2xl border border-rx-line bg-rx-chip-strong backdrop-blur-xl shadow-sm overflow-hidden">
                     <summary className="flex items-center justify-between p-4 cursor-pointer hover:bg-brand-surface transition-colors list-none">
                       <div className="flex items-center gap-3">
                         <BookOpen size={16} className="text-brand-purple flex-shrink-0" />
@@ -172,12 +159,12 @@ export default async function CourseDetailPage({ params }: PageProps) {
                       </div>
                       <ChevronDown size={16} className="text-brand-tertiary group-open:rotate-180 transition-transform" />
                     </summary>
-                    <div className="border-t border-slate-100 divide-y divide-slate-100 bg-brand-surface/30">
+                    <div className="border-t border-rx-line divide-y divide-rx-line bg-brand-surface/30">
                       {mod.lessons.map((lesson) => (
                         <div key={lesson.id} className="flex items-center gap-3 px-5 py-3.5">
                           {lesson.isFree
                             ? <CheckCircle2 size={15} className="text-emerald-500 flex-shrink-0" />
-                            : <Lock size={15} className="text-slate-400 flex-shrink-0" />
+                            : <Lock size={15} className="text-rx-dim flex-shrink-0" />
                           }
                           <span className="text-brand-secondary text-sm font-medium flex-1">{lesson.title}</span>
                           {lesson.isFree && (
@@ -199,11 +186,11 @@ export default async function CourseDetailPage({ params }: PageProps) {
 
           {/* ── Right: enroll card (sticky glass card) ────────────────────── */}
           <div className="lg:col-span-1">
-            <div className="sticky top-28 p-7 rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-xl shadow-[0_16px_40px_-20px_rgba(16,24,40,0.15)] space-y-6">
+            <div className="sticky top-28 p-7 rounded-3xl border border-rx-line bg-rx-chip-strong backdrop-blur-xl shadow-[0_16px_40px_-20px_rgba(16,24,40,0.15)] space-y-6">
               {/* Price */}
               <div>
                 {course.isFree ? (
-                  <p className="text-4xl font-extrabold text-emerald-600">FREE</p>
+                  <p className="text-4xl font-extrabold text-emerald-600 dark:text-emerald-300">FREE</p>
                 ) : (
                   <p className="text-4xl font-extrabold text-brand-charcoal">
                     ${Number(course.price).toLocaleString()}
@@ -236,8 +223,19 @@ export default async function CourseDetailPage({ params }: PageProps) {
                 </Link>
               )}
 
+              {previewItems.length > 0 && (
+                <a
+                  href="#free-preview"
+                  id="watch-free-lesson-btn"
+                  className="flex items-center justify-center gap-2 w-full py-3 rounded-xl border border-rx-line-strong bg-rx-chip text-brand-charcoal text-sm font-semibold hover:border-brand-purple/40 transition-colors"
+                >
+                  <Play size={15} className="text-brand-purple" />
+                  Watch a free lesson
+                </a>
+              )}
+
               {/* What you get */}
-              <ul className="space-y-3 pt-4 border-t border-slate-100">
+              <ul className="space-y-3 pt-4 border-t border-rx-line">
                 {[
                   `${contentSummary(allLessons, { natural: true })} across ${plural(course.modules.length, 'module')}`,
                   'Lifetime access',
@@ -254,9 +252,6 @@ export default async function CourseDetailPage({ params }: PageProps) {
           </div>
 
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

@@ -54,6 +54,7 @@ export default async function EditCoursePage({ params }: PageProps) {
     description: course.description,
     careerId:    course.careerId,
     difficulty:  course.difficulty,
+    ageGroups:   course.ageGroups,
     price:       Number(course.price),
     isFree:      course.isFree,
     thumbnail:   course.thumbnail,

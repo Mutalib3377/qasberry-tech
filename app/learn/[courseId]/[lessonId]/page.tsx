@@ -10,11 +10,14 @@ import dynamic from 'next/dynamic'
 import {
   CheckCircle2, Circle, Lock, ChevronRight,
   ChevronLeft, Award, Menu, X, Zap, ArrowLeft, BookOpen,
+  PlayCircle, HelpCircle, LayoutDashboard,
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import MuxPlayerReact from '@mux/mux-player-react'
 import { PdfViewer } from '@/components/lesson/pdf-viewer'
 import { Markdown } from '@/components/shared/markdown'
+import { ReadAloud } from '@/components/shared/read-aloud'
+import { useReadingHelp } from '@/lib/reading-help'
 import { QuizPlayer, type QuizPlayerData, type QuizAttemptOutcome } from '@/components/lesson/quiz-player'
 
 // Clerk's UserButton must be client-only to avoid a hydration mismatch
@@ -26,6 +29,13 @@ const UserMenu = dynamic(
 // Below this width the curriculum sidebar overlays the lesson, so it starts
 // closed and closes again after picking a lesson
 const MOBILE_BREAKPOINT = 768
+
+// Icon + label per lesson type, so pre-readers can tell lessons apart
+const LESSON_TYPE = {
+  VIDEO:   { label: 'Video',   icon: PlayCircle },
+  READING: { label: 'Reading', icon: BookOpen },
+  QUIZ:    { label: 'Quiz',    icon: HelpCircle },
+} as const
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 
@@ -155,6 +165,9 @@ export default function LearnPage({ params }: PageProps) {
 
   const [course,     setCourse]     = useState<CourseData | null>(null)
   const [lesson,     setLesson]     = useState<Lesson | null>(null)
+  // Reading help (user menu) shows Listen buttons and larger icons
+  const readingHelp = useReadingHelp()
+  const iconSize = readingHelp ? 18 : 14
   const [completed,  setCompleted]  = useState<Set<string>>(new Set())
   // `completedCount` / `total` are the progress-bar's numerator / denominator,
   // both from GET /api/progress → getCourseCompletionCounts (the same helper
@@ -446,6 +459,10 @@ export default function LearnPage({ params }: PageProps) {
                               ? <Circle size={14} className="text-violet-500 flex-shrink-0" />
                               : <Lock size={14} className="text-slate-400 flex-shrink-0" />
                           }
+                          {(() => {
+                            const TypeIcon = LESSON_TYPE[l.type].icon
+                            return <TypeIcon size={iconSize} aria-label={LESSON_TYPE[l.type].label} className={`flex-shrink-0 ${isCurrent ? 'text-violet-600' : 'text-slate-400'}`} />
+                          })()}
                           <span className="truncate flex-1">{l.title}</span>
                           {l.duration && (
                             <span className="text-slate-400 text-xs flex-shrink-0">
@@ -541,9 +558,13 @@ export default function LearnPage({ params }: PageProps) {
                     <span className="text-blue-500 text-xs ml-auto">Opens in new tab →</span>
                   </a>
                 ) : lesson?.content ? (
-                  <Markdown className="text-slate-700 text-sm leading-relaxed px-4 py-4 rounded-2xl border border-slate-200 bg-white">
-                    {lesson.content}
-                  </Markdown>
+                  <div className="space-y-3">
+                    {/* key: switching lessons unmounts the reader, which stops speech */}
+                    <ReadAloud key={lesson.id} text={lesson.content} title={lesson.title} />
+                    <Markdown className="text-slate-700 text-sm leading-relaxed px-4 py-4 rounded-2xl border border-slate-200 bg-white">
+                      {lesson.content}
+                    </Markdown>
+                  </div>
                 ) : lesson?.type === 'READING' ? (
                   <div className="w-full py-10 bg-slate-100 rounded-2xl border border-slate-200 flex items-center justify-center">
                     <p className="text-slate-500 text-sm">Reading content not yet available</p>
@@ -557,6 +578,15 @@ export default function LearnPage({ params }: PageProps) {
                 rejects a direct call for a QUIZ lesson anyway). */}
             <div className="flex items-start justify-between gap-4">
               <div>
+                {lesson && (() => {
+                  const TypeIcon = LESSON_TYPE[lesson.type].icon
+                  return (
+                    <span className="mb-1.5 inline-flex items-center gap-1.5 rounded-full bg-violet-50 px-2.5 py-1 text-xs font-semibold text-violet-700">
+                      <TypeIcon size={iconSize} aria-hidden />
+                      {LESSON_TYPE[lesson.type].label}
+                    </span>
+                  )
+                })()}
                 <h1 className="text-xl font-bold text-slate-900">{lesson?.title}</h1>
                 {lesson?.duration && (
                   <p className="text-slate-500 text-sm mt-1">
@@ -577,7 +607,7 @@ export default function LearnPage({ params }: PageProps) {
                 >
                   {lesson && completed.has(lesson.id)
                     ? <><CheckCircle2 size={14} /> Completed</>
-                    : <>{marking ? 'Saving…' : 'Mark Complete'}</>
+                    : <><CheckCircle2 size={iconSize} aria-hidden />{marking ? 'Saving…' : 'Mark Complete'}</>
                   }
                 </button>
               )}
@@ -624,6 +654,7 @@ export default function LearnPage({ params }: PageProps) {
                   href="/dashboard"
                   className="flex items-center gap-2 px-4 py-2 bg-slate-700 hover:bg-slate-600 text-white text-sm font-semibold rounded-xl transition-colors"
                 >
+                  <LayoutDashboard size={14} aria-hidden />
                   Back to Dashboard
                 </Link>
               )}

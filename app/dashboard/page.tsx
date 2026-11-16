@@ -1,6 +1,7 @@
 // app/dashboard/page.tsx
-// Student dashboard — Phase 3 upgrade.
-// Shows enrolled courses, certificates, and quick "Build my roadmap" CTA.
+// Student dashboard: In Progress / Completed / Certificates tabs (?tab=).
+// Works out each course's state, next unfinished lesson and last activity here,
+// so the client only renders.
 // Protected by middleware.
 // Admin users are redirected to /admin.
 
@@ -11,7 +12,7 @@ import type { Metadata } from 'next'
 import { DashboardClient } from '@/components/dashboard/dashboard-client'
 
 export const metadata: Metadata = {
-  title: 'Dashboard | Qasberry',
+  title: 'Dashboard',
   description: 'Your personalised Qasberry AI learning dashboard.',
 }
 
@@ -29,7 +30,8 @@ export default async function DashboardPage() {
             include: {
               career: true,
               modules: {
-                include: { lessons: { select: { id: true } } },
+                orderBy: { order: 'asc' },
+                include: { lessons: { orderBy: { order: 'asc' }, select: { id: true } } },
               },
             },
           },
@@ -41,7 +43,7 @@ export default async function DashboardPage() {
         orderBy: { issuedAt: 'desc' },
       },
       progress: {
-        select: { lessonId: true },
+        select: { lessonId: true, completedAt: true },
       },
     },
   })
@@ -54,23 +56,40 @@ export default async function DashboardPage() {
     redirect('/admin')
   }
 
-  // Build a Set of completed lesson IDs for O(1) lookup
-  const completedLessonIds = new Set((dbUser?.progress ?? []).map((p) => p.lessonId))
+  // Completed lesson id → when it was completed
+  const completedAt = new Map((dbUser?.progress ?? []).map((p) => [p.lessonId, p.completedAt]))
+  const certByCourse = new Map((dbUser?.certificates ?? []).map((c) => [c.courseId, c.id]))
 
-  const enrollmentData = (dbUser?.enrollments ?? []).map((e) => {
-    const allLessons = e.course.modules.flatMap((m) => m.lessons.map((l) => l.id))
-    const completedCount = allLessons.filter((id) => completedLessonIds.has(id)).length
-    return {
-      id:              e.id,
-      courseId:        e.courseId,
-      courseTitle:     e.course.title,
-      courseThumbnail: e.course.thumbnail,
-      career:          e.course.career.name,
-      lessonCount:     allLessons.length,
-      completedCount,
-      enrolledAt:      e.createdAt.toISOString(),
-    }
-  })
+  const enrollmentData = (dbUser?.enrollments ?? [])
+    .map((e) => {
+      const lessonIds = e.course.modules.flatMap((m) => m.lessons.map((l) => l.id))
+      const completedCount = lessonIds.filter((id) => completedAt.has(id)).length
+      const certificateId = certByCourse.get(e.courseId) ?? null
+      // A certificate means the course is done even if optional lessons were skipped
+      const isComplete = !!certificateId || (lessonIds.length > 0 && completedCount === lessonIds.length)
+      const nextLessonId = lessonIds.find((id) => !completedAt.has(id)) ?? null
+      const lastActivity = lessonIds.reduce<Date>((latest, id) => {
+        const at = completedAt.get(id)
+        return at && at > latest ? at : latest
+      }, e.createdAt)
+      return {
+        id:              e.id,
+        courseId:        e.courseId,
+        courseTitle:     e.course.title,
+        courseThumbnail: e.course.thumbnail,
+        career:          e.course.career.name,
+        lessonCount:     lessonIds.length,
+        completedCount,
+        isComplete,
+        certificateId,
+        // "Continue" resumes at the first unfinished lesson; the course root
+        // (/learn/[id]) always opens lesson one
+        continueHref:    nextLessonId && !isComplete ? `/learn/${e.courseId}/${nextLessonId}` : `/learn/${e.courseId}`,
+        lastActivity:    lastActivity.toISOString(),
+      }
+    })
+    // Most recently studied first
+    .sort((a, b) => b.lastActivity.localeCompare(a.lastActivity))
 
   const certificateData = (dbUser?.certificates ?? []).map((c) => ({
     id:          c.id,

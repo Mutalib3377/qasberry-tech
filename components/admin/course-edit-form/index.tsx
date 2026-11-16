@@ -4,13 +4,15 @@
 // Supports updating basic info and managing curriculum (modules + lessons).
 // Uses the same multi-step UX as the create form, but PATCH instead of POST.
 
+import type { AgeGroup } from '@prisma/client'
+import { AgeGroupPicker } from '@/components/admin/age-group-picker'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
 import {
   Plus, Trash2, GripVertical, CheckCircle, Loader2,
   Video, BookOpen, Lock, Unlock, Edit2, Save, Send, ImageIcon,
-  FileText, HelpCircle,
+  FileText, HelpCircle, AlertTriangle,
 } from 'lucide-react'
 import { RichTextEditor } from '@/components/shared/rich-text-editor'
 import { LessonContentEditor, type LessonType, type LessonFieldsPatch } from '@/components/admin/lesson-content-editor'
@@ -36,6 +38,7 @@ interface CourseData {
   description?: string | null
   careerId: string
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  ageGroups: AgeGroup[]
   price: number | string
   isFree: boolean
   thumbnail?: string | null
@@ -65,6 +68,7 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
   const [description, setDesc] = useState(course.description ?? '')
   const [careerId, setCareerId] = useState(course.careerId)
   const [difficulty, setDiff] = useState(course.difficulty)
+  const [ageGroups, setAgeGroups] = useState<AgeGroup[]>(course.ageGroups)
   const [price, setPrice] = useState(Number(course.price))
   const [isFree, setIsFree] = useState(course.isFree)
   const [thumbnail, setThumb] = useState(course.thumbnail ?? '')
@@ -107,7 +111,7 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
       const res = await fetch(`/api/admin/courses/${course.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ title, description: description || null, careerId, difficulty, price, isFree, thumbnail: thumbnail || null }),
+        body: JSON.stringify({ title, description: description || null, careerId, difficulty, ageGroups, price, isFree, thumbnail: thumbnail || null }),
       })
       if (!res.ok) { const d = await res.json() as { error?: string }; alert(d.error ?? 'Save failed') }
       else router.refresh()
@@ -302,6 +306,12 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
           </div>
         </div>
 
+        <AgeGroupPicker
+          value={ageGroups}
+          onChange={setAgeGroups}
+          labelClassName="block text-xs font-medium text-slate-400 mb-1.5"
+        />
+
         {/* Price */}
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 cursor-pointer" onClick={() => setIsFree(!isFree)}>
@@ -352,6 +362,18 @@ export function CourseEditForm({ course, careers }: { course: CourseData; career
       {/* ── Curriculum Panel ── */}
       <section className="p-6 rounded-2xl border border-slate-800 bg-slate-900/30 space-y-4">
         <h2 className="text-white font-semibold text-sm uppercase tracking-wider">Curriculum</h2>
+
+        {/* Nudge: visitors can only preview a course through a free lesson */}
+        {course.status === 'PUBLISHED' && !modules.some((m) => m.lessons.some((l) => l.isFree)) && (
+          <div role="status" className="flex items-start gap-3 rounded-xl border border-amber-500/30 bg-amber-500/10 p-4 text-sm text-amber-200">
+            <AlertTriangle size={16} className="mt-0.5 shrink-0 text-amber-400" />
+            <p>
+              <span className="font-semibold">No free preview lesson.</span> Visitors can&apos;t see what this course&apos;s
+              lessons look like before enrolling. Edit a video or reading lesson and tick <span className="font-semibold">Free preview</span>{' '}
+              so it plays on the public course page and the catalog shows a &ldquo;Free preview&rdquo; badge.
+            </p>
+          </div>
+        )}
 
         {/* Lesson editor overlay */}
         {editingLesson && editMod && editLesson ? (

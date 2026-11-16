@@ -34,6 +34,14 @@ enum CourseDifficulty {
   ADVANCED
 }
 
+// Age bands a course suits; a course can have several (e.g. 10–12 and 13–16).
+// Labels and URL values live in lib/age-groups.ts.
+enum AgeGroup {
+  AGES_6_9
+  AGES_10_12
+  AGES_13_16
+}
+
 enum LessonType {
   VIDEO
   READING
@@ -86,6 +94,9 @@ model Course {
   isFree      Boolean          @default(false)
   status      CourseStatus     @default(DRAFT)
   difficulty  CourseDifficulty @default(BEGINNER)
+  // Defaults to every band so existing and newly created courses stay visible
+  // under any age filter until an admin narrows them down
+  ageGroups   AgeGroup[]       @default([AGES_6_9, AGES_10_12, AGES_13_16])
   careerId    String
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt

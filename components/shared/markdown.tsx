@@ -14,13 +14,15 @@ import remarkBreaks from 'remark-breaks'
 type Tone = 'light' | 'dark'
 
 const TONE: Record<Tone, { heading: string; link: string; code: string; quote: string; rule: string; table: string }> = {
+  // dark: partners only apply on robotics-theme pages in dark mode (marketing
+  // course pages); lesson pages have no dark mode, so they never fire there.
   light: {
-    heading: 'text-slate-900',
-    link:    'text-violet-700 hover:text-violet-800',
-    code:    'bg-slate-100 text-slate-800',
-    quote:   'border-slate-300 text-slate-600',
-    rule:    'border-slate-200',
-    table:   'border-slate-200',
+    heading: 'text-slate-900 dark:text-rx-text',
+    link:    'text-violet-700 hover:text-violet-800 dark:text-violet-300 dark:hover:text-violet-200',
+    code:    'bg-slate-100 text-slate-800 dark:bg-rx-chip dark:text-rx-text-2',
+    quote:   'border-slate-300 text-slate-600 dark:border-rx-line-strong dark:text-rx-body',
+    rule:    'border-slate-200 dark:border-rx-line',
+    table:   'border-slate-200 dark:border-rx-line',
   },
   dark: {
     heading: 'text-white',

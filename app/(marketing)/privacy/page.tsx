@@ -2,14 +2,13 @@
 // Privacy Policy page — Qasberry design system.
 
 import type { Metadata } from 'next'
-import { MarketingNav } from '@/components/marketing/marketing-nav'
-import { Footer } from '@/components/marketing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { Badge } from '@/components/shared/Badge'
 import { Card } from '@/components/shared/Card'
 import { ShieldCheck } from 'lucide-react'
 
 export const metadata: Metadata = {
-  title: 'Privacy Policy | Qasberry',
+  title: 'Privacy Policy',
   description: 'Learn how Qasberry collects, uses, and protects your personal information and learning data.',
 }
 
@@ -17,15 +16,8 @@ export default function PrivacyPolicyPage() {
   const lastUpdated = 'August 15, 2026'
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
-      {/* Soft Glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[350px] bg-violet-500/8 blur-[120px]" />
-      </div>
-
-      <MarketingNav />
-
-      <main className="relative z-10 flex-1 max-w-4xl mx-auto px-6 pt-32 pb-20 w-full space-y-10">
+    <MarketingShell width="reading">
+      <div className="space-y-10">
         {/* Header */}
         <div className="space-y-4">
           <Badge variant="primary" className="px-3.5 py-1 text-xs uppercase tracking-wider font-semibold">
@@ -82,7 +74,7 @@ export default function PrivacyPolicyPage() {
           <section className="space-y-3">
             <h2 className="text-xl font-bold text-brand-charcoal">5. Children&apos;s Privacy</h2>
             <p>
-              Our dedicated Qasberry Youth section is designed with safety as a top priority. We do not collect unnecessary personal information from children. Parents and educators maintain full control over child learning profiles.
+              Our dedicated Qasberry Kids & Teens section is designed with safety as a top priority. We do not collect unnecessary personal information from children. Parents and educators maintain full control over child learning profiles.
             </p>
           </section>
 
@@ -100,9 +92,7 @@ export default function PrivacyPolicyPage() {
             </p>
           </section>
         </Card>
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MarketingShell>
   )
 }

@@ -47,7 +47,7 @@ export const Input = React.forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={[
-              'w-full rounded-xl border bg-white text-brand-charcoal placeholder:text-brand-muted',
+              'w-full rounded-xl border bg-white dark:bg-rx-chip-strong text-brand-charcoal placeholder:text-brand-muted',
               'px-4 py-2.5 text-sm',
               'transition-all duration-200',
               // Focus

@@ -37,7 +37,7 @@ const buttonVariants = cva(
 
         // Secondary — white with border
         secondary: [
-          'bg-white text-brand-charcoal border border-brand-border',
+          'bg-white dark:bg-rx-chip-strong text-brand-charcoal border border-brand-border',
           'hover:bg-brand-surface hover:border-brand-border-active/40',
           'active:scale-[0.98]',
         ].join(' '),

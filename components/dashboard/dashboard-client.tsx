@@ -1,12 +1,17 @@
 'use client'
 // components/dashboard/dashboard-client.tsx
-// Rich student dashboard UI — unified light design system.
+// Student dashboard: stat cards plus In Progress / Completed / Certificates
+// tabs. The active tab lives in ?tab= (pushState, so links and Back work with
+// no server round-trip); enrollments arrive pre-sorted and pre-classified from
+// app/dashboard/page.tsx.
 
+import { useRef } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
+import { useSearchParams } from 'next/navigation'
 import {
-  BookOpen, Award, ArrowRight, Zap,
-  LayoutDashboard, GraduationCap, ExternalLink,
+  BookOpen, Award, ArrowRight, Zap, CheckCircle2, PlayCircle, RotateCcw,
+  LayoutDashboard, GraduationCap, ExternalLink, Download,
 } from 'lucide-react'
 import { AppShell } from '@/components/shared/AppShell'
 import { PageHeader } from '@/components/shared/PageHeader'
@@ -19,7 +24,7 @@ import { ProgressBar } from '@/components/shared/ProgressBar'
 import { SHOW_CAREER_ROADMAP } from '@/lib/features'
 import { plural } from '@/lib/plural'
 
-// Role labels 
+// Role labels
 const ROLE_LABELS: Record<string, string> = {
   SUPER_ADMIN: 'Super Admin',
   CONTENT_MANAGER: 'Content Manager',
@@ -27,7 +32,7 @@ const ROLE_LABELS: Record<string, string> = {
   STUDENT: 'Student',
 }
 
-// Types 
+// Types
 interface Enrollment {
   id: string
   courseId: string
@@ -36,7 +41,10 @@ interface Enrollment {
   career: string
   lessonCount: number
   completedCount: number
-  enrolledAt: string
+  isComplete: boolean
+  certificateId: string | null
+  continueHref: string
+  lastActivity: string
 }
 
 interface Certificate {
@@ -53,19 +61,24 @@ interface Props {
   certificates: Certificate[]
 }
 
-// Enrollment card 
+const TABS = [
+  { key: 'in-progress', label: 'In Progress', icon: PlayCircle },
+  { key: 'completed', label: 'Completed', icon: CheckCircle2 },
+  { key: 'certificates', label: 'Certificates', icon: Award },
+] as const
+
+type TabKey = (typeof TABS)[number]['key']
+
+function isTabKey(value: string | null): value is TabKey {
+  return TABS.some((t) => t.key === value)
+}
+
+// Enrollment card
 function EnrollmentCard({ e, index }: { e: Enrollment; index: number }) {
-  const pct = e.lessonCount > 0
-    ? Math.round((e.completedCount / e.lessonCount) * 100)
-    : 0
-  const isComplete = pct === 100
+  const pct = e.lessonCount > 0 ? Math.round((e.completedCount / e.lessonCount) * 100) : 0
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 16 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: index * 0.07 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05, duration: 0.25 }}>
       <Card variant="interactive" className="flex flex-col gap-4 h-full">
         {/* Thumbnail */}
         <div className="w-full h-36 rounded-xl bg-brand-purple-soft flex items-center justify-center overflow-hidden border border-brand-border/60">
@@ -79,9 +92,7 @@ function EnrollmentCard({ e, index }: { e: Enrollment; index: number }) {
 
         {/* Info */}
         <div className="space-y-1.5 flex-1">
-          <Badge variant="primary">
-            {e.career}
-          </Badge>
+          <Badge variant="primary">{e.career}</Badge>
           <h3 className="text-brand-charcoal font-bold text-base leading-snug">{e.courseTitle}</h3>
           <p className="text-brand-tertiary text-xs">{e.completedCount} of {plural(e.lessonCount, 'lesson')} completed</p>
         </div>
@@ -90,37 +101,43 @@ function EnrollmentCard({ e, index }: { e: Enrollment; index: number }) {
         {e.lessonCount > 0 && (
           <div className="space-y-1.5 pt-2">
             <div className="flex justify-between text-xs font-medium">
-              <span className={isComplete ? 'text-brand-success' : 'text-brand-tertiary'}>
-                {isComplete ? '✓ Complete' : `${pct}% done`}
+              <span className={e.isComplete ? 'text-brand-success' : 'text-brand-tertiary'}>
+                {e.isComplete ? '✓ Complete' : `${pct}% done`}
               </span>
             </div>
-            <ProgressBar value={pct} variant="thick" />
+            <ProgressBar value={e.isComplete ? 100 : pct} variant="thick" />
           </div>
         )}
 
-        <Link
-          href={`/learn/${e.courseId}`}
-          className="inline-flex items-center gap-1.5 text-brand-purple hover:text-brand-purple-hover text-sm font-semibold pt-1 transition-all"
-        >
-          {isComplete ? 'Review course' : 'Continue learning'}
-          <ArrowRight size={14} />
-        </Link>
+        <div className="flex flex-wrap items-center gap-x-4 gap-y-2 pt-1">
+          <Link
+            href={e.continueHref}
+            className="inline-flex items-center gap-1.5 text-brand-purple hover:text-brand-purple-hover text-sm font-semibold transition-colors"
+          >
+            {e.isComplete ? <RotateCcw size={14} aria-hidden /> : <PlayCircle size={14} aria-hidden />}
+            {e.isComplete ? 'Review course' : 'Continue'}
+            <ArrowRight size={14} />
+          </Link>
+          {e.certificateId && (
+            <Link
+              href={`/certificates/${e.certificateId}`}
+              className="inline-flex items-center gap-1.5 text-amber-600 hover:text-amber-700 text-sm font-semibold transition-colors"
+            >
+              <Award size={14} />
+              Certificate
+            </Link>
+          )}
+        </div>
       </Card>
     </motion.div>
   )
 }
 
-// Certificate card 
+// Certificate card
 function CertCard({ c, index }: { c: Certificate; index: number }) {
-  const issued = new Date(c.issuedAt).toLocaleDateString('en-GB', {
-    day: 'numeric', month: 'short', year: 'numeric',
-  })
+  const issued = new Date(c.issuedAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })
   return (
-    <motion.div
-      initial={{ opacity: 0, x: -12 }}
-      animate={{ opacity: 1, x: 0 }}
-      transition={{ delay: index * 0.08 }}
-    >
+    <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: index * 0.05, duration: 0.25 }}>
       <Card className="flex items-center gap-4 p-4 border-amber-200/60 bg-amber-50/50">
         <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center flex-shrink-0">
           <Award size={20} className="text-amber-600" />
@@ -129,15 +146,22 @@ function CertCard({ c, index }: { c: Certificate; index: number }) {
           <p className="text-brand-charcoal text-sm font-semibold truncate">{c.courseTitle}</p>
           <p className="text-brand-tertiary text-xs">Issued {issued}</p>
         </div>
+        <Link
+          href={`/certificates/${c.id}`}
+          className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
+        >
+          <ExternalLink size={14} />
+          View
+        </Link>
         {c.url && (
           <a
             href={c.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-brand-tertiary hover:text-amber-600 transition-colors p-1"
-            aria-label="View certificate"
+            className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-semibold text-amber-700 hover:bg-amber-100 transition-colors"
           >
-            <ExternalLink size={16} />
+            <Download size={14} />
+            Download
           </a>
         )}
       </Card>
@@ -145,10 +169,43 @@ function CertCard({ c, index }: { c: Certificate; index: number }) {
   )
 }
 
-// Main component 
+// Main component
 export function DashboardClient({ firstName, role, enrollments, certificates }: Props) {
+  const searchParams = useSearchParams()
+  const requested = searchParams.get('tab')
+  const tab: TabKey = isTabKey(requested) ? requested : 'in-progress'
+  const tabRefs = useRef<Record<TabKey, HTMLButtonElement | null>>({ 'in-progress': null, completed: null, certificates: null })
+
+  const inProgress = enrollments.filter((e) => !e.isComplete)
+  const completed = enrollments.filter((e) => e.isComplete)
+  const counts: Record<TabKey, number> = {
+    'in-progress': inProgress.length,
+    completed: completed.length,
+    certificates: certificates.length,
+  }
+
   const totalCompleted = enrollments.reduce((s, e) => s + e.completedCount, 0)
   const totalLessons = enrollments.reduce((s, e) => s + e.lessonCount, 0)
+
+  function selectTab(key: TabKey, focus = false) {
+    if (key !== tab) {
+      const params = new URLSearchParams(searchParams.toString())
+      if (key === 'in-progress') params.delete('tab')
+      else params.set('tab', key)
+      const qs = params.toString()
+      // Next 14 syncs useSearchParams with native pushState — no refetch
+      window.history.pushState(null, '', qs ? `?${qs}` : window.location.pathname)
+    }
+    if (focus) tabRefs.current[key]?.focus()
+  }
+
+  function onTabKeyDown(e: React.KeyboardEvent) {
+    const i = TABS.findIndex((t) => t.key === tab)
+    if (e.key === 'ArrowRight') selectTab(TABS[(i + 1) % TABS.length].key, true)
+    else if (e.key === 'ArrowLeft') selectTab(TABS[(i - 1 + TABS.length) % TABS.length].key, true)
+    else return
+    e.preventDefault()
+  }
 
   return (
     <AppShell
@@ -209,53 +266,99 @@ export function DashboardClient({ firstName, role, enrollments, certificates }: 
           />
         </div>
 
-        {/* My Courses */}
-        <section className="space-y-5">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-bold text-brand-charcoal">My Courses</h2>
-            <Link href="/courses" className="text-sm font-semibold text-brand-purple hover:text-brand-purple-hover transition-colors">
+        {/* My learning tabs — #certificates is the footer's deep-link target */}
+        <section id="certificates" className="scroll-mt-28 space-y-6">
+          <div className="flex flex-wrap items-center justify-between gap-4 border-b border-brand-border">
+            <div role="tablist" aria-label="My learning" className="flex gap-1 -mb-px" onKeyDown={onTabKeyDown}>
+              {TABS.map(({ key, label, icon: Icon }) => {
+                const selected = key === tab
+                return (
+                  <button
+                    key={key}
+                    ref={(el) => { tabRefs.current[key] = el }}
+                    type="button"
+                    role="tab"
+                    id={`tab-${key}`}
+                    aria-selected={selected}
+                    aria-controls={`panel-${key}`}
+                    tabIndex={selected ? 0 : -1}
+                    onClick={() => selectTab(key)}
+                    className={`inline-flex items-center gap-2 border-b-2 px-3 sm:px-4 py-3 text-sm font-semibold transition-colors ${
+                      selected
+                        ? 'border-brand-purple text-brand-purple'
+                        : 'border-transparent text-brand-tertiary hover:text-brand-charcoal hover:border-brand-border'
+                    }`}
+                  >
+                    <Icon size={16} aria-hidden />
+                    {label}
+                    <span
+                      className={`rounded-full px-2 py-0.5 text-xs ${selected ? 'bg-brand-purple-soft text-brand-purple' : 'bg-brand-surface text-brand-tertiary'}`}
+                    >
+                      {counts[key]}
+                    </span>
+                  </button>
+                )
+              })}
+            </div>
+            <Link href="/courses" className="pb-3 text-sm font-semibold text-brand-purple hover:text-brand-purple-hover transition-colors">
               Explore catalog →
             </Link>
           </div>
 
-          {enrollments.length === 0 ? (
-            <EmptyState
-              icon={<BookOpen size={24} />}
-              heading="You haven't enrolled in any courses yet."
-              description="Browse our fun, age-appropriate AI courses to get started."
-              action={
-                <Link href="/courses">
-                  <Button variant="primary" size="sm">
-                    Browse Youth courses <ArrowRight size={14} />
-                  </Button>
-                </Link>
-              }
-            />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {enrollments.map((e, i) => (
-                <EnrollmentCard key={e.id} e={e} index={i} />
-              ))}
-            </div>
-          )}
-        </section>
+          <div role="tabpanel" id={`panel-${tab}`} aria-labelledby={`tab-${tab}`}>
+            {tab === 'in-progress' && (
+              inProgress.length === 0 ? (
+                <EmptyState
+                  icon={<BookOpen size={24} />}
+                  heading={enrollments.length === 0 ? "You haven't enrolled in any courses yet." : 'Nothing in progress right now.'}
+                  description={
+                    enrollments.length === 0
+                      ? 'Browse our fun, age-appropriate AI courses to get started.'
+                      : 'You finished everything you started. Pick your next course!'
+                  }
+                  action={
+                    <Link href="/courses">
+                      <Button variant="primary" size="sm">
+                        Browse Kids &amp; Teens courses <ArrowRight size={14} />
+                      </Button>
+                    </Link>
+                  }
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {inProgress.map((e, i) => <EnrollmentCard key={e.id} e={e} index={i} />)}
+                </div>
+              )
+            )}
 
-        {/* Certificates */}
-        <section className="space-y-5">
-          <h2 className="text-xl font-bold text-brand-charcoal">My Certificates</h2>
-          {certificates.length === 0 ? (
-            <EmptyState
-              icon={<Award size={24} />}
-              heading="No certificates yet"
-              description="Complete any course on Qasberry to earn a verified certificate of completion."
-            />
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {certificates.map((c, i) => (
-                <CertCard key={c.id} c={c} index={i} />
-              ))}
-            </div>
-          )}
+            {tab === 'completed' && (
+              completed.length === 0 ? (
+                <EmptyState
+                  icon={<CheckCircle2 size={24} />}
+                  heading="No completed courses yet"
+                  description="Finish your first course to see it here."
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                  {completed.map((e, i) => <EnrollmentCard key={e.id} e={e} index={i} />)}
+                </div>
+              )
+            )}
+
+            {tab === 'certificates' && (
+              certificates.length === 0 ? (
+                <EmptyState
+                  icon={<Award size={24} />}
+                  heading="No certificates yet"
+                  description="Complete any course on Qasberry to earn a verified certificate of completion."
+                />
+              ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {certificates.map((c, i) => <CertCard key={c.id} c={c} index={i} />)}
+                </div>
+              )
+            )}
+          </div>
         </section>
 
         {/* Roadmap CTA Card — hidden in the MVP (lib/features.ts) */}
