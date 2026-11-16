@@ -6,45 +6,40 @@ import { db }          from '@/lib/db'
 import { MVP_CAREER_SLUGS, visibleCareerWhere } from '@/lib/features'
 import Link            from 'next/link'
 import type { Metadata } from 'next'
-import { BookOpen, Users, Star, Zap, Search } from 'lucide-react'
-import { MarketingNav } from '@/components/marketing/marketing-nav'
-import { Footer }       from '@/components/marketing/footer'
+import { BookOpen, Users, Star, Zap, Search, Play } from 'lucide-react'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { Badge }        from '@/components/shared/Badge'
 import { stripMarkdown } from '@/components/shared/markdown'
+import { AGE_GROUPS, ageGroupFromParam, ageRangeLabel } from '@/lib/age-groups'
 
 export const metadata: Metadata = {
-  title: 'Courses | Qasberry',
-  description: 'Browse Qasberry\'s fun, age-appropriate AI courses for young learners. Filter by difficulty or search by topic.',
+  title: 'Courses',
+  description: 'Browse Qasberry\'s fun, age-appropriate AI courses for kids and teens. Filter by age group or difficulty, or search by topic.',
 }
 
 interface PageProps {
-  searchParams: { career?: string; difficulty?: string; q?: string; sort?: string }
-}
-
-const DIFFICULTY_VARIANTS: Record<string, 'success' | 'warning' | 'error'> = {
-  BEGINNER:     'success',
-  INTERMEDIATE: 'warning',
-  ADVANCED:     'error',
+  searchParams: { career?: string; difficulty?: string; age?: string; q?: string; sort?: string }
 }
 
 export default async function CourseCatalogPage({ searchParams }: PageProps) {
   const { career: careerSlug, difficulty, q } = searchParams
   // Oldest first by default; ?sort=newest flips it
   const newestFirst = searchParams.sort === 'newest'
+  const ageGroup = ageGroupFromParam(searchParams.age)
+  const ageParam = ageGroup ? searchParams.age : undefined
 
-  // Carry the sort choice across the other filter links
-  const withSort = (href: string) =>
-    newestFirst ? `${href}${href.includes('?') ? '&' : '?'}sort=newest` : href
-
-  const sortHref = (sort: 'oldest' | 'newest') => {
+  // Every filter link keeps the other active filters, search and sort;
+  // pass undefined to clear one
+  const current = { career: careerSlug, difficulty, age: ageParam, q, sort: newestFirst ? 'newest' : undefined }
+  const buildHref = (overrides: Partial<typeof current>) => {
     const params = new URLSearchParams()
-    if (careerSlug) params.set('career', careerSlug)
-    if (difficulty) params.set('difficulty', difficulty)
-    if (q)          params.set('q', q)
-    if (sort === 'newest') params.set('sort', 'newest')
+    for (const [key, value] of Object.entries({ ...current, ...overrides })) {
+      if (value) params.set(key, value)
+    }
     const qs = params.toString()
     return qs ? `/courses?${qs}` : '/courses'
   }
+  const sortHref = (sort: 'oldest' | 'newest') => buildHref({ sort: sort === 'newest' ? 'newest' : undefined })
 
   // MVP: only careers switched on in lib/features.ts are listed
   const careers = await db.career.findMany({
@@ -62,6 +57,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
       ...visibleCareerWhere(),
       ...(selectedCareer ? { careerId: selectedCareer.id } : {}),
       ...(difficulty ? { difficulty: difficulty as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' } : {}),
+      ...(ageGroup ? { ageGroups: { has: ageGroup } } : {}),
       ...(q ? { title: { contains: q, mode: 'insensitive' } } : {}),
     },
     include: {
@@ -71,16 +67,16 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
     orderBy: { createdAt: newestFirst ? 'desc' : 'asc' },
   })
 
+  // Courses with at least one lesson marked as a free preview get a badge
+  const previewLessons = await db.lesson.findMany({
+    where:    { isFree: true, module: { courseId: { in: courses.map((c) => c.id) } } },
+    select:   { module: { select: { courseId: true } } },
+  })
+  const hasPreview = new Set(previewLessons.map((l) => l.module.courseId))
+
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
-      {/* Background Soft Glow */}
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[800px] h-[350px] bg-violet-500/8 blur-[120px]" />
-      </div>
-
-      <MarketingNav />
-
-      <main className="relative z-10 flex-1 max-w-7xl mx-auto px-6 pt-32 pb-20 space-y-10 w-full">
+    <MarketingShell width="wide">
+      <div className="space-y-10">
         {/* Header */}
         <div className="space-y-3">
           <Badge variant="primary" className="px-3.5 py-1 text-xs uppercase tracking-wider font-semibold">
@@ -97,12 +93,12 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
           <form method="GET" className="flex-1 min-w-[240px] max-w-sm">
             {newestFirst && <input type="hidden" name="sort" value="newest" />}
             <div className="relative flex items-center">
-              <Search size={16} className="absolute left-3.5 text-slate-400 pointer-events-none" />
+              <Search size={16} className="absolute left-3.5 text-rx-dim pointer-events-none" />
               <input
                 name="q"
                 defaultValue={q}
                 placeholder="Search courses…"
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-charcoal text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple shadow-sm transition-all"
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-charcoal text-sm placeholder:text-rx-dim focus:outline-none focus:ring-2 focus:ring-brand-purple/20 focus:border-brand-purple shadow-sm transition-all"
               />
             </div>
           </form>
@@ -111,11 +107,11 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
           {careers.length > 1 && (
           <div className="flex flex-wrap gap-2">
             <Link
-              href={withSort('/courses')}
+              href={buildHref({ career: undefined })}
               className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                 !careerSlug
                   ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
-                  : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
+                  : 'bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-secondary hover:text-brand-charcoal hover:border-rx-line-strong'
               }`}
             >
               All Careers
@@ -123,11 +119,11 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
             {careers.map((c) => (
               <Link
                 key={c.id}
-                href={withSort(`/courses?career=${c.slug}${difficulty ? `&difficulty=${difficulty}` : ''}`)}
+                href={buildHref({ career: c.slug })}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                   careerSlug === c.slug
                     ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
-                    : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
+                    : 'bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-secondary hover:text-brand-charcoal hover:border-rx-line-strong'
                 }`}
               >
                 {c.name}
@@ -136,16 +132,38 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
           </div>
           )}
 
-          {/* Difficulty filter */}
+          {/* Age filter — clicking the active band clears it */}
+          <div className="flex flex-wrap gap-2" role="group" aria-label="Filter by age">
+            {[{ param: undefined, label: 'All ages' }, ...AGE_GROUPS].map((g) => {
+              const active = ageParam === g.param
+              return (
+                <Link
+                  key={g.label}
+                  href={buildHref({ age: active ? undefined : g.param })}
+                  aria-pressed={active}
+                  className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
+                    active
+                      ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
+                      : 'bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-secondary hover:text-brand-charcoal hover:border-rx-line-strong'
+                  }`}
+                >
+                  {g.label}
+                </Link>
+              )
+            })}
+          </div>
+
+          {/* Difficulty filter — clicking the active level clears it */}
           <div className="flex gap-2">
             {(['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] as const).map((d) => (
               <Link
                 key={d}
-                href={withSort(`/courses?${careerSlug ? `career=${careerSlug}&` : ''}difficulty=${d}`)}
+                href={buildHref({ difficulty: difficulty === d ? undefined : d })}
+                aria-pressed={difficulty === d}
                 className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                   difficulty === d
                     ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
-                    : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
+                    : 'bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-secondary hover:text-brand-charcoal hover:border-rx-line-strong'
                 }`}
               >
                 {d[0] + d.slice(1).toLowerCase()}
@@ -168,7 +186,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                   className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${
                     active
                       ? 'bg-brand-purple text-white shadow-sm shadow-brand-purple/25 border border-brand-purple'
-                      : 'bg-white/80 backdrop-blur-md border border-slate-200/80 text-brand-secondary hover:text-brand-charcoal hover:border-slate-300'
+                      : 'bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-secondary hover:text-brand-charcoal hover:border-rx-line-strong'
                   }`}
                 >
                   {label}
@@ -180,8 +198,8 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
 
         {/* Grid */}
         {courses.length === 0 ? (
-          <div className="py-20 text-center space-y-3 bg-white/70 backdrop-blur-xl rounded-3xl border border-slate-200/80 p-8 shadow-sm">
-            <BookOpen size={40} className="mx-auto text-slate-300" />
+          <div className="py-20 text-center space-y-3 bg-rx-chip-strong backdrop-blur-xl rounded-3xl border border-rx-line p-8 shadow-sm">
+            <BookOpen size={40} className="mx-auto text-rx-faint" />
             <p className="text-brand-secondary font-medium">No courses match your filters.</p>
             <Link href="/courses" className="text-brand-purple hover:text-brand-purple-hover text-sm font-semibold transition-colors inline-block pt-1">
               Clear filters
@@ -193,10 +211,10 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
               <Link
                 key={course.id}
                 href={`/courses/${course.slug}`}
-                className="group flex flex-col rounded-3xl border border-slate-200/80 bg-white/80 backdrop-blur-xl hover:border-brand-purple/40 hover:shadow-[0_20px_45px_-18px_rgba(91,92,246,0.22)] hover:-translate-y-1 overflow-hidden transition-all duration-300 shadow-[0_10px_35px_-20px_rgba(16,24,40,0.12)]"
+                className="group flex flex-col rounded-3xl border border-rx-line bg-rx-chip-strong backdrop-blur-xl hover:border-brand-purple/40 hover:shadow-[0_20px_45px_-18px_rgba(91,92,246,0.22)] hover:-translate-y-1 overflow-hidden transition-all duration-300 shadow-[0_10px_35px_-20px_rgba(16,24,40,0.12)]"
               >
                 {/* Thumbnail */}
-                <div className="relative h-44 bg-gradient-to-br from-violet-100/60 via-slate-50 to-cyan-50/60 overflow-hidden border-b border-slate-100">
+                <div className="relative h-44 bg-gradient-to-br from-violet-100/60 via-slate-50 to-cyan-50/60 dark:from-violet-500/15 dark:via-rx-sheet dark:to-cyan-500/10 overflow-hidden border-b border-rx-line">
                   {course.thumbnail ? (
                     // eslint-disable-next-line @next/next/no-img-element
                     <img
@@ -209,6 +227,14 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                       <Zap size={36} className="text-brand-purple/30" />
                     </div>
                   )}
+                  {hasPreview.has(course.id) && (
+                    <div className="absolute top-3.5 left-3.5">
+                      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/60 text-white text-xs font-bold backdrop-blur-md">
+                        <Play size={11} fill="currentColor" />
+                        Free preview
+                      </span>
+                    </div>
+                  )}
                   {/* Price badge */}
                   <div className="absolute top-3.5 right-3.5">
                     {course.isFree ? (
@@ -216,7 +242,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                         FREE
                       </span>
                     ) : (
-                      <span className="px-3 py-1 rounded-full bg-white/90 backdrop-blur-md border border-slate-200 text-brand-charcoal text-xs font-bold shadow-sm">
+                      <span className="px-3 py-1 rounded-full bg-rx-chip-strong backdrop-blur-md border border-rx-line text-brand-charcoal text-xs font-bold shadow-sm">
                         ${Number(course.price).toLocaleString()}
                       </span>
                     )}
@@ -229,9 +255,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                     <Badge variant="primary">
                       {course.career.name}
                     </Badge>
-                    <Badge variant={DIFFICULTY_VARIANTS[course.difficulty] ?? 'default'}>
-                      {course.difficulty[0] + course.difficulty.slice(1).toLowerCase()}
-                    </Badge>
+                    <Badge variant="info">{ageRangeLabel(course.ageGroups)}</Badge>
                   </div>
 
                   <h2 className="text-brand-charcoal font-bold text-lg leading-snug group-hover:text-brand-purple transition-colors line-clamp-2">
@@ -242,7 +266,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
                     <p className="text-brand-secondary text-sm leading-relaxed line-clamp-2">{stripMarkdown(course.description)}</p>
                   )}
 
-                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-slate-100 text-xs font-medium text-brand-tertiary">
+                  <div className="mt-auto flex items-center justify-between pt-4 border-t border-rx-line text-xs font-medium text-brand-tertiary">
                     <span className="flex items-center gap-1.5">
                       <Users size={13} className="text-brand-purple" />
                       {course._count.enrollments} enrolled
@@ -257,9 +281,7 @@ export default async function CourseCatalogPage({ searchParams }: PageProps) {
             ))}
           </div>
         )}
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MarketingShell>
   )
 }

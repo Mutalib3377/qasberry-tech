@@ -12,6 +12,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { auth, clerkClient } from '@clerk/nextjs/server'
 import { z } from 'zod'
 import { db } from '@/lib/db'
+import { ALL_AGE_GROUPS } from '@/lib/age-groups'
 import { generateSlug, generateUniqueSlug } from '@/lib/slugify'
 import type { UserRole, ApiResponse, CoursePublic } from '@/types'
 
@@ -25,6 +26,7 @@ const createCourseSchema = z.object({
   description: z.string().max(2000).optional(),
   careerId: z.string().min(1, 'Please select a career'),
   difficulty: z.enum(['BEGINNER', 'INTERMEDIATE', 'ADVANCED']).default('BEGINNER'),
+  ageGroups: z.array(z.enum(['AGES_6_9', 'AGES_10_12', 'AGES_13_16'])).min(1, 'Pick at least one age group').default(ALL_AGE_GROUPS),
   price: z.coerce.number().min(0).default(0),
   isFree: z.boolean().default(false),
   thumbnail: z.string().url().optional().nullable(),
@@ -145,7 +147,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     )
   }
 
-  const { title, description, careerId, difficulty, price, isFree, thumbnail } = parsed.data
+  const { title, description, careerId, difficulty, ageGroups, price, isFree, thumbnail } = parsed.data
 
   // Step 4: Generate a unique slug
   let slug = generateSlug(title)
@@ -162,6 +164,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         description: description ?? null,
         careerId,
         difficulty,
+        ageGroups,
         price,
         isFree,
         thumbnail: thumbnail ?? null,

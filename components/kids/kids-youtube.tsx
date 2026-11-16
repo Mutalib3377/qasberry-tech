@@ -65,14 +65,14 @@ export function KidsYouTube() {
   const [videoLoaded, setVideoLoaded] = useState(false)
 
   return (
-    <section className="py-16 sm:py-24 bg-slate-950 relative overflow-hidden">
+    <section className="py-16 sm:py-24 bg-slate-950 dark:border-y dark:border-rx-line relative overflow-hidden">
       {/* Background blobs */}
       <div className="pointer-events-none absolute inset-0">
         <div className="absolute top-[-60px] left-1/2 -translate-x-1/2 h-[500px] w-[900px] bg-[radial-gradient(ellipse,rgba(239,68,68,0.08),transparent_60%)]" />
         <div className="absolute bottom-0 right-[5%] h-[320px] w-[320px] rounded-full bg-[radial-gradient(circle,rgba(99,91,255,0.1),transparent_60%)]" />
       </div>
 
-      <div className="relative z-10 mx-auto max-w-7xl px-6">
+      <div className="relative z-10 mx-auto max-w-7xl px-5 sm:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <motion.div
@@ -123,7 +123,7 @@ export function KidsYouTube() {
                   src={`https://www.youtube.com/embed/${FEATURED_VIDEO_ID}?autoplay=1`}
                   allow="autoplay; encrypted-media; picture-in-picture"
                   allowFullScreen
-                  title="Qasberry Youth Featured Video"
+                  title="Qasberry Kids & Teens Featured Video"
                 />
               ) : (
                 <button

@@ -7,9 +7,11 @@
 // Full set: ['kids', 'sales'] — 'kids' is the internal key of the Youth track.
 export const ENABLED_TRACKS: readonly string[] = ['kids']
 
-// DB slugs of the Youth career. It was seeded as 'kid' (name "Kids"); renaming it
-// to "Youth" in Admin → Settings regenerates the slug as 'youth', so accept both.
-export const YOUTH_CAREER_SLUGS: readonly string[] = ['kid', 'youth']
+// DB slugs of the Kids & Teens career. It was seeded as 'kid' (name "Kids").
+// Renaming it in Admin → Settings regenerates the slug from the new name —
+// "Youth" → 'youth', "Kids & Teens" → 'kids-and-teens' — so accept all of them,
+// or a rename would hide every course from the public site.
+export const YOUTH_CAREER_SLUGS: readonly string[] = ['kid', 'youth', 'kids-and-teens']
 
 // Career slugs whose courses and communities are visible to the public.
 // Leave empty to show every career (pre-MVP behaviour).

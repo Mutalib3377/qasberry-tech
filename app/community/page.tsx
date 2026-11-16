@@ -4,14 +4,13 @@
 import { db } from '@/lib/db'
 import { visibleCareerWhere } from '@/lib/features'
 import Link from 'next/link'
-import { MarketingNav } from '@/components/marketing/marketing-nav'
-import { Footer } from '@/components/marketing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { Card } from '@/components/shared/Card'
 import { Badge } from '@/components/shared/Badge'
 import { Users, MessageSquare, ArrowRight, Zap } from 'lucide-react'
 
 export const metadata = {
-  title: 'Community Hubs | Qasberry',
+  title: 'Community Hubs',
   description: 'Share projects, ideas and wins with other young AI learners on Qasberry.',
 }
 
@@ -28,10 +27,7 @@ export default async function CommunityGalleryPage() {
   })
 
   return (
-    <div className="min-h-screen bg-brand-bg text-brand-charcoal flex flex-col">
-      <MarketingNav />
-
-      <main className="relative z-10 flex-1 pt-32 pb-20 px-6 max-w-7xl mx-auto w-full">
+    <MarketingShell width="wide">
         {/* Header */}
         <div className="text-center space-y-4 mb-16">
           <Badge variant="primary" className="px-3.5 py-1 text-xs uppercase tracking-wider font-semibold">
@@ -90,9 +86,6 @@ export default async function CommunityGalleryPage() {
             </Link>
           ))}
         </div>
-      </main>
-
-      <Footer />
-    </div>
+      </MarketingShell>
   )
 }

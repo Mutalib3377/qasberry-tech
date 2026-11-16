@@ -8,8 +8,7 @@ import { notFound }    from 'next/navigation'
 import { isCareerVisible } from '@/lib/features'
 import Link            from 'next/link'
 import type { Metadata } from 'next'
-import { MarketingNav }  from '@/components/marketing/marketing-nav'
-import { Footer }        from '@/components/marketing/footer'
+import { MarketingShell } from '@/components/marketing/marketing-shell'
 import { CommunityFeed } from '@/components/community/community-feed'
 import { Pin, Users } from 'lucide-react'
 
@@ -23,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     where: { slug: params.slug },
   })
   return {
-    title: community ? `${community.name} Community | Qasberry` : 'Community | Qasberry',
+    title: community ? `${community.name} Community` : 'Community',
     description: community?.description ?? undefined,
   }
 }
@@ -71,27 +70,21 @@ export default async function CommunityPage({ params, searchParams }: Props) {
   const totalPages = Math.ceil(total / LIMIT)
 
   return (
-    <div className="min-h-screen bg-white text-[#101114]">
-      <div className="fixed inset-0 pointer-events-none">
-        <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[700px] h-[300px] bg-violet-600/8 blur-[120px]" />
-      </div>
-
-      <MarketingNav />
-
-      <main className="relative z-10 max-w-3xl mx-auto px-6 py-12 space-y-8">
+    <MarketingShell width="reading">
+      <div className="space-y-8">
 
         {/* Community header */}
         <div className="space-y-3">
-          <Link href="/community" className="text-sm text-slate-500 hover:text-slate-300 transition-colors">
+          <Link href="/community" className="inline-flex text-sm font-medium text-rx-muted hover:text-violet-700 dark:hover:text-violet-300 transition-colors">
             ← All Communities
           </Link>
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-1">
               <h1 className="text-3xl font-extrabold tracking-tight">{community.name}</h1>
               {community.description && (
-                <p className="text-slate-400 text-base">{community.description}</p>
+                <p className="text-rx-dim text-base">{community.description}</p>
               )}
-              <div className="flex items-center gap-4 text-sm text-slate-500 pt-1">
+              <div className="flex items-center gap-4 text-sm text-rx-muted pt-1">
                 <span className="flex items-center gap-1.5">
                   <Users size={13} />
                   {community._count.members} members
@@ -122,9 +115,7 @@ export default async function CommunityPage({ params, searchParams }: Props) {
           page={PAGE}
           totalPages={totalPages}
         />
-      </main>
-
-      <Footer />
-    </div>
+      </div>
+    </MarketingShell>
   )
 }

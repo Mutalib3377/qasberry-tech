@@ -15,9 +15,9 @@ export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
 }
 
 const variantStyles: Record<CardVariant, string> = {
-  default:     'bg-white border border-brand-border card-shadow',
-  featured:    'bg-gradient-to-br from-brand-purple-subtle to-white border border-brand-purple/15 card-shadow',
-  interactive: 'bg-white border border-brand-border card-shadow hover:card-shadow-md hover:-translate-y-0.5 hover:border-brand-border-active/40 cursor-pointer transition-all duration-200',
+  default:     'bg-white dark:bg-rx-chip-strong border border-brand-border card-shadow',
+  featured:    'bg-gradient-to-br from-brand-purple-subtle to-white dark:to-rx-sheet border border-brand-purple/15 card-shadow',
+  interactive: 'bg-white dark:bg-rx-chip-strong border border-brand-border card-shadow hover:card-shadow-md hover:-translate-y-0.5 hover:border-brand-border-active/40 cursor-pointer transition-all duration-200',
   selected:    'bg-brand-purple-soft border border-brand-purple/30 card-shadow',
   muted:       'bg-brand-surface border border-brand-border-subtle',
 }

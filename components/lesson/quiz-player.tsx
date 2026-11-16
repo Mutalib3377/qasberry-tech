@@ -11,7 +11,8 @@
 // rounded-2xl cards) rather than the admin dark theme.
 
 import { useEffect, useState } from 'react'
-import { CheckCircle2, Circle, Award, XCircle, RotateCcw, Loader2 } from 'lucide-react'
+import { CheckCircle2, Circle, Award, XCircle, RotateCcw, Loader2, Send } from 'lucide-react'
+import { ReadAloud } from '@/components/shared/read-aloud'
 
 export interface QuizPlayerData {
   id: string
@@ -203,7 +204,14 @@ export function QuizPlayer({ quiz, onResult }: QuizPlayerProps) {
       <div className="space-y-5">
         {quiz.questions.map((q, qi) => (
           <div key={q.id} className="rounded-xl border border-slate-200 p-5 space-y-3">
-            <p className="font-medium text-slate-900 text-sm">{qi + 1}. {q.prompt}</p>
+            <div className="flex items-start justify-between gap-3">
+              <p className="font-medium text-slate-900 text-sm">{qi + 1}. {q.prompt}</p>
+              <ReadAloud
+                variant="icon"
+                label={`Read question ${qi + 1} aloud`}
+                text={[`Question ${qi + 1}. ${q.prompt}`, ...q.options.map((o, oi) => `Answer ${String.fromCharCode(65 + oi)}: ${o.text}.`)].join('\n')}
+              />
+            </div>
             <div className="space-y-2">
               {q.options.map((o) => {
                 const selected = answers[q.id] === o.id
@@ -235,7 +243,7 @@ export function QuizPlayer({ quiz, onResult }: QuizPlayerProps) {
         disabled={!allAnswered || submitting}
         className="w-full flex items-center justify-center gap-2 py-3 bg-violet-600 hover:bg-violet-500 disabled:opacity-50 text-white text-sm font-semibold rounded-xl transition-colors"
       >
-        {submitting ? <Loader2 size={14} className="animate-spin" /> : null}
+        {submitting ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} aria-hidden />}
         {submitting ? 'Submitting…' : 'Submit Quiz'}
       </button>
     </div>

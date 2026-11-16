@@ -14,8 +14,8 @@ const STEPS = [
     title: 'Discover AI',
     desc:  'Find out what AI really is and how it\'s already part of your world.',
     color: 'from-violet-500 to-indigo-500',
-    bg:    'bg-violet-50 border-violet-200',
-    iconColor: 'text-violet-600',
+    bg:    'bg-violet-50 dark:bg-violet-500/10 border-violet-200 dark:border-violet-400/25',
+    iconColor: 'text-violet-600 dark:text-violet-300',
   },
   {
     icon:  BookOpen,
@@ -23,8 +23,8 @@ const STEPS = [
     title: 'Short Lessons',
     desc:  'Learn through bite-sized, engaging lessons designed for young minds.',
     color: 'from-sky-500 to-blue-500',
-    bg:    'bg-sky-50 border-sky-200',
-    iconColor: 'text-sky-600',
+    bg:    'bg-sky-50 dark:bg-sky-500/10 border-sky-200 dark:border-sky-400/25',
+    iconColor: 'text-sky-600 dark:text-sky-300',
   },
   {
     icon:  Zap,
@@ -32,8 +32,8 @@ const STEPS = [
     title: 'Fun Activities',
     desc:  'Practise new skills through hands-on AI experiments and games.',
     color: 'from-amber-400 to-orange-500',
-    bg:    'bg-amber-50 border-amber-200',
-    iconColor: 'text-amber-600',
+    bg:    'bg-amber-50 dark:bg-amber-500/10 border-amber-200 dark:border-amber-400/25',
+    iconColor: 'text-amber-600 dark:text-amber-300',
   },
   {
     icon:  HelpCircle,
@@ -41,8 +41,8 @@ const STEPS = [
     title: 'Take Quizzes',
     desc:  'Test your knowledge with fun quizzes to reinforce what you\'ve learned.',
     color: 'from-emerald-400 to-teal-500',
-    bg:    'bg-emerald-50 border-emerald-200',
-    iconColor: 'text-emerald-600',
+    bg:    'bg-emerald-50 dark:bg-emerald-500/10 border-emerald-200 dark:border-emerald-400/25',
+    iconColor: 'text-emerald-600 dark:text-emerald-300',
   },
   {
     icon:  FolderOpen,
@@ -50,17 +50,17 @@ const STEPS = [
     title: 'Build Projects',
     desc:  'Apply your skills by creating real AI-powered projects.',
     color: 'from-rose-400 to-pink-500',
-    bg:    'bg-rose-50 border-rose-200',
-    iconColor: 'text-rose-600',
+    bg:    'bg-rose-50 dark:bg-rose-500/10 border-rose-200 dark:border-rose-400/25',
+    iconColor: 'text-rose-600 dark:text-rose-300',
   },
   {
     icon:  Award,
     emoji: '🏆',
     title: 'Earn Certificates',
-    desc:  'Get a Qasberry Youth certificate to celebrate your achievement.',
+    desc:  'Get a Qasberry Kids & Teens certificate to celebrate your achievement.',
     color: 'from-purple-500 to-violet-500',
-    bg:    'bg-purple-50 border-purple-200',
-    iconColor: 'text-purple-600',
+    bg:    'bg-purple-50 dark:bg-purple-500/10 border-purple-200 dark:border-purple-400/25',
+    iconColor: 'text-purple-600 dark:text-purple-300',
   },
   {
     icon:  Unlock,
@@ -68,8 +68,8 @@ const STEPS = [
     title: 'Unlock Next Level',
     desc:  'Advance to harder challenges and unlock new learning tracks.',
     color: 'from-indigo-500 to-blue-600',
-    bg:    'bg-indigo-50 border-indigo-200',
-    iconColor: 'text-indigo-600',
+    bg:    'bg-indigo-50 dark:bg-indigo-500/10 border-indigo-200 dark:border-indigo-400/25',
+    iconColor: 'text-indigo-600 dark:text-indigo-300',
   },
 ]
 
@@ -79,8 +79,8 @@ export function KidsJourney() {
   const inView = useInView(ref, { once: true, margin: '-80px' })
 
   return (
-    <section className="py-16 sm:py-24 bg-[#fafafc]">
-      <div className="mx-auto max-w-7xl px-6">
+    <section className="py-16 sm:py-24 bg-rx-chip">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <motion.span
@@ -88,7 +88,7 @@ export function KidsJourney() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full border border-rx-line bg-rx-sheet px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-rx-body shadow-sm"
           >
             Learning Journey
           </motion.span>
@@ -97,7 +97,7 @@ export function KidsJourney() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.07 }}
-            className="mt-5 text-3xl sm:text-[2.8rem] font-black tracking-tight text-slate-950 leading-tight"
+            className="mt-5 text-3xl sm:text-[2.8rem] font-black tracking-tight text-rx-text leading-tight"
           >
             From{' '}
             <span className="bg-[linear-gradient(110deg,#635bff,#38bdf8)] bg-clip-text text-transparent">
@@ -110,7 +110,7 @@ export function KidsJourney() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.14 }}
-            className="mt-4 text-slate-500 text-base leading-relaxed"
+            className="mt-4 text-rx-muted text-base leading-relaxed"
           >
             Every child follows a clear, structured path. Here&apos;s exactly how the journey unfolds.
           </motion.p>
@@ -150,9 +150,9 @@ export function KidsJourney() {
                     >
                       <div className="flex items-center gap-3">
                         <span className="text-2xl">{step.emoji}</span>
-                        <span className={`text-lg font-black text-slate-950`}>{step.title}</span>
+                        <span className={`text-lg font-black text-rx-text`}>{step.title}</span>
                       </div>
-                      <p className="text-sm text-slate-600 leading-relaxed text-left">{step.desc}</p>
+                      <p className="text-sm text-rx-body leading-relaxed text-left">{step.desc}</p>
                     </div>
                   </div>
 
@@ -168,7 +168,7 @@ export function KidsJourney() {
                     <div className={`h-9 w-9 rounded-full bg-gradient-to-br ${step.color} flex items-center justify-center flex-shrink-0`}>
                       <Icon size={16} className="text-white" />
                     </div>
-                    <span className="text-xs font-semibold text-slate-400 uppercase tracking-wider">Step {i + 1}</span>
+                    <span className="text-xs font-semibold text-rx-dim uppercase tracking-wider">Step {i + 1}</span>
                   </div>
 
                   {/* Empty right side spacer */}

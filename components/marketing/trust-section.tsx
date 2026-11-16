@@ -1,82 +1,105 @@
+// components/marketing/trust-section.tsx
+// "Mission parameters": who Qasberry is built for. Dark robotics theme —
+// an infinite marquee of audiences plus four scroll-revealed HUD cards.
 'use client'
 
-import { useMemo } from 'react'
-import { motion } from 'framer-motion'
+import { useRef } from 'react'
 import { BadgeCheck, Briefcase, ShieldCheck, Target } from 'lucide-react'
+import { useReveal } from './robotics/use-reveal'
+import { GlowCard, SectionHeading } from './robotics/ui'
 
 const TRUST_SIGNALS = [
   {
-    // MVP: original body — 'Every lesson is written for young learners or for revenue teams, never generic AI hype.'
     title: 'Made for young learners',
     body: 'Every lesson is written for young learners, never generic AI hype.',
     icon: Target,
+    code: 'SPEC-01',
   },
   {
     title: 'Learn by doing',
-    // MVP: original — 'Kids build real projects, and professionals leave each lesson with a workflow they can use.'
     body: 'Learners build real projects in every lesson: chatbots, stories, games and art.',
     icon: Briefcase,
+    code: 'SPEC-02',
   },
   {
     title: 'Safe and responsible',
-    // MVP: original — 'Age-appropriate content for kids, and privacy-first AI habits for customer data.'
     body: 'Age-appropriate content and healthy, privacy-first AI habits from day one.',
     icon: ShieldCheck,
+    code: 'SPEC-03',
   },
   {
     title: 'Proof of progress',
     body: 'Certificates that show parents and schools what was actually learned.',
     icon: BadgeCheck,
+    code: 'SPEC-04',
   },
 ]
 
-function TrustCard({ title, body, index, icon: Icon }: { title: string; body: string; index: number; icon: typeof Briefcase }) {
+const AUDIENCE_CHIPS = ['YOUTH', 'TEENS', 'PARENTS', 'TEACHERS', 'SCHOOLS']
+
+function MarqueeRow() {
+  const items = [...AUDIENCE_CHIPS, ...AUDIENCE_CHIPS]
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 18 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, margin: '-80px' }}
-      transition={{ delay: index * 0.08, duration: 0.45 }}
-      className="group rounded-3xl border border-slate-200 bg-white p-6 shadow-[0_16px_44px_-34px_rgba(15,23,42,0.25)]"
-    >
-      <div className="h-11 w-11 rounded-2xl border border-slate-200 bg-slate-50 inline-flex items-center justify-center text-indigo-500 group-hover:text-blue-500 transition-colors">
-        <Icon size={18} />
-      </div>
-      <h3 className="mt-5 text-base sm:text-lg font-semibold tracking-tight text-slate-950">{title}</h3>
-      <p className="mt-2 text-sm leading-relaxed text-slate-600">{body}</p>
-    </motion.div>
+    <div className="rx-marquee relative" aria-hidden>
+      <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-24 rx-fade-left" />
+      <div className="pointer-events-none absolute inset-y-0 right-0 z-10 w-24 rx-fade-right" />
+      {[0, 1].map((copy) => (
+        <div key={copy} className="rx-marquee-track items-center gap-10 py-1 pr-10">
+          {items.map((label, i) => (
+            <span key={`${copy}-${i}`} className="flex items-center gap-3 whitespace-nowrap">
+              <span className="h-1 w-1 rounded-full bg-rx-cyan opacity-60" />
+              <span className="font-hud text-xs uppercase tracking-[0.3em] text-rx-dim">{label}</span>
+            </span>
+          ))}
+        </div>
+      ))}
+    </div>
   )
 }
 
 export function TrustSection() {
-  // MVP: original — ['SCHOOLS', 'PARENTS', 'SALES TEAMS', 'MARKETERS', 'FOUNDERS']
-  const logos = useMemo(() => ['YOUTH', 'TEENS', 'PARENTS', 'TEACHERS', 'SCHOOLS'], [])
+  const scope = useRef<HTMLElement>(null)
+  useReveal(scope)
 
   return (
-    <section className="relative py-14 sm:py-16" aria-label="Trust signals">
-      <div className="mx-auto max-w-7xl px-6">
-        <div className="rounded-[34px] border border-slate-200 bg-[#fafafc] p-6 sm:p-8 lg:p-10">
-          <div className="flex flex-col gap-8 lg:flex-row lg:items-end lg:justify-between">
-            <div className="max-w-2xl">
-              <p className="text-[11px] uppercase tracking-[0.16em] font-semibold text-slate-500">Who Qasberry is for</p>
-              {/* MVP: original copy also covered sales & marketing teams */}
-              <h2 className="mt-3 text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">Focused AI learning for the next generation.</h2>
-              <p className="mt-3 text-sm sm:text-base text-slate-600 leading-relaxed">Instead of courses for everyone, we go deep on young learners building future-ready skills, and on the parents and teachers who support them.</p>
-            </div>
-            <div className="flex flex-wrap gap-2.5">
-              {logos.map((logo) => (
-                <span key={logo} className="h-9 px-4 rounded-xl border border-slate-200 bg-white inline-flex items-center text-xs tracking-[0.12em] font-semibold text-slate-500">
-                  {logo}
-                </span>
-              ))}
-            </div>
-          </div>
+    <section ref={scope} className="rx-bg relative py-20 sm:py-24" aria-label="Who Qasberry is for">
+      {/* Top divider line */}
+      <div className="absolute inset-x-0 top-0 h-px bg-[linear-gradient(90deg,transparent,var(--rx-cyan-line),transparent)]" aria-hidden />
 
-          <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            {TRUST_SIGNALS.map((item, index) => (
-              <TrustCard key={item.title} {...item} index={index} />
-            ))}
-          </div>
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <div data-reveal>
+          <MarqueeRow />
+          <p className="sr-only">For youth, teens, parents, teachers and schools.</p>
+        </div>
+
+        <div className="mt-16">
+          <SectionHeading
+            tag="Who it's for"
+            title="Focused AI learning for the next generation."
+            sub="Instead of courses for everyone, we go deep on young learners building future-ready skills, and on the parents and teachers who support them."
+          />
+        </div>
+
+        <div className="mt-12 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {TRUST_SIGNALS.map((item, index) => {
+            const Icon = item.icon
+            return (
+              <div key={item.title} data-reveal data-reveal-delay={`${index * 0.08}`}>
+                <GlowCard className="h-full p-6">
+                  <div className="flex items-center justify-between">
+                    <span className="inline-flex h-11 w-11 items-center justify-center rounded-2xl border border-rx-line-strong bg-rx-cyan-tint text-rx-cyan-ink">
+                      <Icon size={18} />
+                    </span>
+                    <span className="font-hud text-[10px] tracking-[0.2em] text-rx-faint">{item.code}</span>
+                  </div>
+                  <h3 className="mt-5 font-display text-lg font-semibold tracking-tight text-rx-text">
+                    {item.title}
+                  </h3>
+                  <p className="mt-2 text-sm leading-relaxed text-rx-muted">{item.body}</p>
+                </GlowCard>
+              </div>
+            )
+          })}
         </div>
       </div>
     </section>

@@ -9,12 +9,12 @@ export type AudienceKey = 'kids' | 'sales'
 
 export const AUDIENCES = [
   {
-    key: 'kids' as const, // internal key — the track is shown as "Youth"
-    name: 'Youth',
+    key: 'kids' as const, // internal key — the track is shown as "Kids & Teens"
+    name: 'Kids & Teens',
     who: 'Ages 6–16',
     // Career slug(s) in the DB whose courses belong to this track
     careerSlugs: [...YOUTH_CAREER_SLUGS],
-    href: '/youth',
+    href: '/kids-teens',
     tagline: 'Fun, safe AI lessons for young learners, plus resources for parents and teachers.',
     pitch:
       'Young learners discover how AI works by building with it: chatbots, stories, games and art. Lessons are short, playful and age-appropriate, with guides for parents and teachers.',
@@ -25,7 +25,7 @@ export const AUDIENCES = [
       'Think creatively and critically',
     ],
     level: 'Beginner',
-    cta: 'Explore Youth',
+    cta: 'Explore Kids & Teens',
     icon: Rocket,
     iconWrap: 'bg-violet-100 text-violet-700',
     accentText: 'text-violet-700',

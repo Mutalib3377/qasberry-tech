@@ -26,9 +26,13 @@ const nextConfig = {
     ],
   },
 
-  // The Kids track was renamed to Youth — keep old links working
+  // The track was renamed Kids → Youth → Kids & Teens — keep old links working
+  // (both point straight at the current page, so there's no redirect chain)
   async redirects() {
-    return [{ source: '/kids', destination: '/youth', permanent: true }]
+    return [
+      { source: '/kids', destination: '/kids-teens', permanent: true },
+      { source: '/youth', destination: '/kids-teens', permanent: true },
+    ]
   },
 
   // Required for Prisma with Next.js 14

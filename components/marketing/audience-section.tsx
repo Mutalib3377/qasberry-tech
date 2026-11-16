@@ -1,109 +1,105 @@
+// components/marketing/audience-section.tsx
+// Track cards ("mission briefs") in the dark robotics theme. Keeps the
+// server-fed course counts and the VISIBLE_AUDIENCES single source of truth.
 'use client'
 
 import Link from 'next/link'
-import { motion, useReducedMotion } from 'framer-motion'
+import { useRef } from 'react'
 import { ArrowRight, Check } from 'lucide-react'
 import { VISIBLE_AUDIENCES, type AudienceKey } from './audiences'
+import { useReveal } from './robotics/use-reveal'
+import { GlowCard, SectionHeading } from './robotics/ui'
+import { AgeBandTiles, type AgeCounts } from './age-band-tiles'
 
 interface Props {
   courseCounts: Partial<Record<AudienceKey, number>>
+  ageCounts: AgeCounts
 }
 
-export function AudienceSection({ courseCounts }: Props) {
-  const reduceMotion = useReducedMotion()
+export function AudienceSection({ courseCounts, ageCounts }: Props) {
+  const scope = useRef<HTMLElement>(null)
+  useReveal(scope)
   const single = VISIBLE_AUDIENCES.length === 1
 
   return (
-    <section id="tracks" className="py-16 sm:py-20">
-      <div className="max-w-7xl mx-auto px-6">
-        <motion.div
-          initial={{ opacity: 0, y: 18 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, margin: '-80px' }}
-          transition={{ duration: reduceMotion ? 0 : 0.5 }}
-          className="text-center max-w-3xl mx-auto"
-        >
-          <span className="inline-flex items-center gap-2 px-4 py-2 rounded-full border border-slate-200 bg-white text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600">
-            {single ? 'Our track' : 'Two tracks'}
-          </span>
-          {single ? (
-            <>
-              <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">Built for young learners, from the ground up.</h2>
-              <p className="mt-4 text-base text-slate-600 leading-relaxed">
-                We don&apos;t try to teach everyone. Every course is designed for young learners, with support for the parents and teachers guiding them.
-              </p>
-            </>
-          ) : (
-            <>
-              <h2 className="mt-5 text-3xl sm:text-[3rem] leading-[1.15] font-bold tracking-tight text-slate-950">One academy. Two audiences we know deeply.</h2>
-              <p className="mt-4 text-base text-slate-600 leading-relaxed">
-                We don&apos;t try to teach everyone. We build AI learning for young learners and for the people who drive revenue.
-              </p>
-            </>
-          )}
-        </motion.div>
+    <section ref={scope} id="tracks" className="rx-bg relative py-20 sm:py-24">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
+        <SectionHeading
+          tag={single ? 'Our track' : 'Two tracks'}
+          title={
+            single
+              ? 'Built for young learners, from the ground up.'
+              : 'One academy. Two audiences we know deeply.'
+          }
+          sub={
+            single
+              ? "We don't try to teach everyone. Every course is designed for young learners, with support for the parents and teachers guiding them."
+              : "We don't try to teach everyone. We build AI learning for young learners and for the people who drive revenue."
+          }
+        />
 
-        <div className={`mt-10 grid grid-cols-1 gap-5 ${single ? 'max-w-3xl mx-auto' : 'lg:grid-cols-2'}`}>
+        <div className={`mt-12 grid grid-cols-1 gap-5 ${single ? 'mx-auto max-w-3xl' : 'lg:grid-cols-2'}`}>
           {VISIBLE_AUDIENCES.map((audience, index) => {
             const Icon = audience.icon
             const count = courseCounts[audience.key] ?? 0
 
             return (
-              <motion.div
-                key={audience.key}
-                initial={{ opacity: 0, y: 22 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true, margin: '-80px' }}
-                transition={{ duration: reduceMotion ? 0 : 0.5, delay: index * 0.08 }}
-              >
-                <Link
-                  href={audience.href}
-                  className="group relative flex h-full flex-col overflow-hidden rounded-[32px] border border-slate-200 bg-white p-6 sm:p-8 shadow-[0_24px_60px_-42px_rgba(15,23,42,0.4)] hover:shadow-[0_30px_72px_-36px_rgba(15,23,42,0.42)] transition-all duration-300"
-                >
-                  <div className={`pointer-events-none absolute -top-24 -right-24 h-64 w-64 rounded-full blur-2xl opacity-70 group-hover:opacity-100 transition-opacity ${audience.glow}`} />
-
-                  <div className="relative flex items-start justify-between gap-4">
-                    <span className={`h-12 w-12 rounded-2xl inline-flex items-center justify-center ${audience.iconWrap}`}>
-                      <Icon size={22} />
-                    </span>
-                    <span className="rounded-full border border-slate-200 bg-white px-3 py-1 text-[10px] tracking-[0.12em] uppercase font-semibold text-slate-600">
-                      {audience.who}
-                    </span>
-                  </div>
-
-                  <h3 className="relative mt-6 text-2xl sm:text-3xl font-bold tracking-tight text-slate-950">{audience.name}</h3>
-                  <p className="relative mt-3 text-sm sm:text-base leading-relaxed text-slate-600">{audience.pitch}</p>
-
-                  <ul className="relative mt-6 grid gap-2.5 sm:grid-cols-2">
-                    {audience.outcomes.map((outcome) => (
-                      <li key={outcome} className="flex items-start gap-2 text-sm text-slate-700">
-                        <Check size={16} className={`mt-0.5 shrink-0 ${audience.accentText}`} />
-                        {outcome}
-                      </li>
-                    ))}
-                  </ul>
-
-                  <div className="relative mt-auto pt-8 flex flex-wrap items-center justify-between gap-4">
-                    <div className="flex gap-2 text-xs font-medium">
-                      <div className="rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2">
-                        <p className="text-slate-500 text-[11px]">Courses</p>
-                        <p className="mt-0.5 text-slate-900 font-bold">{count > 0 ? count : 'Coming soon'}</p>
-                      </div>
-                      <div className="rounded-xl border border-slate-200/70 bg-slate-50/80 px-3 py-2">
-                        <p className="text-slate-500 text-[11px]">Level</p>
-                        <p className="mt-0.5 text-slate-900 font-bold">{audience.level}</p>
-                      </div>
+              <div key={audience.key} data-reveal data-reveal-delay={`${index * 0.1}`}>
+                <GlowCard className="h-full rounded-[28px]">
+                  <Link href={audience.href} className="flex h-full flex-col p-7 sm:p-9">
+                    <div className="flex items-start justify-between gap-4">
+                      <span className="inline-flex h-12 w-12 items-center justify-center rounded-2xl border border-rx-violet-line bg-rx-violet-tint text-rx-violet-ink">
+                        <Icon size={22} />
+                      </span>
+                      <span className="rounded-full border border-rx-line-strong bg-rx-chip px-3 py-1.5 font-hud text-[10px] uppercase tracking-[0.18em] text-rx-muted">
+                        {audience.who}
+                      </span>
                     </div>
 
-                    <span className={`inline-flex items-center gap-2 text-sm font-semibold ${audience.accentText}`}>
-                      {audience.cta}
-                      <ArrowRight size={15} className="transition-transform group-hover:translate-x-1" />
-                    </span>
-                  </div>
-                </Link>
-              </motion.div>
+                    <h3 className="mt-6 font-display text-2xl font-bold tracking-tight text-rx-text sm:text-3xl">
+                      {audience.name}
+                    </h3>
+                    <p className="mt-3 text-sm leading-relaxed text-rx-muted sm:text-base">{audience.pitch}</p>
+
+                    <ul className="mt-6 grid gap-2.5 sm:grid-cols-2">
+                      {audience.outcomes.map((outcome) => (
+                        <li key={outcome} className="flex items-start gap-2.5 text-sm text-rx-text-2">
+                          <Check size={15} className="mt-0.5 shrink-0 text-rx-cyan-ink" />
+                          {outcome}
+                        </li>
+                      ))}
+                    </ul>
+
+                    <div className="mt-auto flex flex-wrap items-center justify-between gap-4 pt-8">
+                      <div className="flex gap-2.5">
+                        <div className="rounded-xl border border-rx-line bg-rx-chip px-3.5 py-2">
+                          <p className="font-hud text-[10px] uppercase tracking-[0.14em] text-rx-dim">Courses</p>
+                          <p className="mt-0.5 text-sm font-bold text-rx-text">
+                            {count > 0 ? count : 'Coming soon'}
+                          </p>
+                        </div>
+                        <div className="rounded-xl border border-rx-line bg-rx-chip px-3.5 py-2">
+                          <p className="font-hud text-[10px] uppercase tracking-[0.14em] text-rx-dim">Level</p>
+                          <p className="mt-0.5 text-sm font-bold text-rx-text">{audience.level}</p>
+                        </div>
+                      </div>
+
+                      <span className="inline-flex items-center gap-2 text-sm font-semibold text-rx-cyan-ink">
+                        {audience.cta}
+                        <ArrowRight size={15} className="transition-transform duration-200 group-hover:translate-x-1" />
+                      </span>
+                    </div>
+                  </Link>
+                </GlowCard>
+              </div>
             )
           })}
+        </div>
+
+        {/* Age bands — each links to the catalog filtered to that band */}
+        <div className="mx-auto mt-12 max-w-5xl">
+          <p data-reveal className="rx-hud mb-5 text-center">Find courses by age</p>
+          <AgeBandTiles counts={ageCounts} />
         </div>
       </div>
     </section>

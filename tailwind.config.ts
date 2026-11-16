@@ -5,18 +5,30 @@
 
 import type { Config } from 'tailwindcss'
 
+// Brand colors are CSS variables with the original value as fallback. Pages
+// outside the robotics theme never set the variables, so they keep these
+// exact colors; inside .rx-root (marketing pages) globals.css redefines them
+// per light/dark theme. Channel format keeps opacity modifiers (/20) working.
+const brand = (name: string, rgb: string) => `rgb(var(--brand-${name}, ${rgb}) / <alpha-value>)`
+
 const config: Config = {
   content: [
     './pages/**/*.{js,ts,jsx,tsx,mdx}',
     './components/**/*.{js,ts,jsx,tsx,mdx}',
     './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
-  darkMode: 'class',
+  // `dark:` utilities apply only on robotics-theme pages (.rx-root) while the
+  // theme is dark — see components/marketing/robotics/theme.tsx. The rest of
+  // the app has no dark mode, so they never fire there.
+  darkMode: ['variant', ':root:not([data-rx-theme="light"]) .rx-root &'],
   theme: {
     extend: {
       fontFamily: {
         // Maps to the CSS variable set by next/font/google in layout.tsx
         sans: ['var(--font-inter)', 'system-ui', 'sans-serif'],
+        // Marketing (robotics theme) — set in app/(marketing)/layout.tsx
+        display: ['var(--font-grotesk)', 'var(--font-inter)', 'system-ui', 'sans-serif'],
+        hud: ['var(--font-jbmono)', 'ui-monospace', 'SFMono-Regular', 'monospace'],
       },
       colors: {
         // ── Semantic CSS-variable tokens (existing) ──────────────────────────
@@ -47,53 +59,80 @@ const config: Config = {
           foreground: 'var(--destructive-foreground)',
         },
 
+        // ── Robotics marketing theme (homepage) ─────────────────────────────
+        // Values swap between dark and light via <html data-rx-theme> —
+        // see the "rx-" token block in app/globals.css.
+        rx: {
+          bg:            'var(--rx-bg)',
+          sheet:         'var(--rx-sheet)',
+          chip:          'var(--rx-chip)',
+          'chip-strong': 'var(--rx-chip-strong)',
+          line:          'var(--rx-line)',
+          'line-strong': 'var(--rx-line-strong)',
+          'line-hover':  'var(--rx-line-hover)',
+          text:          'var(--rx-text)',
+          'text-2':      'var(--rx-text-2)',
+          body:          'var(--rx-body)',
+          muted:         'var(--rx-muted)',
+          dim:           'var(--rx-dim)',
+          faint:         'var(--rx-faint)',
+          cyan:          'var(--rx-cyan)',
+          'cyan-ink':    'var(--rx-cyan-ink)',
+          'cyan-tint':   'var(--rx-cyan-tint)',
+          'cyan-line':   'var(--rx-cyan-line)',
+          violet:        'var(--rx-violet)',
+          'violet-ink':  'var(--rx-violet-ink)',
+          'violet-tint': 'var(--rx-violet-tint)',
+          'violet-line': 'var(--rx-violet-line)',
+        },
+
         // ── Qasberry Unified Design Tokens ───────────────────────────────────
         // These are the single source of truth for all app pages.
         // Marketing page visual language → formalized here.
         brand: {
           // Primary interaction color — indigo
-          purple:          '#5B5CF6', // primary buttons, links, active states
-          'purple-hover':  '#4F46E5', // hover on primary elements
-          'purple-active': '#4338CA', // pressed/active state
-          'purple-dark':   '#4F46E5', // alias kept for backward compat
-          'purple-light':  '#818CF8', // soft glow, focus rings
-          'purple-soft':   '#EEF0FF', // pill backgrounds, badge fills
-          'purple-subtle': '#F5F5FF', // very light tinted surfaces
+          purple: brand('purple', '91 92 246'), // primary buttons, links, active states
+          'purple-hover': brand('purple-hover', '79 70 229'), // hover on primary elements
+          'purple-active': brand('purple-active', '67 56 202'), // pressed/active state
+          'purple-dark': brand('purple-dark', '79 70 229'), // alias kept for backward compat
+          'purple-light': brand('purple-light', '129 140 248'), // soft glow, focus rings
+          'purple-soft': brand('purple-soft', '238 240 255'), // pill backgrounds, badge fills
+          'purple-subtle': brand('purple-subtle', '245 245 255'), // very light tinted surfaces
 
           // Secondary accent — cyan/blue
-          accent:          '#35C4E8', // progress bars, AI highlights
-          'accent-soft':   '#EAFBFF', // light cyan backgrounds
+          accent: brand('accent', '53 196 232'), // progress bars, AI highlights
+          'accent-soft': brand('accent-soft', '234 251 255'), // light cyan backgrounds
 
           // Page backgrounds
-          bg:              '#FCFCFD', // main app background
-          surface:         '#F8F9FC', // section / card fill backgrounds
-          'surface-muted': '#F2F4F8', // muted surfaces
+          bg: brand('bg', '252 252 253'), // main app background
+          surface: brand('surface', '248 249 252'), // section / card fill backgrounds
+          'surface-muted': brand('surface-muted', '242 244 248'), // muted surfaces
 
           // Text hierarchy
-          charcoal:        '#080B1C', // primary headings (was #1C1C1E)
-          secondary:       '#53627A', // body text, descriptions
-          tertiary:        '#71809A', // labels, metadata
-          muted:           '#94A0B4', // placeholder, disabled text
+          charcoal: brand('charcoal', '8 11 28'), // primary headings (was #1C1C1E)
+          secondary: brand('secondary', '83 98 122'), // body text, descriptions
+          tertiary: brand('tertiary', '113 128 154'), // labels, metadata
+          muted: brand('muted', '148 160 180'), // placeholder, disabled text
 
           // Borders
-          border:          '#E3E7EF', // default card/input borders
-          'border-subtle': '#EDF0F5', // very light dividers
-          'border-active': '#AEB3FF', // focused/active borders
+          border: brand('border', '227 231 239'), // default card/input borders
+          'border-subtle': brand('border-subtle', '237 240 245'), // very light dividers
+          'border-active': brand('border-active', '174 179 255'), // focused/active borders
 
           // Status colors (light mode)
-          success:         '#16A34A',
-          'success-bg':    '#ECFDF3',
-          warning:         '#D97706',
-          'warning-bg':    '#FFF7E8',
-          error:           '#DC2626',
-          'error-bg':      '#FEF2F2',
-          info:            '#2563EB',
-          'info-bg':       '#EFF6FF',
+          success: brand('success', '22 163 74'),
+          'success-bg': brand('success-bg', '236 253 243'),
+          warning: brand('warning', '217 119 6'),
+          'warning-bg': brand('warning-bg', '255 247 232'),
+          error: brand('error', '220 38 38'),
+          'error-bg': brand('error-bg', '254 242 242'),
+          info: brand('info', '37 99 235'),
+          'info-bg': brand('info-bg', '239 246 255'),
 
           // Legacy tokens kept for backward compatibility
-          navy:            '#1A1040',
-          lavender:        '#A89CEC',
-          offwhite:        '#F8F9FC', // alias → brand-surface
+          navy: brand('navy', '26 16 64'),
+          lavender: brand('lavender', '168 156 236'),
+          offwhite: brand('offwhite', '248 249 252'), // alias → brand-surface
         },
       },
       borderRadius: {

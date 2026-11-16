@@ -51,7 +51,7 @@ function PathwayCard({
       viewport={{ once: true, margin: '-60px' }}
       transition={{ duration: reduceMotion ? 0 : 0.55, delay }}
       whileHover={reduceMotion ? undefined : { y: -6, scale: 1.01 }}
-      className="group relative flex flex-col rounded-[32px] border border-slate-200 bg-white overflow-hidden shadow-[0_24px_60px_-40px_rgba(15,23,42,0.18)] hover:shadow-[0_36px_80px_-36px_rgba(15,23,42,0.28)] transition-all duration-400 cursor-pointer"
+      className="group relative flex flex-col rounded-[32px] border border-rx-line bg-rx-sheet overflow-hidden shadow-[0_24px_60px_-40px_rgba(15,23,42,0.18)] hover:shadow-[0_36px_80px_-36px_rgba(15,23,42,0.28)] transition-all duration-400 cursor-pointer"
     >
       {/* Gradient top band */}
       <div className={`${gradientBg} h-2 w-full`} />
@@ -69,10 +69,10 @@ function PathwayCard({
         </div>
 
         {/* Text */}
-        <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-slate-950 leading-tight">
+        <h3 className="text-2xl sm:text-3xl font-black tracking-tight text-rx-text leading-tight">
           {headline}
         </h3>
-        <p className="mt-3 text-slate-600 text-sm sm:text-base leading-relaxed">
+        <p className="mt-3 text-rx-body text-sm sm:text-base leading-relaxed">
           {sub}
         </p>
 
@@ -80,10 +80,10 @@ function PathwayCard({
         <ul className="mt-6 space-y-3">
           {features.map(({ icon: Icon, label }) => (
             <li key={label} className="flex items-center gap-3">
-              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-slate-100 text-slate-500 group-hover:bg-white transition-colors">
+              <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-rx-chip text-rx-muted group-hover:bg-rx-sheet transition-colors">
                 <Icon size={15} strokeWidth={1.8} />
               </span>
-              <span className="text-sm font-medium text-slate-700">{label}</span>
+              <span className="text-sm font-medium text-rx-text-2">{label}</span>
             </li>
           ))}
         </ul>
@@ -107,7 +107,7 @@ function PathwayCard({
 export function KidsPathways() {
   return (
     <section id="pathways" className="py-16 sm:py-24 scroll-mt-20">
-      <div className="mx-auto max-w-7xl px-6">
+      <div className="mx-auto max-w-7xl px-5 sm:px-8">
         {/* Section header */}
         <div className="text-center max-w-2xl mx-auto mb-14">
           <motion.span
@@ -115,7 +115,7 @@ export function KidsPathways() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.4 }}
-            className="inline-flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-slate-600 shadow-sm"
+            className="inline-flex items-center gap-2 rounded-full border border-rx-line bg-rx-sheet px-4 py-2 text-[11px] font-semibold uppercase tracking-[0.14em] text-rx-body shadow-sm"
           >
             Choose Your Path
           </motion.span>
@@ -124,11 +124,11 @@ export function KidsPathways() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.07 }}
-            className="mt-5 text-3xl sm:text-[2.8rem] font-black tracking-tight text-slate-950 leading-tight"
+            className="mt-5 text-3xl sm:text-[2.8rem] font-black tracking-tight text-rx-text leading-tight"
           >
             How do you want to use{' '}
             <span className="bg-[linear-gradient(110deg,#635bff,#38bdf8)] bg-clip-text text-transparent">
-              Qasberry Youth?
+              Qasberry Kids & Teens?
             </span>
           </motion.h2>
           <motion.p
@@ -136,7 +136,7 @@ export function KidsPathways() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.5, delay: 0.14 }}
-            className="mt-4 text-slate-500 text-base leading-relaxed"
+            className="mt-4 text-rx-muted text-base leading-relaxed"
           >
             Whether you&apos;re a young learner ready to explore AI or an educator bringing it into the classroom — we have a dedicated experience for you.
           </motion.p>
@@ -146,7 +146,7 @@ export function KidsPathways() {
           <PathwayCard
             id="kids-learner-pathway-btn"
             badge="For Learners"
-            badgeColor="bg-violet-100 text-violet-700"
+            badgeColor="bg-violet-100 dark:bg-violet-500/15 text-violet-700 dark:text-violet-300"
             headline="Start your AI adventure"
             sub="A structured, fun learning journey designed for children aged 6–16. Learn AI through short lessons, creative activities, and real projects."
             features={LEARNER_FEATURES}
@@ -161,7 +161,7 @@ export function KidsPathways() {
           <PathwayCard
             id="kids-teacher-pathway-btn"
             badge="For Teachers"
-            badgeColor="bg-amber-100 text-amber-700"
+            badgeColor="bg-amber-100 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300"
             headline="Bring AI into your classroom"
             sub="A complete educator toolkit with lesson plans, presentation slides, printable resources, and hands-on classroom activities — all ready to use."
             features={TEACHER_FEATURES}
@@ -169,7 +169,7 @@ export function KidsPathways() {
             ctaHref="#teacher-resources"
             gradientBg="bg-gradient-to-r from-amber-400 via-orange-400 to-rose-400"
             gradientGlow="bg-[radial-gradient(circle_at_88%_12%,rgba(245,158,11,0.08),transparent_50%)]"
-            ctaStyle="bg-amber-50 border border-amber-300 text-amber-800 hover:bg-amber-100 hover:border-amber-400"
+            ctaStyle="bg-amber-50 dark:bg-amber-500/10 border border-amber-300 dark:border-amber-400/40 text-amber-800 dark:text-amber-300 hover:bg-amber-100 dark:hover:bg-amber-500/15 hover:border-amber-400 dark:hover:border-amber-400/50"
             emoji="👩‍🏫"
             delay={0.1}
           />

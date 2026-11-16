@@ -10,6 +10,9 @@
 // Course is created in Postgres on Step 1 completion, then modules/lessons
 // are added live via API calls in Steps 2-3.
 
+import type { AgeGroup } from '@prisma/client'
+import { AgeGroupPicker } from '@/components/admin/age-group-picker'
+import { ALL_AGE_GROUPS, ageRangeLabel } from '@/lib/age-groups'
 import { useState, useRef } from 'react'
 import { useRouter } from 'next/navigation'
 import { DragDropContext, Droppable, Draggable, type DropResult } from '@hello-pangea/dnd'
@@ -76,6 +79,7 @@ interface BasicInfo {
   description: string
   careerId: string
   difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  ageGroups: AgeGroup[]
   price: number
   isFree: boolean
   thumbnail: string
@@ -238,6 +242,8 @@ function StepBasicInfo({
           </select>
         </div>
       </div>
+
+      <AgeGroupPicker value={info.ageGroups} onChange={(ageGroups) => onChange({ ...info, ageGroups })} />
 
       {/* Price / Free toggle */}
       <div>
@@ -883,6 +889,7 @@ function StepReview({
             <div className="flex flex-wrap gap-2 text-xs">
               <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300">{careerName}</span>
               <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300">{info.difficulty}</span>
+              <span className="px-2 py-0.5 rounded-lg bg-slate-800 text-slate-300">{ageRangeLabel(info.ageGroups)}</span>
               <span className={`px-2 py-0.5 rounded-lg ${info.isFree ? 'bg-emerald-500/20 text-emerald-400' : 'bg-blue-500/20 text-blue-400'}`}>
                 {info.isFree ? 'Free' : `$${info.price.toLocaleString()}`}
               </span>
@@ -966,6 +973,7 @@ export function CourseForm({ careers }: { careers: Career[] }) {
     description: '',
     careerId:    '',
     difficulty:  'BEGINNER',
+    ageGroups:   ALL_AGE_GROUPS,
     price:       0,
     isFree:      false,
     thumbnail:   '',
@@ -982,6 +990,7 @@ export function CourseForm({ careers }: { careers: Career[] }) {
           description: info.description || undefined,
           careerId:    info.careerId,
           difficulty:  info.difficulty,
+          ageGroups:   info.ageGroups,
           price:       info.price,
           isFree:      info.isFree,
           thumbnail:   info.thumbnail || undefined,
